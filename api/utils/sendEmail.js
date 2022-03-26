@@ -7,8 +7,8 @@ async function main(email, otp) {
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: "devwo45@gmail.com", // generated ethereal user
-      pass: "Devwo123", // generated ethereal password
+      user: "test@gmail.com", // generated ethereal user
+      pass: "s", // generated ethereal password
     },
   });
 
