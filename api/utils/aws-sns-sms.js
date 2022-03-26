@@ -11,8 +11,8 @@ const sendSMS = async (message, phoneNumber) => {
     // Create SMS publish parameters
     AWS.config.update(
         {
-            accessKeyId: "AKIASQMB4AV7KKF2I5US",
-            secretAccessKey: "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",
+            accessKeyId: "",
+            secretAccessKey: "",
             region: "us-east-2"
         }
     );
