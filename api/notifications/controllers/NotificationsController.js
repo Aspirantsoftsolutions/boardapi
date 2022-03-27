@@ -3,7 +3,7 @@ import path from "path";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const serviceAccount = require("../../../project-wo-f190f-firebase-adminsdk-r7h5w-46f76e997d.json");
+// const serviceAccount = require("../../../project-wo-f190f-firebase-adminsdk-r7h5w-46f76e997d.json");
 import validator from "express-validator";
 
 const { body, validationResult } = validator;
@@ -41,8 +41,7 @@ import PushNotificationsClients from "../models/PushNotificationsClientsModel.js
 import NotificationsModel from "../models/NotificationsModel.js";
 
 const firbaseApp = admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://w-1e288.firebaseio.com", // yet to be keep
+  databaseURL: "https://sample-projecct-f10db.firebaseio.com/", // yet to be keep
 });
 
 const subscribe = [

@@ -3,12 +3,13 @@ import nodemailer from "nodemailer";
 async function main(email, otp) {
   console.log(otp);
   let transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
+    host: "mail.tryoutweb.com",
+    port: 993,
     secure: false, // true for 465, false for other ports
-    auth: {
-      user: "test@gmail.com", // generated ethereal user
-      pass: "s", // generated ethereal password
+    tls: {
+      servername: "tryoutweb.com",
+      user: "info@tryoutweb.com", // generated ethereal user
+      pass: "[CN%lh)n~j5?", // generated ethereal password
     },
   });
 

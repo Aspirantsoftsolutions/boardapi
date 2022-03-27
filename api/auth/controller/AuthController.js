@@ -308,7 +308,8 @@ const register = [
             createData.mobile = `${countryCode}${mobile}`
             createData.countryCode = countryCode
           }
-          else if(email){
+          
+          if (email) {
             console.log("email is provided");
             createData.email = email
           }
