@@ -3,18 +3,17 @@ import nodemailer from "nodemailer";
 async function main(email, otp) {
   console.log(otp);
   let transporter = nodemailer.createTransport({
-    host: "mail.tryoutweb.com",
-    port: 993,
+    host: "smtp.gmail.com",
+    port: 465,
     secure: false, // true for 465, false for other ports
-    tls: {
-      servername: "tryoutweb.com",
-      user: "info@tryoutweb.com", // generated ethereal user
-      pass: "[CN%lh)n~j5?", // generated ethereal password
+    auth: {
+      user: "helpful9786@gmail.com", // generated ethereal user
+      pass: "987654fdsa", // generated ethereal password
     },
   });
 
   let info = await transporter.sendMail({
-    from: "StreamBoard", // sender address
+    from: "helpful9786@gmail.com", // sender address
     to: email, // list of receivers
     subject: "OTP", // Subject line
     text: `${otp} `, // plain text body

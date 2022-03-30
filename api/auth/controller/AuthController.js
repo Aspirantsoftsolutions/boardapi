@@ -235,23 +235,23 @@ const register = [
         console.log(req.body.mobile);
         console.log(req.body.email);
 
-        if(req.body.mobile != undefined){
-          console.log("User provided mobile number");
-          // check if country code is not empty
-          if(req.body.countryCode != undefined) {
-            let mobileNumber = req.body.countryCode + req.body.mobile;
-            user = await UserModel.findOne(
-              {
-                mobile : mobileNumber
-              }
-            );
-            identityProvided = true;
-            identityName = "mobile";
-          }
-          else{
-            return ErrorResponse(res,AuthConstants.countryCodeRequired);
-          }
-        }
+        // if(req.body.mobile != undefined){
+        //   console.log("User provided mobile number");
+        //   // check if country code is not empty
+        //   if(req.body.countryCode != undefined) {
+        //     let mobileNumber = req.body.countryCode + req.body.mobile;
+        //     user = await UserModel.findOne(
+        //       {
+        //         mobile : mobileNumber
+        //       }
+        //     );
+        //     identityProvided = true;
+        //     identityName = "mobile";
+        //   }
+        //   else{
+        //     return ErrorResponse(res,AuthConstants.countryCodeRequired);
+        //   }
+        // }
 
         if(req.body.email != undefined){
           console.log("User provided email");
@@ -279,14 +279,17 @@ const register = [
         } 
         else {
           console.log("Registering user");
-          const { email, password, username, mobile, countryCode } = req.body;
+          const { email, password, username, mobile, countryCode, role, plan, status } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
           const createData ={
             username,
             password:hashPass,
-            confirmOTP:otp
+            confirmOTP: otp,
+            role,
+            plan,
+            status
           }
 
           if (!email && !mobile) {
@@ -317,7 +320,10 @@ const register = [
             console.log("Both email and mobile number are not provided");
             return ErrorResponse(res, AuthConstants.emailOrMobileReq);
           }
-
+          createData.role = role;
+          createData.plan = plan;
+          createData.status = status;
+          
           console.log("createData : "+ createData.username);
           console.log(createData.email);
           console.log(createData.mobile);
@@ -332,11 +338,12 @@ const register = [
             let userResponse = {};
             if(email){
               console.log("Sending OTP to email : "+email);
-              mailer(email, otp);
+             // mailer(email, otp);
               userResponse = {
                   userId: userData.userId,
                   username: userData.username,
-                  email: userData.email
+                email: userData.email,
+                  otp: otp
               }
             }
             else if(mobile){
@@ -346,7 +353,8 @@ const register = [
               userResponse = {
                 userId: userData.userId,
                 username: userData.username,
-                mobile: userData.mobile
+                mobile: userData.mobile,
+                otp: otp
               }
             }
 

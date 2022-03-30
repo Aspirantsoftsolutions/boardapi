@@ -1,5 +1,6 @@
 import authRouter from "../api/auth/routes/auth.js";
 import userRouter from "../api/user/routes/user.js";
+import sessionRouter from "../api/sessions/routes/sessions.js";
 // import searchRouter from "../api/search/routes/search.js";
 import reportRouter from "../api/report/routes/report.js";
 import FileUploadRouter from "../api/fileupload/routes/FileUpload.js";
@@ -20,6 +21,7 @@ export function initRoutes(app) {
   app.use("/api/auth", authRouter);
   // app.use("/api/admin/", adminRouter);
   app.use("/api/user", userRouter);
+  app.use("/api/session", sessionRouter);
   app.use("/api/notificaitons/", notificationsRouter);
   // app.use("/api/search", searchRouter);
   app.use("/api/report", AuthMiddleware.auth, reportRouter);

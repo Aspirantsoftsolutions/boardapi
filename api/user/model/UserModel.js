@@ -27,7 +27,16 @@ var UserSchema = new mongoose.Schema(
       type: String,
       required: false,
       trim: true,
-      lowercase: true
+      lowercase: true,
+      unique: true
+    },
+    location: {
+      type: String,
+      required: false,
+    },
+    organisation: {
+      type: String,
+      required: false,
     },
     username: {
       type: String,
@@ -37,6 +46,18 @@ var UserSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true
+    },
+    role: {
+      type: String,
+      required: true,
+    },
+    plan: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      required: true,
     },
     profile_pic: {
       type: String,
