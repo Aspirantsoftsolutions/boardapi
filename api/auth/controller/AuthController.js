@@ -81,7 +81,8 @@ const login = [
         let userData = {} ;
 
         if(isEmail){
-          console.log("user has provided email : "+identity);
+          console.log("user has provided email : " + identity);
+          
           userData = await UserModel.findOne({
             email : identity
           });
@@ -338,7 +339,133 @@ const register = [
             let userResponse = {};
             if(email){
               console.log("Sending OTP to email : "+email);
-             // mailer(email, otp);
+             mailer(email, otp);
+              userResponse = {
+                  userId: userData.userId,
+                  username: userData.username,
+                email: userData.email,
+                  otp: otp
+              }
+            }
+            else if(mobile){
+              console.log("Sending OTP to mobile number");
+              const message = `<#> ${otp} ` + AuthConstants.otpMessage;
+              //await AWS_SNS.sendSMS(message, countryCode+mobile);
+              userResponse = {
+                userId: userData.userId,
+                username: userData.username,
+                mobile: userData.mobile,
+                otp: otp
+              }
+            }
+
+            console.log("Sending response to user");
+            return successResponseWithData(
+              res,
+              AuthConstants.registrationSuccessMsg,
+              userResponse
+            );
+          } catch (err) {
+            console.log(err)
+            if (err.code === 11000) {
+              let str = "";
+              Object.keys(err.keyPattern).forEach((d) => {
+                str += `${d}, `;
+              });
+              str = str.slice(0, str.length - 2);
+              return unauthorizedResponse(res, str + " already taken");
+            }
+          }
+        }
+      }
+    } catch (err) {
+      return ErrorResponse(res, err);
+    }
+  },
+];
+
+const registerSchool = [
+
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return validationErrorWithData(
+          res,
+          AuthConstants.validationError,
+          errors.array()
+        );
+      } 
+      else {
+        let identityProvided = false;
+        let identityName ;
+        let user;
+        console.log(req.body.mobile);
+        console.log(req.body.email);
+
+       
+        if(req.body.email != undefined){
+          console.log("User provided email");
+          user = await UserModel.findOne(
+            {
+              email : req.body.email
+            }
+          )
+          identityProvided = true;
+          identityName = "email";
+        }
+    
+        console.log("----------------------");
+        console.log(user);
+        console.log("----------------------");
+
+        if(identityProvided == false){
+           return ErrorResponse(res,AuthConstants.emailOrMobileReq);
+        }
+
+        // User exists in DB
+        if (user) {
+          console.log("User already registered");
+          return ErrorResponse(res,AuthConstants.alreadyRegistered + " with same "+identityName + ". " + AuthConstants.pleaseLogin);
+        } 
+        else {
+          console.log("Registering user");
+          const { orgName, email, password, address, location, emailOwner, role, plan, status } = req.body;
+          const otp = utility.randomNumber(6);
+          const hashPass = await bcrypt.hash(password, 10);
+
+          const createData ={
+            username,
+            password:hashPass,
+            confirmOTP: otp,
+            orgName,
+            address,
+            location,
+            emailOwner,
+            email,
+            role,
+            plan,
+            status
+          }
+
+          
+          // createData.role = role;
+          // createData.plan = plan;
+          // createData.status = status;
+          
+          console.log("createData : "+ createData.username);
+          console.log(createData.email);
+
+          //const message = `<#> ${otp} ` + AuthConstants.otpMessage;
+          //await AWS_SNS.sendSMS(message, countryCode+mobile);
+          try {
+            const userData = await UserModel.create(createData);
+
+            console.log("userData : "+userData);
+            let userResponse = {};
+            if(email){
+              console.log("Sending OTP to email : "+email);
+             mailer(email, otp);
               userResponse = {
                   userId: userData.userId,
                   username: userData.username,

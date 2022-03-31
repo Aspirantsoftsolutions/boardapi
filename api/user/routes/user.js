@@ -35,6 +35,7 @@ userRouter.get(
   UserController.fetchReferrals
 );
 userRouter.get("/all", UserController.allusers);
+userRouter.get("/all/:role", UserController.allusersRole);
 userRouter.put("/", AuthMiddleware.auth, UserController.updateProfile);
 userRouter.delete("/:id", UserController.deleteUser);
 

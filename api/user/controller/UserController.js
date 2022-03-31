@@ -134,7 +134,7 @@ const updateProfile = async (req, res) => {
  */
 const allusers = async (req, res) => {
   try {
-    const users = await UserModel.find().exec();
+    let users = await UserModel.find().exec();
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
@@ -144,6 +144,24 @@ const allusers = async (req, res) => {
     return validationErrorWithData(res, UserConstants.errorOccurred, e);
   }
 };
+
+const allusersRole = async (req, res) => {
+  try {
+    const { role } = req.params;
+    let users;
+   users = await UserModel.find({
+        role
+      }).exec();
+    return successResponseWithData(
+      res,
+      UserConstants.userFetchedSuccessfully,
+      users
+    );
+  } catch (e) {
+    return validationErrorWithData(res, UserConstants.errorOccurred, e);
+  }
+};
+
 
 /**
  *  Delete user
@@ -167,4 +185,5 @@ export default {
   allusers,
   updateProfile,
   deleteUser,
+  allusersRole
 };
