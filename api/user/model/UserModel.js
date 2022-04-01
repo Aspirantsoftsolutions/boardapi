@@ -23,6 +23,10 @@ var UserSchema = new mongoose.Schema(
       required: false,
       trim: true
     },
+    classId: {
+      type: String,
+      required:false
+    },
     email: {
       type: String,
       required: false,
@@ -131,6 +135,9 @@ var UserSchema = new mongoose.Schema(
       default: 0
     },
     external_url: {
+      type: String
+    },
+     className: {
       type: String
     }
   },

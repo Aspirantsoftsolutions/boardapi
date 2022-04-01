@@ -55,12 +55,12 @@ const createSession = [
   body("groupId")
   .isString()
   .trim()
-  .withMessage(SessionConstants.validContestRequired)
+  .withMessage(SessionConstants.validGroupIDIDMSg)
   .escape(),
   body("teacherId")
   .isString()
   .trim()
-  .withMessage(SessionConstants.validContestRequired)
+  .withMessage(SessionConstants.validTeacherIDMSg)
   .escape(),
   async (req, res) => {
     try {

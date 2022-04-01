@@ -1,5 +1,6 @@
 const SessionConstants = {
-  validContestRequired: "valid Contest ID is required",
+  validTeacherIDMSg: "valid Teacher ID is required",
+  validGroupIDIDMSg: "valid Group ID is required",
   referralCodeFetchMsg: "Referral Code fetched successfully",
   userReferralMsg: "User Referrals fetched successfully",
   errorOccurred: "Error Occured",

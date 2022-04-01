@@ -129,12 +129,56 @@ const updateProfile = async (req, res) => {
     return ErrorResponse(res, UserConstants.profileUpdateError);
   }
 };
+
+
+const updateUser = async (req, res) => {
+  try {
+    const { classId,userId } = req.body;
+
+    UserModel.updateOne({userId:userId},{classId: classId},
+      (err, user) => {
+        console.log(user);
+        return ErrorResponse(res, UserConstants.profileUpdateError);
+      //handle error
+      });
+     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
 /**
  * Get all Users
  */
 const allusers = async (req, res) => {
   try {
-    let users = await UserModel.find().exec();
+    // let users = await UserModel.find().exec();
+    let users = await UserModel.aggregate([
+      {
+        $lookup:
+        {
+          from: 'users',
+          localField: 'classId',
+          foreignField: 'userId',
+          as: 'class'
+        }
+      }
+    ]);
+    // users.forEach(element => {
+    //   if (element.classId) {
+    //      UserModel.findOne({ userId: element.classId }).then((user) => {
+    //       element.className = user.username;
+    //       console.log('here:',element);
+
+    //     }).catch((err)=>{
+    //     });
+    //   } else {
+    //     element.className = 'NA';
+    //   }
+    // });
+    
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
@@ -185,5 +229,6 @@ export default {
   allusers,
   updateProfile,
   deleteUser,
-  allusersRole
+  allusersRole,
+  updateUser
 };

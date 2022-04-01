@@ -280,7 +280,7 @@ const register = [
         } 
         else {
           console.log("Registering user");
-          const { email, password, username, mobile, countryCode, role, plan, status } = req.body;
+          const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
@@ -293,6 +293,15 @@ const register = [
             status
           }
 
+          if (address) {
+            createData.address = address;
+          }
+          if (location) {
+            createData.location = location;
+          }
+          if (organisation) {
+            createData.organisation = organisation;
+          }
           if (!email && !mobile) {
             console.log("Both email and mobile number not provided");
             return ErrorResponse(res, AuthConstants.emailOrMobileReq);

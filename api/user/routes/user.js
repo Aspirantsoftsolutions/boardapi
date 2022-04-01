@@ -36,7 +36,7 @@ userRouter.get(
 );
 userRouter.get("/all", UserController.allusers);
 userRouter.get("/all/:role", UserController.allusersRole);
-userRouter.put("/", AuthMiddleware.auth, UserController.updateProfile);
+userRouter.put("/", UserController.updateUser);
 userRouter.delete("/:id", UserController.deleteUser);
 
 /**
