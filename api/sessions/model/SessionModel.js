@@ -9,15 +9,19 @@ var SessionSchema = new mongoose.Schema(
       default: uuidv4,
       unique: true
     },
-     description: {
+    sessionLink: {
+      type: String,
+      required: false
+    },
+    description: {
        type: String,
        required: false,
     },
-      groupId: {
+    groupId: {
         type: String,
         required: false,
     },
-       teacherId: {
+    teacherId: {
          type: String,
          required: false,
        },

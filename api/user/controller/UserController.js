@@ -166,18 +166,6 @@ const allusers = async (req, res) => {
         }
       }
     ]);
-    // users.forEach(element => {
-    //   if (element.classId) {
-    //      UserModel.findOne({ userId: element.classId }).then((user) => {
-    //       element.className = user.username;
-    //       console.log('here:',element);
-
-    //     }).catch((err)=>{
-    //     });
-    //   } else {
-    //     element.className = 'NA';
-    //   }
-    // });
     
     return successResponseWithData(
       res,

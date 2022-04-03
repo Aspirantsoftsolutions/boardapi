@@ -40,7 +40,7 @@ import {
  */
 const allsessions = async (req, res) => {
   try {
-    const sessions = await SessionModel.find().exec();
+    let sessions = await SessionModel.find().exec();
     return successResponseWithData(
       res,
       SessionConstants.userFetchedSuccessfully,
@@ -73,7 +73,8 @@ const createSession = [
         );
       } else {
           console.log("Registering session");
-          const {
+        const {
+            title,
             groupId,
             description,
             teacherId
@@ -85,6 +86,7 @@ const createSession = [
             teacherId
           }
 
+          createData.title = title;
           createData.groupId = groupId;
           createData.description = description;
           createData.teacherId = teacherId;
@@ -97,8 +99,12 @@ const createSession = [
             let sessionResponse = {};
            sessionResponse = {
              tokenId: sessionData.sessionId,
+             sessionLink: "http://65.108.95.12:50021/boards/"+sessionData.sessionId,
            }
-
+             await SessionModel.updateOne({sessionId:sessionData.sessionId},{sessionLink: "http://65.108.95.12:50021/boards/"+sessionData.sessionId},
+              (err, session) => {
+                console.log(session);
+              });
             console.log("Sending response to user");
             return successResponseWithData(
               res,

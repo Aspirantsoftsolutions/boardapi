@@ -99,8 +99,8 @@ var UserSchema = new mongoose.Schema(
     },
     isConfirmed: {
       type: Boolean,
-      required: false,
-      default: 0
+      required: true,
+      default: 1
     },
     confirmOTP: {
       type: String,
@@ -137,7 +137,10 @@ var UserSchema = new mongoose.Schema(
     external_url: {
       type: String
     },
-     className: {
+    className: {
+      type: String
+     },
+    teacherId: {
       type: String
     }
   },
