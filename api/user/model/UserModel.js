@@ -27,6 +27,10 @@ var UserSchema = new mongoose.Schema(
       type: String,
       required:false
     },
+    grade: {
+      type: String,
+      required:false
+    },
     email: {
       type: String,
       required: false,

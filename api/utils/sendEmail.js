@@ -14,8 +14,8 @@ async function main(email, otp) {
 
   let info = await transporter.sendMail({
     from: "info@tryoutweb.com", // sender address
-    to: "venkat.gsvs@gmail.com", // list of receivers
-    subject: "OTP", // Subject line
+    to: email, // list of receivers
+    subject: "Welcome to StreamBoard", // Subject line
     text: `${otp} `, // plain text body
     html: `${otp} `, // html body
   });
