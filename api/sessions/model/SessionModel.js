@@ -9,6 +9,14 @@ var SessionSchema = new mongoose.Schema(
       default: uuidv4,
       unique: true
     },
+    title: {
+         type: String,
+         required: false,
+    },
+    status: {
+         type: String,
+         required: false,
+    },
     sessionLink: {
       type: String,
       required: false

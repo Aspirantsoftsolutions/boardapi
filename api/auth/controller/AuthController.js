@@ -315,15 +315,15 @@ const register = [
             console.log("Both email and mobile number not provided");
             return ErrorResponse(res, AuthConstants.emailOrMobileReq);
           }
-          if (mobile && !countryCode) {
-            console.log("Country code not provided");
-            return ErrorResponse(res, AuthConstants.countryCodeRequired);
-          }
+          // if (mobile && !countryCode) {
+          //   console.log("Country code not provided");
+          //   return ErrorResponse(res, AuthConstants.countryCodeRequired);
+          // }
 
-          if (!mobile && countryCode) {
-            console.log("mobile number not provided");
-            return ErrorResponse(res, AuthConstants.mobileNumRequired);
-          }
+          // if (!mobile && countryCode) {
+          //   console.log("mobile number not provided");
+          //   return ErrorResponse(res, AuthConstants.mobileNumRequired);
+          // }
 
           if(mobile && countryCode){
             console.log("mobile number and country code provided");
