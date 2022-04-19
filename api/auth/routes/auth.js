@@ -17,6 +17,8 @@ import AuthController from "../controller/AuthController.js";
 let authRouter = express.Router();
 
 authRouter.post("/register", AuthController.register);
+authRouter.post("/registerTeacher", AuthController.registerTeacher);
+authRouter.post("/registerStudent", AuthController.registerStudent);
 authRouter.post("/login", AuthController.login);
 authRouter.post("/verify-otp", AuthController.verifyConfirm);
 authRouter.post("/resend-verify-otp", AuthController.resendConfirmOtp);

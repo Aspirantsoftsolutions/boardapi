@@ -42,6 +42,8 @@ import RefreshToken from "../model/refreshTokensModel.js";
 import crypto from "crypto";
 
 import UserModel from "../../user/model/UserModel.js";
+import TeacherModel from "../../user/model/TeacherModel.js";
+import StudentModel from "../../user/model/StudentModel.js";
 
 /**
  * User login.
@@ -402,8 +404,17 @@ const register = [
   },
 ];
 
-const registerSchool = [
-
+const registerTeacher = [
+  body("email")
+    .isString()
+    .trim()
+    .withMessage(AuthConstants.usernameRequired)
+    .escape(),
+  body("password")
+    .isString()
+    .trim()
+    .withMessage(AuthConstants.passwordRequired)
+    .escape(),
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -421,10 +432,9 @@ const registerSchool = [
         console.log(req.body.mobile);
         console.log(req.body.email);
 
-       
         if(req.body.email != undefined){
           console.log("User provided email");
-          user = await UserModel.findOne(
+          user = await TeacherModel.findOne(
             {
               email : req.body.email
             }
@@ -443,65 +453,101 @@ const registerSchool = [
 
         // User exists in DB
         if (user) {
-          console.log("User already registered");
+          console.log("Teacher already registered");
           return ErrorResponse(res,AuthConstants.alreadyRegistered + " with same "+identityName + ". " + AuthConstants.pleaseLogin);
         } 
         else {
-          console.log("Registering user");
-          const { orgName, email, password, address, location, emailOwner, role, plan, status } = req.body;
+          console.log("Registering Teacher");
+          // const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
+          const {firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
           const createData ={
-            username,
+            email,
             password:hashPass,
             confirmOTP: otp,
-            orgName,
-            address,
-            location,
-            emailOwner,
-            email,
-            role,
-            plan,
-            status
           }
 
+          if (organisation) {
+            createData.organisation = organisation;
+          }
+          if (classId) {
+            createData.classId = classId;
+          }
+          if (grade) {
+            createData.grade = grade;
+          }
+          if (subject) {
+            createData.subject = subject;
+          }
+          if (!email && !mobile) {
+            console.log("Both email and mobile number not provided");
+            return ErrorResponse(res, AuthConstants.emailOrMobileReq);
+          }
+          // if (mobile && !countryCode) {
+          //   console.log("Country code not provided");
+          //   return ErrorResponse(res, AuthConstants.countryCodeRequired);
+          // }
+
+          // if (!mobile && countryCode) {
+          //   console.log("mobile number not provided");
+          //   return ErrorResponse(res, AuthConstants.mobileNumRequired);
+          // }
+
+          if(mobile && countryCode){
+            console.log("mobile number and country code provided");
+            createData.mobile = `${countryCode}${mobile}`
+            createData.countryCode = countryCode
+          }
           
-          // createData.role = role;
-          // createData.plan = plan;
-          // createData.status = status;
+          if (email) {
+            console.log("email is provided");
+            createData.email = email
+          }
+          else{
+            console.log("Both email and mobile number are not provided");
+            return ErrorResponse(res, AuthConstants.emailOrMobileReq);
+          }
+          createData.firstName = firstName;
+          createData.lastName = lastName;
+          createData.role = "Teacher";
+          createData.plan = "Free";
+          createData.status = "Active";
           
           console.log("createData : "+ createData.username);
           console.log(createData.email);
+          console.log(createData.mobile);
+          console.log(createData.countryCode);
 
           //const message = `<#> ${otp} ` + AuthConstants.otpMessage;
           //await AWS_SNS.sendSMS(message, countryCode+mobile);
           try {
-            const userData = await UserModel.create(createData);
+            const teacherData = await TeacherModel.create(createData);
 
-            console.log("userData : "+userData);
+            console.log("teacherData : "+teacherData);
             let userResponse = {};
             if(email){
               console.log("Sending OTP to email : "+email);
-             mailer(email, otp);
+              //mailer(email, otp);
               userResponse = {
-                  userId: userData.userId,
-                  username: userData.username,
-                email: userData.email,
+                  userId: teacherData.userId,
+                  username: teacherData.firstName+" "+teacherData.lastName,
+                  email: teacherData.email,
                   otp: otp
               }
             }
-            else if(mobile){
-              console.log("Sending OTP to mobile number");
-              const message = `<#> ${otp} ` + AuthConstants.otpMessage;
-              //await AWS_SNS.sendSMS(message, countryCode+mobile);
-              userResponse = {
-                userId: userData.userId,
-                username: userData.username,
-                mobile: userData.mobile,
-                otp: otp
-              }
-            }
+            // else if(mobile){
+            //   console.log("Sending OTP to mobile number");
+            //   const message = `<#> ${otp} ` + AuthConstants.otpMessage;
+            //   //await AWS_SNS.sendSMS(message, countryCode+mobile);
+            //   userResponse = {
+            //     userId: userData.userId,
+            //     username: userData.username,
+            //     mobile: userData.mobile,
+            //     otp: otp
+            //   }
+            // }
 
             console.log("Sending response to user");
             return successResponseWithData(
@@ -527,6 +573,178 @@ const registerSchool = [
     }
   },
 ];
+
+
+const registerStudent = [
+  body("email")
+    .isString()
+    .trim()
+    .withMessage(AuthConstants.usernameRequired)
+    .escape(),
+  body("password")
+    .isString()
+    .trim()
+    .withMessage(AuthConstants.passwordRequired)
+    .escape(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return validationErrorWithData(
+          res,
+          AuthConstants.validationError,
+          errors.array()
+        );
+      } 
+      else {
+        let identityProvided = false;
+        let identityName ;
+        let user;
+        console.log(req.body.mobile);
+        console.log(req.body.email);
+
+        if(req.body.email != undefined){
+          console.log("User provided email");
+          user = await TeacherModel.findOne(
+            {
+              email : req.body.email
+            }
+          )
+          identityProvided = true;
+          identityName = "email";
+        }
+    
+        console.log("----------------------");
+        console.log(user);
+        console.log("----------------------");
+
+        if(identityProvided == false){
+           return ErrorResponse(res,AuthConstants.emailOrMobileReq);
+        }
+
+        // User exists in DB
+        if (user) {
+          console.log("Teacher already registered");
+          return ErrorResponse(res,AuthConstants.alreadyRegistered + " with same "+identityName + ". " + AuthConstants.pleaseLogin);
+        } 
+        else {
+          console.log("Registering Teacher");
+          // const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
+          const {firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
+          const otp = utility.randomNumber(6);
+          const hashPass = await bcrypt.hash(password, 10);
+
+          const createData ={
+            email,
+            password:hashPass,
+            confirmOTP: otp,
+          }
+
+          if (organisation) {
+            createData.organisation = organisation;
+          }
+          if (classId) {
+            createData.classId = classId;
+          }
+          if (grade) {
+            createData.grade = grade;
+          }
+          if (subject) {
+            createData.subject = subject;
+          }
+          if (!email && !mobile) {
+            console.log("Both email and mobile number not provided");
+            return ErrorResponse(res, AuthConstants.emailOrMobileReq);
+          }
+          // if (mobile && !countryCode) {
+          //   console.log("Country code not provided");
+          //   return ErrorResponse(res, AuthConstants.countryCodeRequired);
+          // }
+
+          // if (!mobile && countryCode) {
+          //   console.log("mobile number not provided");
+          //   return ErrorResponse(res, AuthConstants.mobileNumRequired);
+          // }
+
+          if(mobile && countryCode){
+            console.log("mobile number and country code provided");
+            createData.mobile = `${countryCode}${mobile}`
+            createData.countryCode = countryCode
+          }
+          
+          if (email) {
+            console.log("email is provided");
+            createData.email = email
+          }
+          else{
+            console.log("Both email and mobile number are not provided");
+            return ErrorResponse(res, AuthConstants.emailOrMobileReq);
+          }
+          createData.firstName = firstName;
+          createData.lastName = lastName;
+          createData.role = "Student";
+          createData.plan = "Free";
+          createData.status = "Active";
+          
+          console.log("createData : "+ createData.username);
+          console.log(createData.email);
+          console.log(createData.mobile);
+          console.log(createData.countryCode);
+
+          //const message = `<#> ${otp} ` + AuthConstants.otpMessage;
+          //await AWS_SNS.sendSMS(message, countryCode+mobile);
+          try {
+            const studentData = await StudentModel.create(createData);
+
+            console.log("teacherData : "+teacherData);
+            let userResponse = {};
+            if(email){
+              console.log("Sending OTP to email : "+email);
+              //mailer(email, otp);
+              userResponse = {
+                  userId: studentData.userId,
+                  username: studentData.firstName+" "+studentData.lastName,
+                  email: studentData.email,
+                  otp: otp
+              }
+            }
+            // else if(mobile){
+            //   console.log("Sending OTP to mobile number");
+            //   const message = `<#> ${otp} ` + AuthConstants.otpMessage;
+            //   //await AWS_SNS.sendSMS(message, countryCode+mobile);
+            //   userResponse = {
+            //     userId: userData.userId,
+            //     username: userData.username,
+            //     mobile: userData.mobile,
+            //     otp: otp
+            //   }
+            // }
+
+            console.log("Sending response to user");
+            return successResponseWithData(
+              res,
+              AuthConstants.registrationSuccessMsg,
+              userResponse
+            );
+          } catch (err) {
+            console.log(err)
+            if (err.code === 11000) {
+              let str = "";
+              Object.keys(err.keyPattern).forEach((d) => {
+                str += `${d}, `;
+              });
+              str = str.slice(0, str.length - 2);
+              return unauthorizedResponse(res, str + " already taken");
+            }
+          }
+        }
+      }
+    } catch (err) {
+      return ErrorResponse(res, err);
+    }
+  },
+];
+
 
 /**
  * Verify Confirm otp.
@@ -947,5 +1165,7 @@ export default {
   refreshToken,
   resendConfirmOtp,
   checkUsername,
-  resetPassword
+  resetPassword,
+  registerTeacher,
+  registerStudent
 };

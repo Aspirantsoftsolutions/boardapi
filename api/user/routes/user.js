@@ -35,6 +35,8 @@ userRouter.get(
   UserController.fetchReferrals
 );
 userRouter.get("/all", UserController.allusers);
+userRouter.get("/allTeachers", UserController.allTeachers);
+userRouter.get("/allStudents", UserController.allStudents);
 userRouter.get("/all/:role", UserController.allusersRole);
 userRouter.put("/", UserController.updateUser);
 userRouter.delete("/:id", UserController.deleteUser);

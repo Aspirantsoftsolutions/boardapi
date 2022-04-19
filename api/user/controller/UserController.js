@@ -34,6 +34,8 @@ const { body, validationResult } = validator;
 import { UserConstants } from "../const.js";
 
 import UserReferrals from "../model/UserReferrals.js";
+import TeacherModel from "../model/TeacherModel.js";
+import StudentModel from "../model/StudentModel.js";
 
 /**
  *  Get Referral Message with referral code
@@ -177,6 +179,62 @@ const allusers = async (req, res) => {
   }
 };
 
+/**
+ * Get all Teachers
+ */
+const allTeachers = async (req, res) => {
+  try {
+    // let users = await UserModel.find().exec();
+    let users = await TeacherModel.aggregate([
+      {
+        $lookup:
+        {
+          from: 'users',
+          localField: 'classId',
+          foreignField: 'userId',
+          as: 'class'
+        }
+      }
+    ]);
+    
+    return successResponseWithData(
+      res,
+      UserConstants.userFetchedSuccessfully,
+      users
+    );
+  } catch (e) {
+    return validationErrorWithData(res, UserConstants.errorOccurred, e);
+  }
+};
+
+/**
+ * Get all Students
+ */
+const allStudents = async (req, res) => {
+  try {
+    // let users = await UserModel.find().exec();
+    let users = await StudentModel.aggregate([
+      {
+        $lookup:
+        {
+          from: 'users',
+          localField: 'classId',
+          foreignField: 'userId',
+          as: 'class'
+        }
+      }
+    ]);
+    
+    return successResponseWithData(
+      res,
+      UserConstants.userFetchedSuccessfully,
+      users
+    );
+  } catch (e) {
+    return validationErrorWithData(res, UserConstants.errorOccurred, e);
+  }
+};
+
 const allusersRole = async (req, res) => {
   try {
     const { role } = req.params;
@@ -218,5 +276,7 @@ export default {
   updateProfile,
   deleteUser,
   allusersRole,
-  updateUser
+  updateUser,
+  allTeachers,
+  allStudents
 };
