@@ -405,7 +405,7 @@ const register = [
 ];
 
 const registerTeacher = [
-  body("email")
+ body("username")
     .isString()
     .trim()
     .withMessage(AuthConstants.usernameRequired)
@@ -459,7 +459,7 @@ const registerTeacher = [
         else {
           console.log("Registering Teacher");
           // const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
-          const {firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
+          const {username, firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
@@ -485,16 +485,7 @@ const registerTeacher = [
             console.log("Both email and mobile number not provided");
             return ErrorResponse(res, AuthConstants.emailOrMobileReq);
           }
-          // if (mobile && !countryCode) {
-          //   console.log("Country code not provided");
-          //   return ErrorResponse(res, AuthConstants.countryCodeRequired);
-          // }
-
-          // if (!mobile && countryCode) {
-          //   console.log("mobile number not provided");
-          //   return ErrorResponse(res, AuthConstants.mobileNumRequired);
-          // }
-
+      
           if(mobile && countryCode){
             console.log("mobile number and country code provided");
             createData.mobile = `${countryCode}${mobile}`
@@ -514,6 +505,7 @@ const registerTeacher = [
           createData.role = "Teacher";
           createData.plan = "Free";
           createData.status = "Active";
+          createData.username = username;
           
           console.log("createData : "+ createData.username);
           console.log(createData.email);
@@ -605,7 +597,7 @@ const registerStudent = [
 
         if(req.body.email != undefined){
           console.log("User provided email");
-          user = await TeacherModel.findOne(
+          user = await StudentModel.findOne(
             {
               email : req.body.email
             }
@@ -624,13 +616,13 @@ const registerStudent = [
 
         // User exists in DB
         if (user) {
-          console.log("Teacher already registered");
+          console.log("student already registered");
           return ErrorResponse(res,AuthConstants.alreadyRegistered + " with same "+identityName + ". " + AuthConstants.pleaseLogin);
         } 
         else {
-          console.log("Registering Teacher");
+          console.log("Registering student");
           // const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
-          const {firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
+          const {username,firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
@@ -685,7 +677,8 @@ const registerStudent = [
           createData.role = "Student";
           createData.plan = "Free";
           createData.status = "Active";
-          
+          createData.username = username;
+
           console.log("createData : "+ createData.username);
           console.log(createData.email);
           console.log(createData.mobile);
@@ -696,7 +689,7 @@ const registerStudent = [
           try {
             const studentData = await StudentModel.create(createData);
 
-            console.log("teacherData : "+teacherData);
+            console.log("studentData : "+studentData);
             let userResponse = {};
             if(email){
               console.log("Sending OTP to email : "+email);
