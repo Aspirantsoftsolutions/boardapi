@@ -344,7 +344,8 @@ const register = [
           createData.role = role;
           createData.plan = plan;
           createData.status = status;
-          
+          createData.isConfirmed = true;
+
           console.log("createData : "+ createData.username);
           console.log(createData.email);
           console.log(createData.mobile);
