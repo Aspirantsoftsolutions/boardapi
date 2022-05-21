@@ -26,7 +26,7 @@ notificaitonRouter.post(
 notificaitonRouter.post("/add", NotificationsController.add);
 notificaitonRouter.get("/send", NotificationsController.sendPush);
 notificaitonRouter.get("/all", NotificationsController.getNotifications);
-
+notificaitonRouter.delete("/:id", NotificationsController.deleteNotification);
 /**
  * @description Configured router for Notification Routes
  * @exports notificaitonRouter

@@ -271,10 +271,23 @@ const getNotifications = [
   },
 ];
 
+const deleteNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Add a boolean
+    await NotificationsModel.findByIdAndDelete(id);
+    return successResponse(res, "Deleted Successfully");
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, "Error on deletion");
+  }
+};
+
 export default {
   getNotifications,
   add,
   sendPushNow,
   sendPush,
   subscribe,
+  deleteNotification
 };
