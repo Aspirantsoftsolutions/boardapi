@@ -282,7 +282,8 @@ const register = [
         } 
         else {
           console.log("Registering user");
-          const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
+          const { address, location, organisation, email, password, username, mobile, countryCode, role, plan,
+            status, teacherId, classId, grade, itemail, fullName, lastName } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
@@ -312,6 +313,15 @@ const register = [
           }
           if (grade) {
             createData.grade = grade;
+          }
+          if (itemail) {
+            createData.itemail = itemail;
+          }
+          if (fullName) {
+            createData.fullName = fullName;
+          }
+          if (lastName) {
+            createData.lastName = lastName;
           }
           if (!email && !mobile) {
             console.log("Both email and mobile number not provided");
@@ -404,6 +414,7 @@ const register = [
     }
   },
 ];
+
 
 const registerTeacher = [
  body("username")

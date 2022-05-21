@@ -220,21 +220,22 @@ const sendPushNow = [
 const add = [
   async (req, res) => {
     try {
+      console.log(req.body);
       if (req.body) {
         const notification = await new NotificationsModel(req.body);
         notification.save();
-        if (notification.publishNow === true) {
-          const notify = await this.sendPushNow(
-            notification.title,
-            notification.body,
-            notification.image,
-            notification.icon
-          );
-          notification.sucessCount = notify.sucessCount;
-          notification.failsCount = notify.failed;
-          notification.publishStatus = true;
-          notification.save();
-        }
+        // if (notification.publishNow === true) {
+        //   const notify = await this.sendPushNow(
+        //     notification.title,
+        //     notification.body,
+        //     notification.image,
+        //     notification.icon
+        //   );
+        //   notification.sucessCount = notify.sucessCount;
+        //   notification.failsCount = notify.failed;
+        //   notification.publishStatus = true;
+        //   notification.save();
+        // }
         return successResponseWithData(
           res,
           NotificaitonConstants.notificationAddedSuccessMsg,

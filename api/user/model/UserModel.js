@@ -13,6 +13,14 @@ var UserSchema = new mongoose.Schema(
       type: String,
       required: false
     },
+    firstName: {
+      type: String,
+      required: false
+    },
+    lastName: {
+      type: String,
+      required: false
+    },
     mobile: {
       type: String,
       required: false,
@@ -30,6 +38,13 @@ var UserSchema = new mongoose.Schema(
     grade: {
       type: String,
       required:false
+    },
+    itemail: {
+      type: String,
+      required: false,
+      trim: true,
+      lowercase: true,
+      unique: true
     },
     email: {
       type: String,

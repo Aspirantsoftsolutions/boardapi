@@ -265,6 +265,7 @@ const deleteUser = async (req, res) => {
     await UserModel.findByIdAndDelete(id);
     return successResponse(res, UserConstants.userDeletedSuccessfully);
   } catch (err) {
+    console.log(err);
     return ErrorResponse(res, UserConstants.errorOccurred);
   }
 };
