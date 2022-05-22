@@ -41,10 +41,7 @@ var UserSchema = new mongoose.Schema(
     },
     itemail: {
       type: String,
-      required: false,
-      trim: true,
-      lowercase: true,
-      unique: true
+      required: false
     },
     email: {
       type: String,
