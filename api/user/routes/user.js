@@ -39,7 +39,7 @@ userRouter.get("/allTeachers", UserController.allTeachers);
 userRouter.get("/allStudents", UserController.allStudents);
 userRouter.get("/all/:role", UserController.allusersRole);
 userRouter.put("/", UserController.updateUser);
-userRouter.put("updatePassword/", UserController.updateUserPassword);
+userRouter.put("/updatePassword", UserController.updateUserPassword);
 userRouter.delete("/:id", UserController.deleteUser);
 userRouter.delete("/Teacher/:id", UserController.deleteTeacher);
 userRouter.delete("/Student/:id", UserController.deleteStudent);
