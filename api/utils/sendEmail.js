@@ -16,7 +16,6 @@ async function main(email, otp) {
     from: "info@tryoutweb.com", // sender address
     to: email, // list of receivers
     subject: "Welcome to StreamBoard", // Subject line
-    text: `${otp} `, // plain text body
     html: `${otp} `, // html body
   });
 
