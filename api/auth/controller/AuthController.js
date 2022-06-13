@@ -174,7 +174,8 @@ const login = [
         console.log("Generating JWT");
         jwtPayload.token = jwt.sign(jwtPayload, secret, jwtData);
         jwtPayload.refreshToken = crypto.randomBytes(40).toString("hex");
-
+        jwtPayload.isActive = userData.isActive;
+          
         const refreshToken = new RefreshToken({
           user: userData._id,
           token: jwtPayload.refreshToken,

@@ -153,6 +153,24 @@ const updateUser = async (req, res) => {
   }
 };
 
+const updateUserStatus = async (req, res) => {
+  try {
+    const { isActive,userId } = req.body;
+
+    UserModel.updateOne({userId:userId},{isActive: isActive},
+      (err, user) => {
+        console.log(user);
+        return ErrorResponse(res, UserConstants.profileUpdateError);
+      //handle error
+      });
+     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
 const updateUserPassword = async (req, res) => {
   try {
     const { userId, password } = req.body;
@@ -334,6 +352,45 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+const getCounts = async (req, res) => {
+  try {
+
+    var students = await StudentModel.count();
+    // var teachers = await TeacherModel.count();
+    var admin = await UserModel.find({
+      role: 'Admin',
+    }).count();
+    var teachers = await UserModel.find({
+      role: 'teacher',
+    }).count();
+    var schools = await UserModel.find({
+      role: 'School',
+    }).count();
+    var individuals = await UserModel.find({
+      role: 'Individual',
+    }).count();
+    var users = await UserModel.count();
+  
+    const response = {
+      studentsCount: students,
+      teachersCount: teachers,
+      usersCount: users,
+      schoolsCount: schools,
+      adminsCount: admin,
+      individualsCount: individuals
+    }
+    // return successResponse(res, UserConstants.userDeletedSuccessfully);
+     return successResponseWithData(
+            res,
+            UserConstants.successResponse,
+            response
+        );
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.errorOccurred);
+  }
+};
+
 export default {
   sendReferral,
   fetchReferrals,
@@ -348,5 +405,7 @@ export default {
   allTeachers,
   allStudents,
   updateUserPassword,
-  sendInvitation
+  sendInvitation,
+  updateUserStatus,
+  getCounts
 };

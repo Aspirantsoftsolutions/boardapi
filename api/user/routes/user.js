@@ -44,6 +44,7 @@ userRouter.delete("/:id", UserController.deleteUser);
 userRouter.delete("/Teacher/:id", UserController.deleteTeacher);
 userRouter.delete("/Student/:id", UserController.deleteStudent);
 userRouter.put("/invite", UserController.sendInvitation);
+userRouter.get("/getCounts", UserController.getCounts);
 
 /**
  * @description Configured router for User Routes
