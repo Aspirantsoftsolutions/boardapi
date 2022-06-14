@@ -24,16 +24,16 @@ userRouter.get("/profile", AuthMiddleware.auth, UserController.getProfile);
 //     name: 'profile_pic',
 //     maxCount: 1
 // }]), UserController.updateProfile);
-userRouter.get(
-  "/refer/invite",
-  AuthMiddleware.auth,
-  UserController.sendReferral
-);
-userRouter.get(
-  "/refer/fetch",
-  AuthMiddleware.auth,
-  UserController.fetchReferrals
-);
+// userRouter.get(
+//   "/refer/invite",
+//   AuthMiddleware.auth,
+//   UserController.sendReferral
+// );
+// userRouter.get(
+//   "/refer/fetch",
+//   AuthMiddleware.auth,
+//   UserController.fetchReferrals
+// );
 userRouter.get("/all", UserController.allusers);
 userRouter.get("/allTeachers", UserController.allTeachers);
 userRouter.get("/allStudents", UserController.allStudents);
@@ -44,6 +44,7 @@ userRouter.delete("/:id", UserController.deleteUser);
 userRouter.delete("/Teacher/:id", UserController.deleteTeacher);
 userRouter.delete("/Student/:id", UserController.deleteStudent);
 userRouter.put("/invite", UserController.sendInvitation);
+userRouter.put("/userActive", AuthMiddleware.auth, UserController.updateUserStatus);
 userRouter.get("/getCounts", UserController.getCounts);
 
 /**

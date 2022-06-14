@@ -155,14 +155,13 @@ const updateUser = async (req, res) => {
 
 const updateUserStatus = async (req, res) => {
   try {
-    const { isActive,userId } = req.body;
+    const { isActive,userId, status } = req.body;
+    console.log(isActive);
+    console.log(userId);
+    console.log(status);
 
-    UserModel.updateOne({userId:userId},{isActive: isActive},
-      (err, user) => {
-        console.log(user);
-        return ErrorResponse(res, UserConstants.profileUpdateError);
-      //handle error
-      });
+    await UserModel.updateOne({userId: userId}, {isActive: isActive});
+     await UserModel.updateOne({ userId: userId },{ status: status });
      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
 
   } catch (err) {
@@ -369,12 +368,15 @@ const getCounts = async (req, res) => {
     var individuals = await UserModel.find({
       role: 'Individual',
     }).count();
+    var classCount = await UserModel.find({
+      role: 'Class',
+    }).count();
     var users = await UserModel.count();
   
     const response = {
       studentsCount: students,
       teachersCount: teachers,
-      usersCount: users,
+      usersCount: users - classCount,
       schoolsCount: schools,
       adminsCount: admin,
       individualsCount: individuals
