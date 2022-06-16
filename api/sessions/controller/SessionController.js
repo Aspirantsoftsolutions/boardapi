@@ -74,24 +74,31 @@ const createSession = [
       } else {
           console.log("Registering session");
         const {
-            title,
-            groupId,
-            description,
-            teacherId
+          title,
+          groupId,
+          description,
+          teacherId,
+          type,
+          start,
+          end
           } = req.body;
 
-          const createData = {
-            groupId,
+        const createData = {
+            title,
             description,
-            teacherId
           }
 
-          createData.title = title;
+        createData.title = title;
+        if(groupId)
           createData.groupId = groupId;
-          createData.description = description;
+        createData.description = description;
+        if(teacherId)
           createData.teacherId = teacherId;
-
-          console.log("createData : " + createData.groupId);
+          
+        createData.type = type;
+        createData.start = start;
+        createData.end = end;
+          console.log("createData : " + createData);
           try {
             const sessionData = await SessionModel.create(createData);
 

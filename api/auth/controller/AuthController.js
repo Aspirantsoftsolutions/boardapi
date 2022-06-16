@@ -186,11 +186,19 @@ const login = [
         refreshToken.save();
 
         console.log("returning successful response to user");
-        return successResponseWithData(
-            res,
-            AuthConstants.loginSuccessMsg,
-            jwtPayload
-        );
+        if (userData.isActive) {
+           return successResponseWithData(
+             res,
+             AuthConstants.loginSuccessMsg,
+             jwtPayload
+           );
+        } else {
+           return ErrorResponseWithData(
+             res,
+             AuthConstants.loginErrorMsg,
+           );
+        }
+       
 
       }
     } catch (err) {
@@ -474,7 +482,7 @@ const registerTeacher = [
         else {
           console.log("Registering Teacher");
           // const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
-          const {username, firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
+          const {schoolId, username, firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
@@ -486,6 +494,9 @@ const registerTeacher = [
 
           if (organisation) {
             createData.organisation = organisation;
+          }
+          if (schoolId) {
+            createData.schoolId = schoolId;
           }
           if (classId) {
             createData.classId = classId;
@@ -519,7 +530,7 @@ const registerTeacher = [
           createData.lastName = lastName;
           createData.role = "Teacher";
           createData.plan = "Free";
-          createData.status = "Active";
+          createData.status = "active";
           createData.username = username;
           
           console.log("createData : "+ createData.username);
@@ -637,7 +648,7 @@ const registerStudent = [
         else {
           console.log("Registering student");
           // const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
-          const {username,firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
+          const {schoolId,username,firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
@@ -649,6 +660,9 @@ const registerStudent = [
 
           if (organisation) {
             createData.organisation = organisation;
+          }
+          if (schoolId) {
+            createData.schoolId = schoolId;
           }
           if (classId) {
             createData.classId = classId;
@@ -691,7 +705,7 @@ const registerStudent = [
           createData.lastName = lastName;
           createData.role = "Student";
           createData.plan = "Free";
-          createData.status = "Active";
+          createData.status = "active";
           createData.username = username;
 
           console.log("createData : "+ createData.username);

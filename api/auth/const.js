@@ -20,6 +20,7 @@ const AuthConstants = {
   otpSuccessfullySent: "OTP successfully sent",
   promoCodeValidationError: "Please enter a valid Promo Code",
   loginSuccessMsg: "Loggedin Successfully",
+  loginErrorMsg: "User is Inactive, please contact admin",
   registrationSuccessMsg: "Registered Successfully",
   alreadyRegistered:"User already registered",
   pleaseLogin : "Please Login !",

@@ -13,6 +13,18 @@ var SessionSchema = new mongoose.Schema(
          type: String,
          required: false,
     },
+    type: {
+      type: String,
+      required: true,
+    },
+    start: {
+      type: String,
+      required: true,
+    },
+    end: {
+      type: String,
+      required: true,
+    },
     status: {
          type: String,
          required: false,

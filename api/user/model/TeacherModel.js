@@ -35,6 +35,10 @@ var TeacherSchema = new mongoose.Schema(
       type: String,
       required:false
     },
+    schoolId: {
+      type: String,
+      required: true
+    },
     grade: {
       type: String,
       required:false

@@ -153,7 +153,11 @@ var StudentSchema = new mongoose.Schema(
      },
     teacherId: {
       type: String
-    }
+    },
+    schoolId: {
+      type: String,
+      required: true
+    },
   },
   { timestamps: true }
 );

@@ -38,6 +38,7 @@ import { UserConstants } from "../const.js";
 import UserReferrals from "../model/UserReferrals.js";
 import TeacherModel from "../model/TeacherModel.js";
 import StudentModel from "../model/StudentModel.js";
+import ClassModel from "../model/ClassModel.js";
 
 /**
  *  Get Referral Message with referral code
@@ -134,6 +135,39 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const updateProfileData = async (req, res) => {
+  try {
+   
+      const {
+        organisation,
+        fullName,
+        firstName,
+        lastName,
+        address,
+        mobile,
+        userId
+      } = req.body;
+     
+    await UserModel.updateMany({
+      userId: userId
+    },{
+      
+      address: address,
+      lastName: lastName,
+      firstName: firstName,
+      fullName: fullName,
+      mobile: mobile,
+      organisation: organisation
+    });
+
+      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
 
 const updateUser = async (req, res) => {
   try {
@@ -206,6 +240,32 @@ const sendInvitation = async (req, res) => {
   }
 };
 
+const createClass = async (req, res) => {
+  try {
+
+    const {
+     className,
+     schoolId
+    } = req.body;
+    const createData = {
+      className,
+      schoolId
+    };
+    createData.className = className;
+    createData.schoolId = schoolId;
+    
+
+    await ClassModel.create(createData);
+    return successResponse(
+      res,
+      UserConstants.createdSuccess,
+    );
+  } catch (err) {
+    console.log(err);
+    return validationErrorWithData(res, UserConstants.errorOccurred, err);
+  } 
+};
+
 /**
  * Get all Users
  */
@@ -239,8 +299,17 @@ const allusers = async (req, res) => {
  */
 const allTeachers = async (req, res) => {
   try {
+    const {
+      schoolId
+    } = req.params;
+    console.log(schoolId);
     // let users = await UserModel.find().exec();
     let users = await TeacherModel.aggregate([
+      {
+        $match: {
+          schoolId: schoolId
+        }
+      },
       {
         $lookup:
         {
@@ -249,15 +318,24 @@ const allTeachers = async (req, res) => {
           foreignField: 'userId',
           as: 'class'
         }
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'schoolId',
+          foreignField: 'userId',
+          as: 'school'
+        }
       }
     ]);
-    
+    console.log(users);
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
       users
     );
   } catch (e) {
+    console.log(e);
     return validationErrorWithData(res, UserConstants.errorOccurred, e);
   }
 };
@@ -267,8 +345,17 @@ const allTeachers = async (req, res) => {
  */
 const allStudents = async (req, res) => {
   try {
+    const {
+      schoolId
+    } = req.params;
+    console.log(schoolId);
     // let users = await UserModel.find().exec();
     let users = await StudentModel.aggregate([
+      {
+        $match: {
+          schoolId: schoolId
+        }
+      },
       {
         $lookup:
         {
@@ -277,7 +364,15 @@ const allStudents = async (req, res) => {
           foreignField: 'userId',
           as: 'class'
         }
-      }
+      },
+       {
+         $lookup: {
+           from: 'users',
+           localField: 'schoolId',
+           foreignField: 'userId',
+           as: 'school'
+         }
+       }
     ]);
     
     return successResponseWithData(
@@ -306,7 +401,26 @@ const allusersRole = async (req, res) => {
     return validationErrorWithData(res, UserConstants.errorOccurred, e);
   }
 };
+const allClasses = async (req, res) => {
+  try {
+    const {
+      schoolId
+    } = req.params;
+    let users;
+    users = await ClassModel.find({
+      schoolId: schoolId
+    });
 
+    return successResponseWithData(
+      res,
+      UserConstants.userFetchedSuccessfully,
+      users
+    );
+  } catch (e) {
+    console.log(e);
+    return validationErrorWithData(res, UserConstants.errorOccurred, e);
+  }
+};
 
 /**
  *  Delete user
@@ -353,33 +467,84 @@ const deleteStudent = async (req, res) => {
 
 const getCounts = async (req, res) => {
   try {
+    console.log(req.params);
+    const { userid } = req.params;
+        console.log(userid);
 
-    var students = await StudentModel.count();
+    var usersRole = await UserModel.findOne({
+      userId: userid
+    });
+    console.log(usersRole);
+    var students = await StudentModel.find({
+      schoolId: userid
+    }).count();
+    var studentsActive = await StudentModel.find({
+      schoolId: userid,
+      status: 'active'
+    }).count();
+    var studentsInActive = await StudentModel.find({
+      schoolId: userid,
+      status: 'inactive'
+    }).count();
     // var teachers = await TeacherModel.count();
     var admin = await UserModel.find({
       role: 'Admin',
     }).count();
-    var teachers = await UserModel.find({
-      role: 'teacher',
+    var teachers = await TeacherModel.find({
+      schoolId: userid
     }).count();
+    var teachersActive = await TeacherModel.find({
+      schoolId: userid,
+      status: 'active'
+    }).count();
+    var teachersInActive = await TeacherModel.find({
+      schoolId: userid,
+      status: 'inactive'
+    }).count();
+
     var schools = await UserModel.find({
       role: 'School',
+    }).count();
+    var schoolsActive = await UserModel.find({
+      role: 'School',
+      status: 'active'
+    }).count();
+    var schoolsInActive = await UserModel.find({
+      role: 'School',
+      status: 'inactive'
+    }).count();
+    var schoolsFree = await UserModel.find({
+      role: 'School',
+      plan: 'Free'
+    }).count();
+    var schoolsPaid = await UserModel.find({
+      role: 'School',
+      plan: 'paid'
     }).count();
     var individuals = await UserModel.find({
       role: 'Individual',
     }).count();
-    var classCount = await UserModel.find({
-      role: 'Class',
+    var classCount = await ClassModel.find({
+      schoolId: userid
     }).count();
-    var users = await UserModel.count();
+    var usersC = await UserModel.count();
   
     const response = {
       studentsCount: students,
       teachersCount: teachers,
-      usersCount: users - classCount,
+      usersCount: students + teachers,
       schoolsCount: schools,
       adminsCount: admin,
-      individualsCount: individuals
+      individualsCount: individuals,
+      role: usersRole.role,
+      schoolsActiveCount: schoolsActive,
+      schoolsInActiveCount: schoolsInActive,
+      schoolsPaidCount: schoolsPaid,
+      schoolsFreeCount: schoolsFree,
+      teachersActiveCount: teachersActive,
+      teachersInActiveCount: teachersInActive,
+      studentsActiveCount: studentsActive,
+      studentsInActiveCount: studentsInActive
     }
     // return successResponse(res, UserConstants.userDeletedSuccessfully);
      return successResponseWithData(
@@ -409,5 +574,8 @@ export default {
   updateUserPassword,
   sendInvitation,
   updateUserStatus,
-  getCounts
+  getCounts,
+  updateProfileData,
+  createClass,
+  allClasses
 };

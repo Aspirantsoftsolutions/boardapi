@@ -11,6 +11,7 @@ const UserConstants = {
   homeDataFectchedSuccessMsg: "Home Data Fetched Successfully",
   userFetchedSuccessfully: "Users fetched successfully",
   userDeletedSuccessfully: "User deleted successfully",
+  createdSuccess: "Created Successfully",
 };
 
 export { UserConstants };
