@@ -39,6 +39,7 @@ import UserReferrals from "../model/UserReferrals.js";
 import TeacherModel from "../model/TeacherModel.js";
 import StudentModel from "../model/StudentModel.js";
 import ClassModel from "../model/ClassModel.js";
+import CalendarModel from "../model/CalendarModel.js";
 
 /**
  *  Get Referral Message with referral code
@@ -168,6 +169,39 @@ const updateProfileData = async (req, res) => {
   }
 };
 
+const updateThidPartyFeatures = async (req, res) => {
+  try {
+
+    const {
+      isGoogleDriveEnable,
+      isOneDriveEnable,
+      isImmersiveReaderEnable,
+      isMagicDrawEnable,
+      isHandWritingEnable,
+      isPhetEnable,
+      userId
+    } = req.body;
+
+    await UserModel.updateMany({
+      userId: userId
+    }, {
+
+      isGoogleDriveEnable: isGoogleDriveEnable,
+      isOneDriveEnable: isOneDriveEnable,
+      isImmersiveReaderEnable: isImmersiveReaderEnable,
+      isMagicDrawEnable: isMagicDrawEnable,
+      isHandWritingEnable: isHandWritingEnable,
+      isPhetEnable: isPhetEnable
+    });
+
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
 
 const updateUser = async (req, res) => {
   try {
@@ -197,6 +231,64 @@ const updateUserStatus = async (req, res) => {
     await UserModel.updateOne({userId: userId}, {isActive: isActive});
      await UserModel.updateOne({ userId: userId },{ status: status });
      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
+const updateTeacherStatus = async (req, res) => {
+  try {
+    const {
+      isActive,
+      userId,
+      status
+    } = req.body;
+    console.log(isActive);
+    console.log(userId);
+    console.log(status);
+
+    await TeacherModel.updateOne({
+      userId: userId
+    }, {
+      isActive: isActive
+    });
+    await TeacherModel.updateOne({
+      userId: userId
+    }, {
+      status: status
+    });
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
+const updateStudentStatus = async (req, res) => {
+  try {
+    const {
+      isActive,
+      userId,
+      status
+    } = req.body;
+    console.log(isActive);
+    console.log(userId);
+    console.log(status);
+
+    await StudentModel.updateOne({
+      userId: userId
+    }, {
+      isActive: isActive
+    });
+    await StudentModel.updateOne({
+      userId: userId
+    }, {
+      status: status
+    });
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
 
   } catch (err) {
     console.log(err);
@@ -558,6 +650,66 @@ const getCounts = async (req, res) => {
   }
 };
 
+const createCalendar = async (req, res) => {
+  try {
+
+    const {
+      title,
+      label,
+      startDate,
+      endDate,
+      eventUrl,
+      guests,
+      description
+    } = req.body;
+    const createData = {};
+
+    if (description) {
+      createData.description = description;
+    }
+
+    createData.title = title;
+    createData.calendar = label;
+    createData.start = startDate;
+    createData.end = endDate;
+    createData.url = eventUrl;
+    createData.guests = guests;
+
+    await CalendarModel.create(createData);
+    return successResponse(
+      res,
+      UserConstants.createdSuccess,
+    );
+  } catch (err) {
+    console.log(err);
+    return validationErrorWithData(res, UserConstants.errorOccurred, err);
+  }
+};
+
+const allCalendar = async (req, res) => {
+  try {
+      const {
+        title,
+        label,
+        startDate,
+        endDate,
+        eventUrl,
+        guests,
+        description
+      } = req.params;
+    
+    let users = await CalendarModel.find().exec();
+
+    return successResponseWithData(
+      res,
+      UserConstants.userFetchedSuccessfully,
+      users
+    );
+  } catch (e) {
+    return validationErrorWithData(res, UserConstants.errorOccurred, e);
+  }
+};
+
 export default {
   sendReferral,
   fetchReferrals,
@@ -577,5 +729,10 @@ export default {
   getCounts,
   updateProfileData,
   createClass,
-  allClasses
+  allClasses,
+  updateTeacherStatus,
+  updateStudentStatus,
+  createCalendar,
+  allCalendar,
+  updateThidPartyFeatures
 };

@@ -158,7 +158,32 @@ var UserSchema = new mongoose.Schema(
      },
     teacherId: {
       type: String
+    },
+    isGoogleDriveEnable: {
+      type: Boolean,
+        default: false
+    },
+    isOneDriveEnable: {
+      type: Boolean,
+        default: false
+    },
+    isImmersiveReaderEnable: {
+      type: Boolean,
+        default: false
+    },
+    isMagicDrawEnable: {
+      type: Boolean,
+        default: false
+    },
+    isHandWritingEnable: {
+      type: Boolean,
+        default: false
+    },
+    isPhetEnable: {
+      type: Boolean,
+        default: false
     }
+
   },
   { timestamps: true }
 );

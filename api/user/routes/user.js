@@ -47,8 +47,14 @@ userRouter.delete("/Teacher/:id", UserController.deleteTeacher);
 userRouter.delete("/Student/:id", UserController.deleteStudent);
 userRouter.put("/invite", UserController.sendInvitation);
 userRouter.put("/userActive", AuthMiddleware.auth, UserController.updateUserStatus);
+userRouter.put("/teacherActive", UserController.updateTeacherStatus);
+userRouter.put("/studentActive", UserController.updateStudentStatus);
+userRouter.put("/updateFeatures", UserController.updateThidPartyFeatures);
 userRouter.get("/getCounts/:userid", UserController.getCounts);
 userRouter.post("/createClass", UserController.createClass);
+userRouter.post("/addEvent", UserController.createCalendar);
+userRouter.get("/getCalendar", UserController.allCalendar);
+
 /**
  * @description Configured router for User Routes
  * @exports userRouter
