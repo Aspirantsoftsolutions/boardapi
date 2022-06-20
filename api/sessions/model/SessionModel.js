@@ -19,11 +19,11 @@ var SessionSchema = new mongoose.Schema(
     },
     start: {
       type: String,
-      required: true,
+      required: false,
     },
     end: {
       type: String,
-      required: true,
+      required: false,
     },
     status: {
          type: String,
@@ -44,7 +44,10 @@ var SessionSchema = new mongoose.Schema(
     teacherId: {
          type: String,
          required: false,
-       },
+    },
+    participants: {
+      type: String
+    },
   },
   { timestamps: true }
 );

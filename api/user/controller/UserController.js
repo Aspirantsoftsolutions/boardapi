@@ -373,6 +373,24 @@ const allusers = async (req, res) => {
           foreignField: 'userId',
           as: 'class'
         }
+      },
+      {
+        $lookup:
+        {
+          from: 'teachers',
+          localField: 'userId',
+          foreignField: 'schoolId',
+          as: 'teacher'
+        }
+      },
+      {
+        $lookup:
+        {
+          from: 'students',
+          localField: 'userId',
+          foreignField: 'schoolId',
+          as: 'student'
+        }
       }
     ]);
     
@@ -672,7 +690,11 @@ const createCalendar = async (req, res) => {
     createData.calendar = label;
     createData.start = startDate;
     createData.end = endDate;
-    createData.url = eventUrl;
+    if (eventUrl) {
+      createData.url = eventUrl;  
+    } else {
+      createData.url = "";  
+    }
     createData.guests = guests;
 
     await CalendarModel.create(createData);
