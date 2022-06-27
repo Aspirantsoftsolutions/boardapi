@@ -83,9 +83,7 @@ const login = [
         const isEmail = re.test(String(identity).toLowerCase());
         let userData = {} ;
         
-        
         if (isEmail) {
-
           let masterData = await MasterModel.findOne({
             email : identity
           });
@@ -96,20 +94,98 @@ const login = [
           //     email : identity
           //   });
           if (masterData.role == "Teacher") {
-            userData = await TeacherModel.findOne({
-              email: identity
-            });
+            // userData = await TeacherModel.findOne({
+            //   email: identity
+            // });
+             let users = await TeacherModel.aggregate([
+                {
+                  $match: {
+                    email: identity
+                  }
+                },
+                {
+                  $lookup:
+                  {
+                    from: 'users',
+                    localField: 'classId',
+                    foreignField: 'userId',
+                    as: 'class'
+                  }
+                },
+                {
+                  $lookup: {
+                    from: 'users',
+                    localField: 'schoolId',
+                    foreignField: 'userId',
+                    as: 'school'
+                  }
+                }
+             ]);
+            userData = users[0];
           } else if (masterData.role == "Student") {
-            userData = await StudentModel.findOne({
-              email: identity
-            });
+            // userData = await StudentModel.findOne({
+            //   email: identity
+            // });
+            // console.log(userData);
+            userData = await StudentModel.aggregate([
+                  {
+                    $match: {
+                      email: identity
+                    }
+                  },
+                  {
+                    $lookup:
+                    {
+                      from: 'users',
+                      localField: 'classId',
+                      foreignField: 'userId',
+                      as: 'class'
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'schoolId',
+                      foreignField: 'userId',
+                      as: 'school'
+                    }
+                  }
+            ]);
+            userData = userData[0];
+                console.log(userData);
           } else {
             userData = await UserModel.findOne({
               email : identity
             });
+            let users = await UserModel.aggregate([
+                  {
+                    $match: {
+                      email: identity
+                    }
+                  },
+                  {
+                    $lookup:
+                    {
+                      from: 'users',
+                      localField: 'classId',
+                      foreignField: 'userId',
+                      as: 'class'
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'schoolId',
+                      foreignField: 'userId',
+                      as: 'school'
+                    }
+                  }
+            ]);
+            userData = users[0];
+
           }
-          console.log("user has provided email : " + identity);
           
+          console.log("user has provided email : " + identity);
         }
         else{
           console.log("user has provided mobile : "+identity);

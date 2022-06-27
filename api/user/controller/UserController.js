@@ -87,60 +87,62 @@ const fetchReferrals = async (req, res) => {
 /**
  * Get Profile
  */
-const getProfile = async (req, res) => {
-  if (req.user) {
+// const getProfile = async (req, res) => {
+//   if (req.user) {
  
     
-    const user = {
-      ...req.user._doc,
-    };
-    return successResponseWithData(
-      res,
-      UserConstants.profileFetchedSuccessMsg,
-      user
-    );
-  } else {
-    return ErrorResponse(res, UserConstants.NoUserFoundMsg);
-  }
-};
-
-// const getProfile = async (req, res) => {
-//   try {
-//     const {
-//       id
-//     } = req.params;
-//     console.log(id);
-//     let userData = {};
-//      userData = await MasterModel.findOne({
-//               userId: id
-//      });
-    
-//      if (masterData.role == "Teacher") {
-//             userData = await TeacherModel.findOne({
-//               userId: id
-//             });
-//        } else if (masterData.role == "Student") {
-//             userData = await StudentModel.findOne({
-//               userId: id
-//             });
-//      } else {
-//        userData = await UserModel.findOne({
-//               userId: id
-//             });
-//       //  userData = {
-//       //     ...req.user._doc,
-//       //   };
-//     }
-     
+//     const user = {
+//       ...req.user._doc,
+//     };
 //     return successResponseWithData(
 //       res,
 //       UserConstants.profileFetchedSuccessMsg,
-//       userData
+//       user
 //     );
-//   } catch {
+//   } else {
 //     return ErrorResponse(res, UserConstants.NoUserFoundMsg);
 //   }
 // };
+
+const getProfile = async (req, res) => {
+  try {
+    const {
+      id
+    } = req.params;
+    console.log(id);
+    let userData = {};
+    let masterData = {};
+     masterData = await MasterModel.findOne({
+              userId: id
+     });
+    console.log(userData);
+     if (masterData.role == "Teacher") {
+            userData = await TeacherModel.findOne({
+              userId: id
+            });
+       } else if (masterData.role == "Student") {
+            userData = await StudentModel.findOne({
+              userId: id
+            });
+        console.log(userData);
+     } else {
+       userData = await UserModel.findOne({
+              userId: id
+            });
+      //  userData = {
+      //     ...req.user._doc,
+      //   };
+    }
+     
+    return successResponseWithData(
+      res,
+      UserConstants.profileFetchedSuccessMsg,
+      userData
+    );
+  } catch {
+    return ErrorResponse(res, UserConstants.NoUserFoundMsg);
+  }
+};
 
 /**
  * Update profile

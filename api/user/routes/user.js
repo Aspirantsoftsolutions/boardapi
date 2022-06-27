@@ -19,7 +19,7 @@ import AuthMiddleware from "../../../middlewares/auth.js";
  */
 let userRouter = express.Router();
 
-userRouter.get("/profile", AuthMiddleware.auth, UserController.getProfile);
+userRouter.get("/profile/:id", UserController.getProfile);
 // userRouter.put('/profile', auth, upload.fields([{
 //     name: 'profile_pic',
 //     maxCount: 1
