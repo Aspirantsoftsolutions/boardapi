@@ -54,6 +54,8 @@ userRouter.get("/getCounts/:userid", UserController.getCounts);
 userRouter.post("/createClass", UserController.createClass);
 userRouter.post("/addEvent", UserController.createCalendar);
 userRouter.get("/getCalendar", UserController.allCalendar);
+// userRouter.post("/createMasterData", UserController.createClass);
+
 
 /**
  * @description Configured router for User Routes

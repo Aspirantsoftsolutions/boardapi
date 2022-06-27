@@ -40,6 +40,7 @@ import TeacherModel from "../model/TeacherModel.js";
 import StudentModel from "../model/StudentModel.js";
 import ClassModel from "../model/ClassModel.js";
 import CalendarModel from "../model/CalendarModel.js";
+import MasterModel from "../model/MasterModel.js";
 
 /**
  *  Get Referral Message with referral code
@@ -88,6 +89,8 @@ const fetchReferrals = async (req, res) => {
  */
 const getProfile = async (req, res) => {
   if (req.user) {
+ 
+    
     const user = {
       ...req.user._doc,
     };
@@ -100,6 +103,44 @@ const getProfile = async (req, res) => {
     return ErrorResponse(res, UserConstants.NoUserFoundMsg);
   }
 };
+
+// const getProfile = async (req, res) => {
+//   try {
+//     const {
+//       id
+//     } = req.params;
+//     console.log(id);
+//     let userData = {};
+//      userData = await MasterModel.findOne({
+//               userId: id
+//      });
+    
+//      if (masterData.role == "Teacher") {
+//             userData = await TeacherModel.findOne({
+//               userId: id
+//             });
+//        } else if (masterData.role == "Student") {
+//             userData = await StudentModel.findOne({
+//               userId: id
+//             });
+//      } else {
+//        userData = await UserModel.findOne({
+//               userId: id
+//             });
+//       //  userData = {
+//       //     ...req.user._doc,
+//       //   };
+//     }
+     
+//     return successResponseWithData(
+//       res,
+//       UserConstants.profileFetchedSuccessMsg,
+//       userData
+//     );
+//   } catch {
+//     return ErrorResponse(res, UserConstants.NoUserFoundMsg);
+//   }
+// };
 
 /**
  * Update profile
@@ -732,6 +773,37 @@ const allCalendar = async (req, res) => {
   }
 };
 
+const createMasterData = async (req, res) => {
+  try {
+
+    const {
+     userId,
+      email,
+     role
+    } = req.body;
+
+    const createData = {
+      userId,
+      email,
+      role
+    };
+    createData.userId = userId;
+    createData.email = email;
+    createData.role = role;
+    
+
+    await MasterModel.create(createData);
+    return successResponse(
+      res,
+      UserConstants.createdSuccess,
+    );
+  } catch (err) {
+    console.log(err);
+    return validationErrorWithData(res, UserConstants.errorOccurred, err);
+  } 
+};
+
+
 export default {
   sendReferral,
   fetchReferrals,
@@ -756,5 +828,6 @@ export default {
   updateStudentStatus,
   createCalendar,
   allCalendar,
-  updateThidPartyFeatures
+  updateThidPartyFeatures,
+  createMasterData
 };
