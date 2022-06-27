@@ -89,25 +89,25 @@ const login = [
           let masterData = await MasterModel.findOne({
             email : identity
           });
-          // if (!masterData) {
-          //   return notFoundResponse(res, AuthConstants.userNotFound);
-          // }
-           userData = await UserModel.findOne({
-              email : identity
-            });
-          // if (masterData.role == "Teacher") {
-          //   userData = await TeacherModel.findOne({
-          //     email: identity
-          //   });
-          // } else if (masterData.role == "Student") {
-          //   userData = await StudentModel.findOne({
-          //     email: identity
-          //   });
-          // } else {
-          //   userData = await UserModel.findOne({
+          if (!masterData) {
+            return notFoundResponse(res, AuthConstants.userNotFound);
+          }
+          //  userData = await UserModel.findOne({
           //     email : identity
           //   });
-          // }
+          if (masterData.role == "Teacher") {
+            userData = await TeacherModel.findOne({
+              email: identity
+            });
+          } else if (masterData.role == "Student") {
+            userData = await StudentModel.findOne({
+              email: identity
+            });
+          } else {
+            userData = await UserModel.findOne({
+              email : identity
+            });
+          }
           console.log("user has provided email : " + identity);
           
         }
