@@ -212,6 +212,35 @@ const updateProfileData = async (req, res) => {
   }
 };
 
+const updateStudentProfileData = async (req, res) => {
+  try {
+   
+      const {
+        classId,
+        firstName,
+        lastName,
+        mobile,
+        userId
+      } = req.body;
+     
+    await StudentModel.updateMany({
+      userId: userId
+    },{
+      classId: classId,
+      lastName: lastName,
+      firstName: firstName,
+      mobile: mobile,
+    });
+
+      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
+
 const updateThidPartyFeatures = async (req, res) => {
   try {
 
@@ -512,7 +541,7 @@ const allStudents = async (req, res) => {
       {
         $lookup:
         {
-          from: 'users',
+          from: 'classes',
           localField: 'classId',
           foreignField: 'userId',
           as: 'class'
@@ -831,5 +860,6 @@ export default {
   createCalendar,
   allCalendar,
   updateThidPartyFeatures,
-  createMasterData
+  createMasterData,
+  updateStudentProfileData
 };

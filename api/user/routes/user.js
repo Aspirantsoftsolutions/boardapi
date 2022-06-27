@@ -42,6 +42,7 @@ userRouter.get("/all/:role", UserController.allusersRole);
 userRouter.put("/", UserController.updateUser);
 userRouter.put("/updatePassword", UserController.updateUserPassword);
 userRouter.put("/updateProfileData", UserController.updateProfileData);
+userRouter.put("/updateStudentProfileData", UserController.updateStudentProfileData);
 userRouter.delete("/:id", UserController.deleteUser);
 userRouter.delete("/Teacher/:id", UserController.deleteTeacher);
 userRouter.delete("/Student/:id", UserController.deleteStudent);
