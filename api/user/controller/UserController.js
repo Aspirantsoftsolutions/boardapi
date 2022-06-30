@@ -192,18 +192,43 @@ const updateProfileData = async (req, res) => {
         userId
       } = req.body;
      
-    await UserModel.updateMany({
+    let masterData = await MasterModel.findOne({
       userId: userId
-    },{
-      
-      address: address,
-      lastName: lastName,
-      firstName: firstName,
-      fullName: fullName,
-      mobile: mobile,
-      organisation: organisation
     });
-
+    if (masterData.role == 'Teacher') {
+      await TeacherModel.updateMany({
+          userId: userId
+        },{
+          address: address,
+          lastName: lastName,
+          firstName: firstName,
+          fullName: fullName,
+          mobile: mobile,
+          organisation: organisation
+        });
+    } else if (masterData.role == 'Student') {
+      await StudentModel.updateMany({
+          userId: userId
+        },{
+          address: address,
+          lastName: lastName,
+          firstName: firstName,
+          fullName: fullName,
+          mobile: mobile,
+          organisation: organisation
+        });
+    } else {
+       await UserModel.updateMany({
+          userId: userId
+        },{
+          address: address,
+          lastName: lastName,
+          firstName: firstName,
+          fullName: fullName,
+          mobile: mobile,
+          organisation: organisation
+        });
+    }
       return successResponse(res, UserConstants.profileUpdateSuccessMsg);
     
   } catch (err) {
@@ -300,8 +325,91 @@ const updateUserStatus = async (req, res) => {
     console.log(userId);
     console.log(status);
 
-    await UserModel.updateOne({userId: userId}, {isActive: isActive});
-     await UserModel.updateOne({ userId: userId },{ status: status });
+    // await UserModel.updateOne({userId: userId}, {isActive: isActive});
+    //  await UserModel.updateOne({ userId: userId },{ status: status });
+
+    let masterData = await MasterModel.findOne({
+      userId: userId
+    });
+    if (masterData.role == 'Teacher') {
+      await TeacherModel.updateMany({
+        userId: userId
+      },{
+        isActive: isActive,
+        status: status
+      });
+    } else if (masterData.role == 'Student') {
+      await StudentModel.updateMany({
+        userId: userId
+      },{
+        isActive: isActive,
+        status: status
+      });
+    } else {
+      await UserModel.updateMany({
+        userId: userId
+      },{
+        isActive: isActive,
+        status: status
+      });
+    }
+
+    
+     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
+const updateSubscriptionType = async (req, res) => {
+  try {
+    const { plan,userId } = req.body;
+    console.log(plan);
+    console.log(userId);
+
+    // await UserModel.updateOne({userId: userId}, {isActive: isActive});
+    //  await UserModel.updateOne({ userId: userId },{ status: status });
+
+    let masterData = await MasterModel.findOne({
+      userId: userId
+    });
+    if (masterData.role == 'Teacher') {
+      await TeacherModel.updateOne({
+        userId: userId
+      },{
+        plan: plan
+      });
+    } else if (masterData.role == 'Student') {
+      await StudentModel.updateOne({
+        userId: userId
+      },{
+        plan: plan
+      });
+    } else {
+      await UserModel.updateOne({
+        userId: userId
+      },{
+        plan: plan
+      });
+      await UserModel.updateOne({
+        schoolId: userId
+      },{
+        plan: plan
+      });
+       await StudentModel.updateOne({
+        schoolId: userId
+      },{
+        plan: plan
+       });
+      await TeacherModel.updateOne({
+        schoolId: userId
+      },{
+        plan: plan
+      });
+    }
+
      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
 
   } catch (err) {
@@ -571,9 +679,20 @@ const allusersRole = async (req, res) => {
   try {
     const { role } = req.params;
     let users;
-   users = await UserModel.find({
-        role
+     if (role == 'Teacher') {
+      users = await TeacherModel.find({
+         role: role
       }).exec();
+    }else if (role == 'Student') {
+      users = await StudentModel.find({
+         role: role
+      }).exec();
+    } else {
+      users = await UserModel.find({
+         role: role
+      }).exec();
+    }
+   
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
@@ -613,7 +732,25 @@ const deleteUser = async (req, res) => {
     const { id } = req.params;
     // Add a boolean
 
-    await UserModel.findByIdAndDelete(id);
+     let masterData = await MasterModel.findOne({
+      userId: id
+    });
+    if (masterData.role == 'Teacher') {
+      await TeacherModel.findOneAndDelete({
+        userId: id
+      });
+    } else if (masterData.role == 'Student') {
+      await StudentModel.findOneAndDelete({
+        userId: id
+      });
+    } else {
+      await UserModel.findOneAndDelete({
+        userId: id
+      });
+    }
+    await MasterModel.findOneAndDelete({
+        userId: id
+      });
     return successResponse(res, UserConstants.userDeletedSuccessfully);
   } catch (err) {
     console.log(err);
@@ -861,5 +998,6 @@ export default {
   allCalendar,
   updateThidPartyFeatures,
   createMasterData,
-  updateStudentProfileData
+  updateStudentProfileData,
+  updateSubscriptionType
 };

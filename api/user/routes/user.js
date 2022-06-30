@@ -48,6 +48,7 @@ userRouter.delete("/Teacher/:id", UserController.deleteTeacher);
 userRouter.delete("/Student/:id", UserController.deleteStudent);
 userRouter.put("/invite", UserController.sendInvitation);
 userRouter.put("/userActive", AuthMiddleware.auth, UserController.updateUserStatus);
+userRouter.put("/updatePlanType", AuthMiddleware.auth, UserController.updateSubscriptionType);
 userRouter.put("/teacherActive", UserController.updateTeacherStatus);
 userRouter.put("/studentActive", UserController.updateStudentStatus);
 userRouter.put("/updateFeatures", UserController.updateThidPartyFeatures);

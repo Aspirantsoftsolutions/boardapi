@@ -17,6 +17,7 @@ import AuthController from "../controller/AuthController.js";
 let authRouter = express.Router();
 
 authRouter.post("/register", AuthController.register);
+authRouter.post("/universalRegister", AuthController.UniversalRegister);
 authRouter.post("/registerTeacher", AuthController.registerTeacher);
 authRouter.post("/registerStudent", AuthController.registerStudent);
 authRouter.post("/login", AuthController.login);
