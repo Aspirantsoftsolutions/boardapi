@@ -113,27 +113,97 @@ const getProfile = async (req, res) => {
     let userData = {};
     let masterData = {};
      masterData = await MasterModel.findOne({
-              userId: id
+             userId: id
      });
-    console.log(userData);
-     if (masterData.role == "Teacher") {
-            userData = await TeacherModel.findOne({
+    console.log(masterData);
+    if (masterData.role == "Admin") {
+      userData = await UserModel.findOne({
               userId: id
             });
-       } else if (masterData.role == "Student") {
-            userData = await StudentModel.findOne({
-              userId: id
-            });
-        console.log(userData);
-     } else {
-       userData = await UserModel.findOne({
-              userId: id
-            });
-      //  userData = {
-      //     ...req.user._doc,
-      //   };
+    } else {
+      if (masterData.role == "Teacher") {
+             let users = await TeacherModel.aggregate([
+                {
+                  $match: {
+                    userId: id
+                  }
+                },
+                {
+                  $lookup:
+                  {
+                    from: 'users',
+                    localField: 'classId',
+                    foreignField: 'userId',
+                    as: 'class'
+                  }
+                },
+                {
+                  $lookup: {
+                    from: 'users',
+                    localField: 'schoolId',
+                    foreignField: 'userId',
+                    as: 'school'
+                  }
+                }
+             ]);
+            userData = users[0];
+            console.log("Teacher data : " + userData.school);
+          } else if (masterData.role == "Student") {
+            userData = await StudentModel.aggregate([
+                  {
+                    $match: {
+                      userId: id
+                    }
+                  },
+                  {
+                    $lookup:
+                    {
+                      from: 'users',
+                      localField: 'classId',
+                      foreignField: 'userId',
+                      as: 'class'
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'schoolId',
+                      foreignField: 'userId',
+                      as: 'school'
+                    }
+                  }
+            ]);
+            userData = userData[0];
+                console.log(userData);
+          } else {
+            let users = await UserModel.aggregate([
+                  {
+                    $match: {
+                      userId: id
+                    }
+                  },
+                  {
+                    $lookup:
+                    {
+                      from: 'users',
+                      localField: 'classId',
+                      foreignField: 'userId',
+                      as: 'class'
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: 'users',
+                      localField: 'schoolId',
+                      foreignField: 'userId',
+                      as: 'school'
+                    }
+                  }
+            ]);
+            userData = users[0];
+          }
     }
-     
+          
     return successResponseWithData(
       res,
       UserConstants.profileFetchedSuccessMsg,
@@ -639,32 +709,63 @@ const allStudents = async (req, res) => {
       schoolId
     } = req.params;
     console.log(schoolId);
-    // let users = await UserModel.find().exec();
-    let users = await StudentModel.aggregate([
-      {
-        $match: {
-          schoolId: schoolId
-        }
-      },
-      {
-        $lookup:
-        {
-          from: 'classes',
-          localField: 'classId',
-          foreignField: 'userId',
-          as: 'class'
-        }
-      },
-       {
-         $lookup: {
-           from: 'users',
-           localField: 'schoolId',
-           foreignField: 'userId',
-           as: 'school'
-         }
-       }
-    ]);
+    let masterData = await MasterModel.findOne({
+        userId: schoolId
+    });
+    let users = [];
     
+    if (masterData.role == 'Teacher') {
+      users = await StudentModel.aggregate([
+        {
+          $match: {
+            teacherId: schoolId
+          }
+        },
+        {
+          $lookup:
+          {
+            from: 'classes',
+            localField: 'classId',
+            foreignField: 'userId',
+            as: 'class'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'schoolId',
+            foreignField: 'userId',
+            as: 'school'
+          }
+        }
+      ]);
+    } else {
+       users = await StudentModel.aggregate([
+        {
+          $match: {
+            schoolId: schoolId
+          }
+        },
+        {
+          $lookup:
+          {
+            from: 'classes',
+            localField: 'classId',
+            foreignField: 'userId',
+            as: 'class'
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'schoolId',
+            foreignField: 'userId',
+            as: 'school'
+          }
+        }
+      ]);
+    }
+   
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,

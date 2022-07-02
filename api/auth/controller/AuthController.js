@@ -90,13 +90,7 @@ const login = [
           if (!masterData) {
             return notFoundResponse(res, AuthConstants.userNotFound);
           }
-          //  userData = await UserModel.findOne({
-          //     email : identity
-          //   });
           if (masterData.role == "Teacher") {
-            // userData = await TeacherModel.findOne({
-            //   email: identity
-            // });
              let users = await TeacherModel.aggregate([
                 {
                   $match: {
@@ -122,11 +116,8 @@ const login = [
                 }
              ]);
             userData = users[0];
+            console.log("Teacher data : " + userData.school);
           } else if (masterData.role == "Student") {
-            // userData = await StudentModel.findOne({
-            //   email: identity
-            // });
-            // console.log(userData);
             userData = await StudentModel.aggregate([
                   {
                     $match: {
@@ -154,9 +145,6 @@ const login = [
             userData = userData[0];
                 console.log(userData);
           } else {
-            userData = await UserModel.findOne({
-              email : identity
-            });
             let users = await UserModel.aggregate([
                   {
                     $match: {
@@ -182,7 +170,6 @@ const login = [
                   }
             ]);
             userData = users[0];
-
           }
           
           console.log("user has provided email : " + identity);
@@ -480,7 +467,7 @@ const register = [
               userResponse = {
                   userId: userData.userId,
                   username: userData.username,
-                email: userData.email,
+                  email: userData.email,
                   otp: otp
               }
             }
@@ -738,7 +725,7 @@ const registerStudent = [
         else {
           console.log("Registering student");
           // const {address,location,organisation, email, password, username, mobile, countryCode, role, plan, status, teacherId, classId,grade } = req.body;
-          const {schoolId,username,firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade } = req.body;
+          const {schoolId,username,firstName,lastName,organisation,subject, email, password, mobile, countryCode, role, plan, status, classId,grade,teacherId } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
 
@@ -753,6 +740,9 @@ const registerStudent = [
           }
           if (schoolId) {
             createData.schoolId = schoolId;
+          }
+          if (teacherId) {
+            createData.teacherId = [teacherId];
           }
           if (classId) {
             createData.classId = classId;

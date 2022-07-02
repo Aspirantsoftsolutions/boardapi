@@ -152,7 +152,7 @@ var StudentSchema = new mongoose.Schema(
       type: String
      },
     teacherId: {
-      type: String
+      type: Array
     },
     schoolId: {
       type: String,
