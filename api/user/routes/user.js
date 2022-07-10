@@ -56,6 +56,10 @@ userRouter.get("/getCounts/:userid", UserController.getCounts);
 userRouter.post("/createClass", UserController.createClass);
 userRouter.post("/addEvent", UserController.createCalendar);
 userRouter.get("/getCalendar", UserController.allCalendar);
+userRouter.put("/linkTeachers", UserController.linkTeacherToStudent);
+userRouter.put("/linkClasses", UserController.linkTeacherToClass);
+
+
 // userRouter.post("/createMasterData", UserController.createClass);
 
 

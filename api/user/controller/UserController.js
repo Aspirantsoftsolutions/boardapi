@@ -335,6 +335,58 @@ const updateStudentProfileData = async (req, res) => {
   }
 };
 
+const linkTeacherToStudent = async (req, res) => {
+  try {
+   
+      const {
+        teacherId,
+        userId
+      } = req.body;
+    
+    await StudentModel.updateMany({
+       userId: {
+          $in: userId
+        }
+    }, {
+      $push: {
+        teacherId: teacherId
+      }
+    });
+
+      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
+const linkTeacherToClass = async (req, res) => {
+  try {
+   
+      const {
+        teacherId,
+        userId
+      } = req.body;
+    
+    await ClassModel.updateMany({
+       userId: {
+          $in: userId
+        }
+    }, {
+      $push: {
+        teacherId: teacherId
+      }
+    });
+
+      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
 
 const updateThidPartyFeatures = async (req, res) => {
   try {
@@ -718,7 +770,9 @@ const allStudents = async (req, res) => {
       users = await StudentModel.aggregate([
         {
           $match: {
-            teacherId: schoolId
+            teacherId: {
+              $in: [ schoolId ]
+            }
           }
         },
         {
@@ -1100,5 +1154,7 @@ export default {
   updateThidPartyFeatures,
   createMasterData,
   updateStudentProfileData,
-  updateSubscriptionType
+  updateSubscriptionType,
+  linkTeacherToStudent,
+  linkTeacherToClass
 };

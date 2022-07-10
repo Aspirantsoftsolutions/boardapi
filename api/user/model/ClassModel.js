@@ -17,6 +17,9 @@ var ClassSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    teacherId: {
+      type: Array
+    }
   },
   { timestamps: true }
 );
