@@ -12,25 +12,25 @@ import NotificationsController from "../controllers/NotificationsController.js";
 
 /**
  * @description Express Framework Router
- * @param notificaitonRouter
+ * @param notificationRouter
  */
-let notificaitonRouter = express.Router();
+let notificationRouter = express.Router();
 
 import AuthMiddleware from "../../../middlewares/auth.js";
 
-notificaitonRouter.post(
+notificationRouter.post(
   "/subscribe",
   AuthMiddleware.auth,
   NotificationsController.subscribe
 );
-notificaitonRouter.post("/add", NotificationsController.add);
-notificaitonRouter.get("/send", NotificationsController.sendPush);
-notificaitonRouter.get("/all", NotificationsController.getNotifications);
-notificaitonRouter.delete("/:id", NotificationsController.deleteNotification);
+notificationRouter.post("/add", NotificationsController.add);
+notificationRouter.get("/send", NotificationsController.sendPush);
+notificationRouter.get("/all", NotificationsController.getNotifications);
+notificationRouter.delete("/:id", NotificationsController.deleteNotification);
 /**
  * @description Configured router for Notification Routes
- * @exports notificaitonRouter
+ * @exports notificationRouter
  * @default
  */
-export default notificaitonRouter;
+export default notificationRouter;
 

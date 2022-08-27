@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-const NotificationSchema = mongoose.Schema({
+const pushNotifications = mongoose.Schema({
     type: {
-        type: String, required: true, default: 'text'
+        type: String, required: true, default: 'text', enum: ['text', 'audio', 'video', 'image']
     },
     title: {
         type: String, required: true
@@ -11,6 +11,12 @@ const NotificationSchema = mongoose.Schema({
         type: String, required: true
     },
     image: {
+        type: String, default: ''
+    },
+    audio: {
+        type: String, default: ''
+    },
+    video: {
         type: String, default: ''
     },
     icon: {
@@ -45,18 +51,14 @@ const NotificationSchema = mongoose.Schema({
             type: Boolean, default: false
         }
     }],
-    status: {
-        type: Boolean, default: false
-    },
-    sucessCount: {
-        type: Number, default: 0
-    },
-    failsCount: {
-        type: Number, default: 0
-    },
     publishStatus: {
-        type: Boolean, default: false
-    }
+        type: String, enum: ['sent', 'failed', 'not_sent', 'scheduled'], default: 'not_sent'
+    },
+    retryCount: {
+        type: Number, default: 0
+    },
+    deviceId: { type: String, required: true },
+    jobId: { type: String, required: true }
 });
 
-export default mongoose.model('Notifications', NotificationSchema);
+export default mongoose.model('pushNotifications', pushNotifications);

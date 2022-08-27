@@ -9,6 +9,7 @@ import AuthMiddleware from "../middlewares/auth.js";
 // import adminRouter from "../api/admin/routes/admin.js";
 import notificationsRouter from "../api/notifications/routes/notifications.js";
 import devicesRouter from "../api/devices/routes/devicesRoutes.js";
+import pushNotificationsRouter from "../api/pushNotifications/routes/pushNotificationRoutes.js";
 /**
  * Init routes config
  * @param app
@@ -27,7 +28,7 @@ export function initRoutes(app) {
   app.use("/api/report", AuthMiddleware.auth, reportRouter);
   app.use("/api/fileupload", FileUploadRouter);
   app.use("/api/device", devicesRouter);
-  // app.use("/api/notificaitons/", notificationsRouter);
+  app.use("/api/pushnotifications", pushNotificationsRouter);
 
   app.route("/*").get((req, res) => {
     res.status(404).end();
