@@ -8,7 +8,7 @@ import FileUploadRouter from "../api/fileupload/routes/FileUpload.js";
 import AuthMiddleware from "../middlewares/auth.js";
 // import adminRouter from "../api/admin/routes/admin.js";
 import notificationsRouter from "../api/notifications/routes/notifications.js";
-
+import devicesRouter from "../api/devices/routes/devicesRoutes.js";
 /**
  * Init routes config
  * @param app
@@ -26,6 +26,7 @@ export function initRoutes(app) {
   // app.use("/api/search", searchRouter);
   app.use("/api/report", AuthMiddleware.auth, reportRouter);
   app.use("/api/fileupload", FileUploadRouter);
+  app.use("/api/device", devicesRouter);
   // app.use("/api/notificaitons/", notificationsRouter);
 
   app.route("/*").get((req, res) => {
