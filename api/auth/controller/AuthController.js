@@ -435,7 +435,7 @@ const qrlogin = [
           const resp = await loginSessionsModel.findOne(query);
           if (resp) {
 
-
+            userData.qrCode = sessionInfo.qrInfo;
             if (!userData) {
               // Not Found (404) If user is not found in the DB
               console.log("User : " + identity + " is not found");
