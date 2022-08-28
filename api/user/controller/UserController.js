@@ -50,9 +50,8 @@ import MasterModel from "../model/MasterModel.js";
  */
 const sendReferral = async (req, res) => {
   //generate user invitation
-  const inviteMessage = `Here is your joining bonus Rs.500, a welcome gift from your friend ${
-    req.user.fullName ? req.user.fullName : "Secret Friend"
-  }. Use code  ${req.user.referral_code} to avail the offer. Download Link: `;
+  const inviteMessage = `Here is your joining bonus Rs.500, a welcome gift from your friend ${req.user.fullName ? req.user.fullName : "Secret Friend"
+    }. Use code  ${req.user.referral_code} to avail the offer. Download Link: `;
   //fetch referral code from user data
   const data = {
     referral_code: req.user.referral_code,
@@ -89,8 +88,8 @@ const fetchReferrals = async (req, res) => {
  */
 // const getProfile = async (req, res) => {
 //   if (req.user) {
- 
-    
+
+
 //     const user = {
 //       ...req.user._doc,
 //     };
@@ -112,98 +111,98 @@ const getProfile = async (req, res) => {
     console.log(id);
     let userData = {};
     let masterData = {};
-     masterData = await MasterModel.findOne({
-             userId: id
-     });
+    masterData = await MasterModel.findOne({
+      userId: id
+    });
     console.log(masterData);
     if (masterData.role == "Admin") {
       userData = await UserModel.findOne({
-              userId: id
-            });
+        userId: id
+      });
     } else {
       if (masterData.role == "Teacher") {
-             let users = await TeacherModel.aggregate([
-                {
-                  $match: {
-                    userId: id
-                  }
-                },
-                {
-                  $lookup:
-                  {
-                    from: 'users',
-                    localField: 'classId',
-                    foreignField: 'userId',
-                    as: 'class'
-                  }
-                },
-                {
-                  $lookup: {
-                    from: 'users',
-                    localField: 'schoolId',
-                    foreignField: 'userId',
-                    as: 'school'
-                  }
-                }
-             ]);
-            userData = users[0];
-            console.log("Teacher data : " + userData.school);
-          } else if (masterData.role == "Student") {
-            userData = await StudentModel.aggregate([
-                  {
-                    $match: {
-                      userId: id
-                    }
-                  },
-                  {
-                    $lookup:
-                    {
-                      from: 'users',
-                      localField: 'classId',
-                      foreignField: 'userId',
-                      as: 'class'
-                    }
-                  },
-                  {
-                    $lookup: {
-                      from: 'users',
-                      localField: 'schoolId',
-                      foreignField: 'userId',
-                      as: 'school'
-                    }
-                  }
-            ]);
-            userData = userData[0];
-                console.log(userData);
-          } else {
-            let users = await UserModel.aggregate([
-                  {
-                    $match: {
-                      userId: id
-                    }
-                  },
-                  {
-                    $lookup:
-                    {
-                      from: 'users',
-                      localField: 'classId',
-                      foreignField: 'userId',
-                      as: 'class'
-                    }
-                  },
-                  {
-                    $lookup: {
-                      from: 'users',
-                      localField: 'schoolId',
-                      foreignField: 'userId',
-                      as: 'school'
-                    }
-                  }
-            ]);
-            userData = users[0];
+        let users = await TeacherModel.aggregate([
+          {
+            $match: {
+              userId: id
+            }
+          },
+          {
+            $lookup:
+            {
+              from: 'users',
+              localField: 'classId',
+              foreignField: 'userId',
+              as: 'class'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'schoolId',
+              foreignField: 'userId',
+              as: 'school'
+            }
           }
+        ]);
+        userData = users[0];
+        console.log("Teacher data : " + userData.school);
+      } else if (masterData.role == "Student") {
+        userData = await StudentModel.aggregate([
+          {
+            $match: {
+              userId: id
+            }
+          },
+          {
+            $lookup:
+            {
+              from: 'users',
+              localField: 'classId',
+              foreignField: 'userId',
+              as: 'class'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'schoolId',
+              foreignField: 'userId',
+              as: 'school'
+            }
+          }
+        ]);
+        userData = userData[0];
+        console.log(userData);
+      } else {
+        let users = await UserModel.aggregate([
+          {
+            $match: {
+              userId: id
+            }
+          },
+          {
+            $lookup:
+            {
+              from: 'users',
+              localField: 'classId',
+              foreignField: 'userId',
+              as: 'class'
+            }
+          },
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'schoolId',
+              foreignField: 'userId',
+              as: 'school'
+            }
+          }
+        ]);
+        userData = users[0];
+      }
     }
-          
+
     return successResponseWithData(
       res,
       UserConstants.profileFetchedSuccessMsg,
@@ -251,56 +250,56 @@ const updateProfile = async (req, res) => {
 
 const updateProfileData = async (req, res) => {
   try {
-   
-      const {
-        organisation,
-        fullName,
-        firstName,
-        lastName,
-        address,
-        mobile,
-        userId
-      } = req.body;
-     
+
+    const {
+      organisation,
+      fullName,
+      firstName,
+      lastName,
+      address,
+      mobile,
+      userId
+    } = req.body;
+
     let masterData = await MasterModel.findOne({
       userId: userId
     });
     if (masterData.role == 'Teacher') {
       await TeacherModel.updateMany({
-          userId: userId
-        },{
-          address: address,
-          lastName: lastName,
-          firstName: firstName,
-          fullName: fullName,
-          mobile: mobile,
-          organisation: organisation
-        });
+        userId: userId
+      }, {
+        address: address,
+        lastName: lastName,
+        firstName: firstName,
+        fullName: fullName,
+        mobile: mobile,
+        organisation: organisation
+      });
     } else if (masterData.role == 'Student') {
       await StudentModel.updateMany({
-          userId: userId
-        },{
-          address: address,
-          lastName: lastName,
-          firstName: firstName,
-          fullName: fullName,
-          mobile: mobile,
-          organisation: organisation
-        });
+        userId: userId
+      }, {
+        address: address,
+        lastName: lastName,
+        firstName: firstName,
+        fullName: fullName,
+        mobile: mobile,
+        organisation: organisation
+      });
     } else {
-       await UserModel.updateMany({
-          userId: userId
-        },{
-          address: address,
-          lastName: lastName,
-          firstName: firstName,
-          fullName: fullName,
-          mobile: mobile,
-          organisation: organisation
-        });
+      await UserModel.updateMany({
+        userId: userId
+      }, {
+        address: address,
+        lastName: lastName,
+        firstName: firstName,
+        fullName: fullName,
+        mobile: mobile,
+        organisation: organisation
+      });
     }
-      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
-    
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
   } catch (err) {
     console.log(err);
     return ErrorResponse(res, UserConstants.profileUpdateError);
@@ -309,26 +308,26 @@ const updateProfileData = async (req, res) => {
 
 const updateStudentProfileData = async (req, res) => {
   try {
-   
-      const {
-        classId,
-        firstName,
-        lastName,
-        mobile,
-        userId
-      } = req.body;
-     
+
+    const {
+      classId,
+      firstName,
+      lastName,
+      mobile,
+      userId
+    } = req.body;
+
     await StudentModel.updateMany({
       userId: userId
-    },{
+    }, {
       classId: classId,
       lastName: lastName,
       firstName: firstName,
       mobile: mobile,
     });
 
-      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
-    
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
   } catch (err) {
     console.log(err);
     return ErrorResponse(res, UserConstants.profileUpdateError);
@@ -337,24 +336,24 @@ const updateStudentProfileData = async (req, res) => {
 
 const linkTeacherToStudent = async (req, res) => {
   try {
-   
-      const {
-        teacherId,
-        userId
-      } = req.body;
-    
+
+    const {
+      teacherId,
+      userId
+    } = req.body;
+
     await StudentModel.updateMany({
-       userId: {
-          $in: userId
-        }
+      userId: {
+        $in: userId
+      }
     }, {
       $push: {
         teacherId: teacherId
       }
     });
 
-      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
-    
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
   } catch (err) {
     console.log(err);
     return ErrorResponse(res, UserConstants.profileUpdateError);
@@ -363,24 +362,24 @@ const linkTeacherToStudent = async (req, res) => {
 
 const linkTeacherToClass = async (req, res) => {
   try {
-   
-      const {
-        teacherId,
-        userId
-      } = req.body;
-    
+
+    const {
+      teacherId,
+      userId
+    } = req.body;
+
     await ClassModel.updateMany({
-       userId: {
-          $in: userId
-        }
+      userId: {
+        $in: userId
+      }
     }, {
       $push: {
         teacherId: teacherId
       }
     });
 
-      return successResponse(res, UserConstants.profileUpdateSuccessMsg);
-    
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
   } catch (err) {
     console.log(err);
     return ErrorResponse(res, UserConstants.profileUpdateError);
@@ -424,15 +423,15 @@ const updateThidPartyFeatures = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { classId,userId } = req.body;
+    const { classId, userId } = req.body;
 
-    UserModel.updateOne({userId:userId},{classId: classId},
+    UserModel.updateOne({ userId: userId }, { classId: classId },
       (err, user) => {
         console.log(user);
         return ErrorResponse(res, UserConstants.profileUpdateError);
-      //handle error
+        //handle error
       });
-     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
 
   } catch (err) {
     console.log(err);
@@ -442,7 +441,7 @@ const updateUser = async (req, res) => {
 
 const updateUserStatus = async (req, res) => {
   try {
-    const { isActive,userId, status } = req.body;
+    const { isActive, userId, status } = req.body;
     console.log(isActive);
     console.log(userId);
     console.log(status);
@@ -456,28 +455,28 @@ const updateUserStatus = async (req, res) => {
     if (masterData.role == 'Teacher') {
       await TeacherModel.updateMany({
         userId: userId
-      },{
+      }, {
         isActive: isActive,
         status: status
       });
     } else if (masterData.role == 'Student') {
       await StudentModel.updateMany({
         userId: userId
-      },{
+      }, {
         isActive: isActive,
         status: status
       });
     } else {
       await UserModel.updateMany({
         userId: userId
-      },{
+      }, {
         isActive: isActive,
         status: status
       });
     }
 
-    
-     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
 
   } catch (err) {
     console.log(err);
@@ -487,7 +486,7 @@ const updateUserStatus = async (req, res) => {
 
 const updateSubscriptionType = async (req, res) => {
   try {
-    const { plan,userId } = req.body;
+    const { plan, userId } = req.body;
     console.log(plan);
     console.log(userId);
 
@@ -500,39 +499,39 @@ const updateSubscriptionType = async (req, res) => {
     if (masterData.role == 'Teacher') {
       await TeacherModel.updateOne({
         userId: userId
-      },{
+      }, {
         plan: plan
       });
     } else if (masterData.role == 'Student') {
       await StudentModel.updateOne({
         userId: userId
-      },{
+      }, {
         plan: plan
       });
     } else {
       await UserModel.updateOne({
         userId: userId
-      },{
+      }, {
         plan: plan
       });
       await UserModel.updateOne({
         schoolId: userId
-      },{
+      }, {
         plan: plan
       });
-       await StudentModel.updateOne({
+      await StudentModel.updateOne({
         schoolId: userId
-      },{
+      }, {
         plan: plan
-       });
+      });
       await TeacherModel.updateOne({
         schoolId: userId
-      },{
+      }, {
         plan: plan
       });
     }
 
-     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
 
   } catch (err) {
     console.log(err);
@@ -604,7 +603,7 @@ const updateUserPassword = async (req, res) => {
 
     const hashPass = await bcrypt.hash(password, 10);
     console.log(hashPass);
-     await UserModel.updateOne({userId:userId},{password:hashPass});
+    await UserModel.updateOne({ userId: userId }, { password: hashPass });
     // UserModel.updateOne({userId:userId},{password:hashPass},
     //   (err, user) => {
     //             console.log(err);
@@ -612,7 +611,7 @@ const updateUserPassword = async (req, res) => {
     //     return ErrorResponse(res, UserConstants.profileUpdateError);
     //   //handle error
     //   });
-     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
 
   } catch (err) {
     console.log(err);
@@ -627,10 +626,10 @@ const sendInvitation = async (req, res) => {
     const template = '<!DOCTYPE html><html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head>    <meta charset="utf-8"> <meta name="viewport" content="width=device-width">     <meta http-equiv="X-UA-Compatible" content="IE=edge"> <meta name="x-apple-disable-message-reformatting">      <title></title> <link href="https://fonts.googleapis.com/css?family=verdana:300,400,700" rel="stylesheet">    <style> html,body {    margin: 0 auto !important;padding: 0 !important;height: 100% !important;width: 100% !important;background: #f1f1f1;}* {-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;}div[style*="margin: 16px 0"] {margin: 0 !important;}table,td {    mso-table-lspace: 0pt !important;    mso-table-rspace: 0pt !important;}table {    border-spacing: 0 !important;    border-collapse: collapse !important;    table-layout: fixed !important;    margin: 0 auto !important;}img {    -ms-interpolation-mode:bicubic;}a {    text-decoration: none;}*[x-apple-data-detectors],  .unstyle-auto-detected-links *,.aBn {    border-bottom: 0 !important;    cursor: default !important;     color: inherit !important;     text-decoration: none !important;     font-size: inherit !important;     font-family: inherit !important;     font-weight: inherit !important;     line-height: inherit !important; } .a6S {     display: none !important;     opacity: 0.01 !important; } .im {     color: inherit !important; } img.g-img + div {     display: none !important; } @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {     u ~ div .email-container {         min-width: 320px !important;     } } @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {     u ~ div .email-container {         min-width: 375px !important;     } } @media only screen and (min-device-width: 414px) {     u ~ div .email-container {         min-width: 414px !important;     } }     </style>     <style> 	    .primary{ 	background: #30e3ca; } .bg_white{ 	background: #ffffff; } .bg_light{ 	background: #fafafa; } .bg_black{ 	background: #000000; } .bg_dark{ 	background: rgba(0,0,0,.8); } .email-section{ 	padding:2.5em; } .btn{ 	padding: 10px 15px; 	display: inline-block; } .btn.btn-primary{ 	border-radius: 5px; 	background: #30e3ca; 	color: #ffffff; } .btn.btn-white{ 	border-radius: 5px; 	background: #ffffff; 	color: #000000; } .btn.btn-white-outline{ 	border-radius: 5px; 	background: transparent; 	border: 1px solid #fff; 	color: #fff; } .btn.btn-black-outline{ 	border-radius: 0px; 	background: transparent; 	border: 2px solid #000; 	color: #000; 	font-weight: 700; } h1,h2,h3,h4,h5,h6{ 	font-family: "verdana", sans-serif; 	color: #000000; 	margin-top: 0; 	font-weight: 400; } body{ 	font-family: "verdana", sans-serif; 	font-weight: 400; 	font-size: 15px; 	line-height: 1.8; 	color: rgba(0,0,0,.4); } a{ 	color: #30e3ca; } table{ } .logo h1{ 	margin: 0; } .logo h1 a{ 	color: #30e3ca; 	font-size: 24px; 	font-weight: 700; 	font-family: "verdana", sans-serif; } .hero{ 	position: relative; 	z-index: 0; } .hero .text{ 	color: rgba(0,0,0,.3); } .hero .text h2{ 	color: #000; 	font-size: 40px; 	margin-bottom: 0; 	font-weight: 400; 	line-height: 1.4; } .hero .text h3{ 	font-size: 24px; 	font-weight: 300; } .hero .text h2 span{ 	font-weight: 600; 	color: #30e3ca; } .heading-section{ } .heading-section h2{ 	color: #000000; 	font-size: 28px; 	margin-top: 0; 	line-height: 1.4; 	font-weight: 400; } .heading-section .subheading{ 	margin-bottom: 20px !important; 	display: inline-block; 	font-size: 13px; 	text-transform: uppercase; 	letter-spacing: 2px; 	color: rgba(0,0,0,.4); 	position: relative; } .heading-section .subheading::after{ 	position: absolute; 	left: 0; 	right: 0; 	bottom: -10px; 	width: 100%; 	height: 2px; 	background: #30e3ca; 	margin: 0 auto; } .heading-section-white{ 	color: rgba(255,255,255,.8); } .heading-section-white h2{ 	font-family: 	line-height: 1; 	padding-bottom: 0; } .heading-section-white h2{ 	color: #ffffff; } .heading-section-white .subheading{ 	margin-bottom: 0; 	display: inline-block; 	font-size: 13px; 	text-transform: uppercase; 	letter-spacing: 2px; 	color: rgba(255,255,255,.4); } ul.social{ 	padding: 0; } ul.social li{ 	display: inline-block; 	margin-right: 10px; } .footer{ 	border-top: 1px solid rgba(0,0,0,.05); 	color: rgba(0,0,0,.5); } .footer .heading{ 	color: #000; 	font-size: 20px; } .footer ul{ 	margin: 0; 	padding: 0; } .footer ul li{ 	list-style: none; 	margin-bottom: 10px; } .footer ul li a{ 	color: rgba(0,0,0,1); } @media screen and (max-width: 500px) { }     </style> </head> <body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f1f1f1;"> 	<center style="width: 100%; background-color: #f1f1f1;">     <div style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">       &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;     </div>     <div style="max-width: 600px; margin: 0 auto;" class="email-container">       <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin: auto;">       	<tr>           <td valign="top" class="bg_white" style="padding: 1em 2.5em 0 2.5em;">           	<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">           	</table>           </td> 	      </tr> 	      <tr>           <td valign="middle" class="hero bg_white" style="padding: 3em 0 2em 0;">             <img src="http://65.108.95.12:50021/boards/tools/svg/logo-final.png" alt="" style="width: 300px; height: auto; margin: auto; display: block;">           </td> 	      </tr> 				<tr>           <td valign="middle" class="hero bg_white">             <table>             	<tr>             		<td>             			<div class="text" style="padding: 0 2.5em; text-align: center;"> 						<h3>Hi,</h3>             				<h3>Invitation to Join StreamBoard Entity  </h3>             				<h4>Please click the REGISTER button below and join with us.</h4>             				<p><a href="http://65.108.95.12:9000/pages/authentication/school-register" class="btn btn-primary">Register</a></p>             			</div>             		</td>             	</tr>             </table>           </td> 	      </tr>       </table>     </div>   </center> </body> </html>';
 
     mailer(emailId, template);
-     return successResponse(res, "success");
+    return successResponse(res, "success");
   } catch (err) {
     console.log(err);
-    return ErrorResponse(res,"error");
+    return ErrorResponse(res, "error");
   }
 };
 
@@ -638,8 +637,8 @@ const createClass = async (req, res) => {
   try {
 
     const {
-     className,
-     schoolId
+      className,
+      schoolId
     } = req.body;
     const createData = {
       className,
@@ -647,7 +646,7 @@ const createClass = async (req, res) => {
     };
     createData.className = className;
     createData.schoolId = schoolId;
-    
+
 
     await ClassModel.create(createData);
     return successResponse(
@@ -657,7 +656,7 @@ const createClass = async (req, res) => {
   } catch (err) {
     console.log(err);
     return validationErrorWithData(res, UserConstants.errorOccurred, err);
-  } 
+  }
 };
 
 /**
@@ -665,37 +664,34 @@ const createClass = async (req, res) => {
  */
 const allusers = async (req, res) => {
   try {
+    const userId = req.params.userId;
     // let users = await UserModel.find().exec();
     let users = await UserModel.aggregate([
       {
-        $lookup:
-        {
-          from: 'users',
-          localField: 'classId',
-          foreignField: 'userId',
-          as: 'class'
+        '$lookup': {
+          'from': 'teachers',
+          'localField': 'userId',
+          'foreignField': 'schoolId',
+          'as': 'teacher'
         }
-      },
-      {
-        $lookup:
-        {
-          from: 'teachers',
-          localField: 'userId',
-          foreignField: 'schoolId',
-          as: 'teacher'
+      }, {
+        '$lookup': {
+          'from': 'students',
+          'localField': 'userId',
+          'foreignField': 'schoolId',
+          'as': 'student'
         }
-      },
-      {
-        $lookup:
-        {
-          from: 'students',
-          localField: 'userId',
-          foreignField: 'schoolId',
-          as: 'student'
+      }, {
+        '$match': {
+          'userId': userId
         }
+      }, {
+        '$unwind': '$teacher'
+      }, {
+        '$unwind': '$student'
       }
     ]);
-    
+
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
@@ -762,16 +758,16 @@ const allStudents = async (req, res) => {
     } = req.params;
     console.log(schoolId);
     let masterData = await MasterModel.findOne({
-        userId: schoolId
+      userId: schoolId
     });
     let users = [];
-    
+
     if (masterData.role == 'Teacher') {
       users = await StudentModel.aggregate([
         {
           $match: {
             teacherId: {
-              $in: [ schoolId ]
+              $in: [schoolId]
             }
           }
         },
@@ -794,7 +790,7 @@ const allStudents = async (req, res) => {
         }
       ]);
     } else {
-       users = await StudentModel.aggregate([
+      users = await StudentModel.aggregate([
         {
           $match: {
             schoolId: schoolId
@@ -819,7 +815,7 @@ const allStudents = async (req, res) => {
         }
       ]);
     }
-   
+
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
@@ -834,20 +830,20 @@ const allusersRole = async (req, res) => {
   try {
     const { role } = req.params;
     let users;
-     if (role == 'Teacher') {
+    if (role == 'Teacher') {
       users = await TeacherModel.find({
-         role: role
+        role: role
       }).exec();
-    }else if (role == 'Student') {
+    } else if (role == 'Student') {
       users = await StudentModel.find({
-         role: role
+        role: role
       }).exec();
     } else {
       users = await UserModel.find({
-         role: role
+        role: role
       }).exec();
     }
-   
+
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
@@ -887,7 +883,7 @@ const deleteUser = async (req, res) => {
     const { id } = req.params;
     // Add a boolean
 
-     let masterData = await MasterModel.findOne({
+    let masterData = await MasterModel.findOne({
       userId: id
     });
     if (masterData.role == 'Teacher') {
@@ -904,8 +900,8 @@ const deleteUser = async (req, res) => {
       });
     }
     await MasterModel.findOneAndDelete({
-        userId: id
-      });
+      userId: id
+    });
     return successResponse(res, UserConstants.userDeletedSuccessfully);
   } catch (err) {
     console.log(err);
@@ -943,7 +939,7 @@ const getCounts = async (req, res) => {
   try {
     console.log(req.params);
     const { userid } = req.params;
-        console.log(userid);
+    console.log(userid);
 
     var usersRole = await UserModel.findOne({
       userId: userid
@@ -1002,7 +998,7 @@ const getCounts = async (req, res) => {
       schoolId: userid
     }).count();
     var usersC = await UserModel.count();
-  
+
     const response = {
       studentsCount: students,
       teachersCount: teachers,
@@ -1021,11 +1017,11 @@ const getCounts = async (req, res) => {
       studentsInActiveCount: studentsInActive
     }
     // return successResponse(res, UserConstants.userDeletedSuccessfully);
-     return successResponseWithData(
-            res,
-            UserConstants.successResponse,
-            response
-        );
+    return successResponseWithData(
+      res,
+      UserConstants.successResponse,
+      response
+    );
   } catch (err) {
     console.log(err);
     return ErrorResponse(res, UserConstants.errorOccurred);
@@ -1055,9 +1051,9 @@ const createCalendar = async (req, res) => {
     createData.start = startDate;
     createData.end = endDate;
     if (eventUrl) {
-      createData.url = eventUrl;  
+      createData.url = eventUrl;
     } else {
-      createData.url = "";  
+      createData.url = "";
     }
     createData.guests = guests;
 
@@ -1074,16 +1070,16 @@ const createCalendar = async (req, res) => {
 
 const allCalendar = async (req, res) => {
   try {
-      const {
-        title,
-        label,
-        startDate,
-        endDate,
-        eventUrl,
-        guests,
-        description
-      } = req.params;
-    
+    const {
+      title,
+      label,
+      startDate,
+      endDate,
+      eventUrl,
+      guests,
+      description
+    } = req.params;
+
     let users = await CalendarModel.find().exec();
 
     return successResponseWithData(
@@ -1100,9 +1096,9 @@ const createMasterData = async (req, res) => {
   try {
 
     const {
-     userId,
+      userId,
       email,
-     role
+      role
     } = req.body;
 
     const createData = {
@@ -1113,7 +1109,7 @@ const createMasterData = async (req, res) => {
     createData.userId = userId;
     createData.email = email;
     createData.role = role;
-    
+
 
     await MasterModel.create(createData);
     return successResponse(
@@ -1123,7 +1119,7 @@ const createMasterData = async (req, res) => {
   } catch (err) {
     console.log(err);
     return validationErrorWithData(res, UserConstants.errorOccurred, err);
-  } 
+  }
 };
 
 
