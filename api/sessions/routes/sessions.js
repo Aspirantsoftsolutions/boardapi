@@ -22,6 +22,7 @@ let sessionRouter = express.Router();
 // }]), SessionController.updateProfile);
 
 sessionRouter.get("/all", SessionController.allsessions);
+sessionRouter.get("/:id", SessionController.sessionsById);
 // sessionRouter.put("/", AuthMiddleware.auth, SessionController.updateProfile);
 // sessionRouter.delete("/:id", SessionController.deleteUser);
 sessionRouter.post("/createSession", SessionController.createSession);

@@ -10,8 +10,8 @@ const SessionConstants = {
   profileUpdateSuccessMsg: "Profile updated successfully",
   profileUpdateError: "Profile couldn't be updated",
   homeDataFectchedSuccessMsg: "Home Data Fetched Successfully",
-  userFetchedSuccessfully: "Users fetched successfully",
-  userDeletedSuccessfully: "User deleted successfully",
+  sessionsFetchedSuccessfully: "sessions fetched successfully",
+  sessionsDeletedSuccessfully: "sessions deleted successfully",
 };
 
 export {
