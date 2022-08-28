@@ -4,15 +4,16 @@ const AuthConstants = {
   emailOrMobileReq: "Either email or mobile required",
   loginIdentityRequired:
     "Mobile number or email or Username either of them should be provided",
-  userNotFound : "User not found",
-  accountNotVerified : "Account is not verified. Please enter OTP to verify.",
-
+  userNotFound: "User not found",
+  accountNotVerified: "Account is not verified. Please enter OTP to verify.",
+  deviceIdentity: 'Device type is required',
+  qrInfo: 'qr info is required',
   emailRequired: "Valid email must be specified",
   usernameRequired: "Username must be specified",
   passwordRequired: "Password must be specified",
-  confirmPasswordRequired : "Confirm Password must be specified",
-  passwordAndConfirmPasswordNotMatched : "Password and confirm password did not match",
-  resetPasswordSuccessful : "Reset Password Successful",
+  confirmPasswordRequired: "Confirm Password must be specified",
+  passwordAndConfirmPasswordNotMatched: "Password and confirm password did not match",
+  resetPasswordSuccessful: "Reset Password Successful",
   validationError: "Validation Error",
   otpValidationError: "OTP must be specified.",
   otpMessage:
@@ -22,13 +23,13 @@ const AuthConstants = {
   loginSuccessMsg: "Loggedin Successfully",
   loginErrorMsg: "User is Inactive, please contact admin",
   registrationSuccessMsg: "Registered Successfully",
-  alreadyRegistered:"User already registered",
-  pleaseLogin : "Please Login !",
+  alreadyRegistered: "User already registered",
+  pleaseLogin: "Please Login !",
   accountActiveMsg: "email already taken",
   accountNotConfirmMsg:
     "Account is not confirmed. Please confirm your account.",
   emailPwdValidationMsg: "Email or Password wrong.",
-  wrongPassword : "Wrong password",
+  wrongPassword: "Wrong password",
   wrongOtpMsg: "Wrong OTP Provided",
   otpNotMatchMsg: "Incorrect OTP",
   mobileNotFoundMsg: "Specified mobile not found.",
@@ -47,7 +48,7 @@ const AuthConstants = {
   couponDeleteSuccessMsg: "Coupon Deleted Succesfully",
   couponUpdateSuccessMsg: "Coupon updated successfully",
 
-  internalServerError : "Internal Server Error"
+  internalServerError: "Internal Server Error"
 };
 
 export { AuthConstants };

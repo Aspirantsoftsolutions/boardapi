@@ -21,6 +21,7 @@ authRouter.post("/universalRegister", AuthController.UniversalRegister);
 authRouter.post("/registerTeacher", AuthController.registerTeacher);
 authRouter.post("/registerStudent", AuthController.registerStudent);
 authRouter.post("/login", AuthController.login);
+authRouter.post("/qrlogin", AuthController.qrlogin);
 authRouter.post("/verify-otp", AuthController.verifyConfirm);
 authRouter.post("/resend-verify-otp", AuthController.resendConfirmOtp);
 authRouter.post("/refresh-token", AuthController.refreshToken);
