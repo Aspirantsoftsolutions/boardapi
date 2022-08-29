@@ -16,9 +16,9 @@ const PushNotificaitonConstants = {
 };
 
 const add = [
-    body("title", PushNotificaitonConstants.title).not().isEmpty(),
-    body("body", PushNotificaitonConstants.body).not().isEmpty(),
-    body("devices", PushNotificaitonConstants.devices)
+    body("data.title", PushNotificaitonConstants.title).not().isEmpty(),
+    body("data.description", PushNotificaitonConstants.body).not().isEmpty(),
+    body("to", PushNotificaitonConstants.devices)
         .not()
         .isEmpty()
         .isArray({ min: 1 }),
@@ -34,9 +34,9 @@ const add = [
                 );
             } else {
                 const totalPushNotifications = [];
-                const { title, body, devices } = req.body;
-                devices.forEach((device) => {
-                    totalPushNotifications.push({ title, body, deviceId: device, jobId });
+                const { data, to } = req.body;
+                to.forEach((device) => {
+                    totalPushNotifications.push({ title: data.title, description: data.description, deviceId: device, jobId });
                 });
                 const docs = await pushNotificationModel.insertMany(
                     totalPushNotifications

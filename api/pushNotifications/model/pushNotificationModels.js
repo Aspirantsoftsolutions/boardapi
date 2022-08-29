@@ -7,7 +7,7 @@ const pushNotifications = mongoose.Schema({
     title: {
         type: String, required: true
     },
-    body: {
+    description: {
         type: String, required: true
     },
     image: {
