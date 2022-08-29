@@ -59,7 +59,7 @@ function sendPushNotification(notifications) {
             to: [notif.deviceId],
             data: {
                 title: notif.title,
-                description: notif.body,
+                description: notif.description,
                 image_url: notif.image,
                 video_url: notif.video,
             },

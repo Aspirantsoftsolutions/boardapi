@@ -224,23 +224,6 @@ const add = [
       if (req.body) {
         const notification = await new NotificationsModel(req.body);
         notification.save();
-        const pushyResp = await APICall('POST', {
-          'Authorization': process.env.PUSHY_AUTH_KEY
-        }, {
-          "to": [
-            "d95fdae61f77a71fa12a3d"
-          ],
-          "data": {
-            "title": "Hello Streamboard",
-            "description": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries.",
-            "image_url": "",
-            "video_url": ""
-          },
-          "notification": {
-            "badge": 1
-          }
-        }, process.env.PUSHY_API);
-        console.log(pushyResp);
         // if (notification.publishNow === true) {
         //   const notify = await this.sendPushNow(
         //     notification.title,
