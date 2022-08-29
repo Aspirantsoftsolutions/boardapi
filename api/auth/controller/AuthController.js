@@ -289,19 +289,20 @@ const login = [
 ];
 
 const qrlogin = [
-  // Validate and Sanitize fields.
-  body("identity")
-    .notEmpty()
-    .isString()
-    .trim()
-    .escape()
-    .withMessage(AuthConstants.loginIdentityRequired),
   body("device")
     .notEmpty()
     .isString()
     .trim()
     .escape()
     .withMessage(AuthConstants.deviceIdentity),
+  // Validate and Sanitize fields.
+  body("identity")
+    .if(body('device').equals('mobile'))
+    .notEmpty()
+    .isString()
+    .trim()
+    .escape()
+    .withMessage(AuthConstants.loginIdentityRequired),
   body("qrCode").notEmpty().isString()
     .trim()
     .escape()
@@ -426,7 +427,7 @@ const qrlogin = [
             $or: [{ username: identity }, { mobile: identity }],
           });
         }
-        const query = { user: identity, qrInfo: qrCode, status: 'true' };
+        const query = { qrInfo: qrCode, status: 'true' };
         const sessionInfo = await loginSessionsModel.findOne(query);
         if (!sessionInfo && device === 'mobile') {
           const resp = await loginSessionsModel.update(query, { ...query, loginType: 'mobile' }, { upsert: true });
@@ -435,20 +436,20 @@ const qrlogin = [
           const resp = await loginSessionsModel.findOne(query);
           if (resp) {
 
-            userData.qrCode = sessionInfo.qrInfo;
+            // userData.qrCode = sessionInfo.qrInfo;
             if (!userData) {
               // Not Found (404) If user is not found in the DB
               console.log("User : " + identity + " is not found");
               return notFoundResponse(res, AuthConstants.userNotFound);
             }
 
-            const isPassValid = await bcrypt.compare(password, userData.password);
+            // const isPassValid = await bcrypt.compare(password, userData.password);
 
-            if (!isPassValid) {
-              // Bad Request (400) as password is incorrect
-              console.log("Wrong password provided for : " + identity);
-              return ErrorResponseWithData(res, AuthConstants.wrongPassword);
-            }
+            // if (!isPassValid) {
+            //   // Bad Request (400) as password is incorrect
+            //   console.log("Wrong password provided for : " + identity);
+            //   return ErrorResponseWithData(res, AuthConstants.wrongPassword);
+            // }
 
             if (!userData.isConfirmed) {
               console.log("User account is not verified");
@@ -532,7 +533,7 @@ const qrlogin = [
               return successResponseWithData(
                 res,
                 AuthConstants.loginSuccessMsg,
-                jwtPayload
+                { ...jwtPayload, qrCode: sessionInfo.qrInfo }
               );
             } else {
               return ErrorResponseWithData(res, AuthConstants.loginErrorMsg);
