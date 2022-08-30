@@ -75,7 +75,7 @@ function ErrorResponseWithData(res, msg, data, responseCode = 400) {
 		message: msg,
 		data: data
 	};
-	return res.status(400).json(data);
+	return res.status(data.responseCode).json(data);
 };
 
 /**

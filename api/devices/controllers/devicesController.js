@@ -1,7 +1,6 @@
 import devicesModel from "../models/devicesModel.js";
 import { body, validationResult } from "express-validator";
 import deviceConstants from "../const.js";
-import { s3Client } from "../../../config/aws.js";
 import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import {
     successResponse,

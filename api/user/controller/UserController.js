@@ -685,10 +685,6 @@ const allusers = async (req, res) => {
         '$match': {
           'userId': userId
         }
-      }, {
-        '$unwind': '$teacher'
-      }, {
-        '$unwind': '$student'
       }
     ]);
 
