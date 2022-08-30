@@ -22,11 +22,13 @@ authRouter.post("/registerTeacher", AuthController.registerTeacher);
 authRouter.post("/registerStudent", AuthController.registerStudent);
 authRouter.post("/login", AuthController.login);
 authRouter.post("/qrlogin", AuthController.qrlogin);
+authRouter.post("/qrlogout", AuthController.qrlogout);
+authRouter.post("/qrSessionStatus", AuthController.qrSessionStatus);
 authRouter.post("/verify-otp", AuthController.verifyConfirm);
 authRouter.post("/resend-verify-otp", AuthController.resendConfirmOtp);
 authRouter.post("/refresh-token", AuthController.refreshToken);
 authRouter.get("/check-username/:username", AuthController.checkUsername);
-authRouter.put("/reset-password",AuthController.resetPassword);
+authRouter.put("/reset-password", AuthController.resetPassword);
 
 /**
  * @description Configured router for Auth Routes

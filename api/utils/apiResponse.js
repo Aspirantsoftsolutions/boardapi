@@ -68,10 +68,10 @@ function ErrorResponse(res, msg) {
  * @param {Object} data - Data Object
  * @param {String} msg - Message
  */
-function ErrorResponseWithData(res, msg, data) {
+function ErrorResponseWithData(res, msg, data, responseCode = 400) {
 	var data = {
 		status: 0,
-		responseCode: 400,
+		responseCode,
 		message: msg,
 		data: data
 	};

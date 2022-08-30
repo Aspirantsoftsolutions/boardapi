@@ -430,7 +430,7 @@ const qrlogin = [
         const query = { qrInfo: qrCode, status: 'true' };
         const sessionInfo = await loginSessionsModel.findOne(query);
         if (!sessionInfo && device === 'mobile') {
-          const resp = await loginSessionsModel.update(query, { ...query, loginType: 'mobile' }, { upsert: true });
+          const resp = await loginSessionsModel.update({ qrInfo: qrCode, user: identity }, { qrInfo: qrCode, loginType: 'mobile', user: identity, status: 'true' }, { upsert: true });
           return successResponseWithData(res, 'session created', query);
         } else if (sessionInfo && device === 'web') {
           const resp = await loginSessionsModel.findOne(query);
@@ -554,6 +554,61 @@ const qrlogin = [
     }
   },
 ];
+
+const qrlogout = [
+  body("identity")
+    .notEmpty()
+    .isString()
+    .trim()
+    .escape()
+    .withMessage(AuthConstants.loginIdentityRequired),
+  body("qrCode")
+    .notEmpty()
+    .isString()
+    .trim()
+    .escape()
+    .withMessage(AuthConstants.qrInfo),
+  async (req, res) => {
+    try {
+      const { identity, qrCode } = req.body;
+      const query = { user: identity, qrInfo: qrCode };
+      const updateResp = await loginSessionsModel.findOneAndUpdate(query, { status: false });
+      if (updateResp) {
+        return successResponseWithData(res, 'logged out successfully', {});
+      } else if (!updateResp) {
+        return ErrorResponseWithData(res, 'session not found', 400);
+      }
+    } catch (error) {
+      return ErrorResponseWithData(res, 'internal server error', error, 500);
+    }
+  }
+]
+
+
+const qrSessionStatus = [body("identity")
+  .notEmpty()
+  .isString()
+  .trim()
+  .escape()
+  .withMessage(AuthConstants.loginIdentityRequired),
+body("qrCode")
+  .notEmpty()
+  .isString()
+  .trim()
+  .escape()
+  .withMessage(AuthConstants.qrInfo), async (req, res) => {
+    try {
+      const { identity, qrCode } = req.body;
+      const query = { user: identity, qrInfo: qrCode };
+      const rec = await loginSessionsModel.findOne(query).lean();
+      if (rec) {
+        return successResponseWithData(res, 'success', rec);
+      }
+      return ErrorResponseWithData(res, 'session not found', 400);
+    } catch (error) {
+      return ErrorResponseWithData(res, 'internal server error', error, 500);
+    }
+  }];
 
 const UniversalRegister = [
   async (req, res) => {
@@ -1562,6 +1617,8 @@ const resetPassword = [
 export default {
   login,
   qrlogin,
+  qrlogout,
+  qrSessionStatus,
   register,
   verifyConfirm,
   refreshToken,
