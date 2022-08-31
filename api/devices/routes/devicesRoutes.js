@@ -19,6 +19,7 @@ import deviceController from './../controllers/devicesController.js';
 let deviceRouter = express.Router();
 deviceRouter.post("/", deviceController.createDevice);
 deviceRouter.get("/", deviceController.getDevices);
+deviceRouter.get("/:id", deviceController.getDevicesByID);
 // deviceRouter.get("/:type", deviceController.fetchReport);
 /**
  * @description Configured router for Report Routes

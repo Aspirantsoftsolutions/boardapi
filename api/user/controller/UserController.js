@@ -668,6 +668,53 @@ const allusers = async (req, res) => {
     // let users = await UserModel.find().exec();
     let users = await UserModel.aggregate([
       {
+        $lookup:
+        {
+          from: 'users',
+          localField: 'classId',
+          foreignField: 'userId',
+          as: 'class'
+        }
+      },
+      {
+        $lookup:
+        {
+          from: 'teachers',
+          localField: 'userId',
+          foreignField: 'schoolId',
+          as: 'teacher'
+        }
+      },
+      {
+        $lookup:
+        {
+          from: 'students',
+          localField: 'userId',
+          foreignField: 'schoolId',
+          as: 'student'
+        }
+      }
+    ]);
+
+    return successResponseWithData(
+      res,
+      UserConstants.userFetchedSuccessfully,
+      users
+    );
+  } catch (e) {
+    return validationErrorWithData(res, UserConstants.errorOccurred, e);
+  }
+};
+
+/**
+ * Get all Users
+ */
+const allusersByID = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    // let users = await UserModel.find().exec();
+    let users = await UserModel.aggregate([
+      {
         '$lookup': {
           'from': 'teachers',
           'localField': 'userId',
@@ -697,7 +744,6 @@ const allusers = async (req, res) => {
     return validationErrorWithData(res, UserConstants.errorOccurred, e);
   }
 };
-
 /**
  * Get all Teachers
  */
@@ -1124,6 +1170,7 @@ export default {
   fetchReferrals,
   getProfile,
   allusers,
+  allusersByID,
   updateProfile,
   deleteUser,
   deleteTeacher,

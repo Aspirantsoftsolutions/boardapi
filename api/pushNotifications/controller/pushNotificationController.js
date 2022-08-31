@@ -16,8 +16,6 @@ const PushNotificaitonConstants = {
 };
 
 const add = [
-    body("data.title", PushNotificaitonConstants.title).not().isEmpty(),
-    body("data.description", PushNotificaitonConstants.body).not().isEmpty(),
     body("to", PushNotificaitonConstants.devices)
         .not()
         .isEmpty()

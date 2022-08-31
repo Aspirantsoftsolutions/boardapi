@@ -1,5 +1,5 @@
 import devicesModel from "../models/devicesModel.js";
-import { body, validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import deviceConstants from "../const.js";
 import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import {
@@ -38,6 +38,7 @@ const createDevice = [
         }
     },
 ];
+
 const getDevices = [async (req, res) => {
     try {
         const devices = await devicesModel.find({});
@@ -48,7 +49,20 @@ const getDevices = [async (req, res) => {
     }
 }]
 
+const getDevicesByID = [
+    param("id").not().isEmpty().isLength({ min: 12 }),
+    async (req, res) => {
+        try {
+            const devices = await devicesModel.find({ school_id: req.params.id });
+            return successResponseWithData(res, 'success', devices);
+        } catch (error) {
+            console.log(error);
+            return internalServerError(res, 'Unable to fetch devices');
+        }
+    }]
+
 export default {
     createDevice,
-    getDevices
+    getDevices,
+    getDevicesByID
 };

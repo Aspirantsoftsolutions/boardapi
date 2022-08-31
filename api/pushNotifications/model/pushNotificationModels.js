@@ -5,10 +5,10 @@ const pushNotifications = mongoose.Schema({
         type: String, required: true, default: 'text', enum: ['text', 'audio', 'video', 'image']
     },
     title: {
-        type: String, required: true
+        type: String,
     },
     description: {
-        type: String, required: true
+        type: String,
     },
     image: {
         type: String, default: ''
