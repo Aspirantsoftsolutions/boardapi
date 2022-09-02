@@ -34,7 +34,7 @@ const add = [
                 const totalPushNotifications = [];
                 const { data, to } = req.body;
                 to.forEach((device) => {
-                    totalPushNotifications.push({ title: data.title, description: data.description, deviceId: device, jobId });
+                    totalPushNotifications.push({ title: data.title, description: data.description, deviceId: device, jobId, video: data.video_url, image: data.image_url });
                 });
                 const docs = await pushNotificationModel.insertMany(
                     totalPushNotifications

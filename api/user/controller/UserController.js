@@ -715,7 +715,7 @@ const allusers = async (req, res) => {
 const allClients = async (req, res) => {
   try {
     // let users = await UserModel.find().exec();
-    let users = await UserModel.find({ role: 'School' });
+    let users = await UserModel.find({ $or: [{ role: 'School' }, { role: 'Individual' }] });
 
     return successResponseWithData(
       res,
