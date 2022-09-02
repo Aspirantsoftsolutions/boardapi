@@ -11,6 +11,8 @@ import notificationsRouter from "../api/notifications/routes/notifications.js";
 import devicesRouter from "../api/devices/routes/devicesRoutes.js";
 import pushNotificationsRouter from "../api/pushNotifications/routes/pushNotificationRoutes.js";
 import multiMediaRouter from "../api/multiMedia/routes/multimedia.routes.js";
+import groupsRouter from "../api/groups/routes/groups.routes.js";
+import gradesRouter from "../api/grades/router/grades.routes.js";
 /**
  * Init routes config
  * @param app
@@ -31,6 +33,9 @@ export function initRoutes(app) {
   app.use("/api/device", devicesRouter);
   app.use("/api/pushnotifications", pushNotificationsRouter);
   app.use("/api/multimedia", multiMediaRouter);
+  app.use("/api/groups", groupsRouter);
+  app.use("/api/grades", gradesRouter);
+
 
   app.route("/*").get((req, res) => {
     res.status(404).end();

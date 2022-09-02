@@ -258,7 +258,8 @@ const updateProfileData = async (req, res) => {
       lastName,
       address,
       mobile,
-      userId
+      userId,
+      plan
     } = req.body;
 
     let masterData = await MasterModel.findOne({
@@ -295,7 +296,8 @@ const updateProfileData = async (req, res) => {
         firstName: firstName,
         fullName: fullName,
         mobile: mobile,
-        organisation: organisation
+        organisation: organisation,
+        plan
       });
     }
     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
@@ -695,6 +697,25 @@ const allusers = async (req, res) => {
         }
       }
     ]);
+
+    return successResponseWithData(
+      res,
+      UserConstants.userFetchedSuccessfully,
+      users
+    );
+  } catch (e) {
+    return validationErrorWithData(res, UserConstants.errorOccurred, e);
+  }
+};
+
+
+/**
+ * Get all Users
+ */
+const allClients = async (req, res) => {
+  try {
+    // let users = await UserModel.find().exec();
+    let users = await UserModel.find({ role: 'School' });
 
     return successResponseWithData(
       res,
@@ -1170,6 +1191,7 @@ export default {
   fetchReferrals,
   getProfile,
   allusers,
+  allClients,
   allusersByID,
   updateProfile,
   deleteUser,

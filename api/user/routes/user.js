@@ -36,6 +36,7 @@ userRouter.get("/profile/:id", UserController.getProfile);
 // );
 userRouter.get("/all", UserController.allusers);
 userRouter.get("/all/:userId", UserController.allusersByID);
+userRouter.get("/clients", UserController.allClients);
 userRouter.get("/allTeachers/:schoolId", UserController.allTeachers);
 userRouter.get("/allClasses/:schoolId", UserController.allClasses);
 userRouter.get("/allStudents/:schoolId", UserController.allStudents);
