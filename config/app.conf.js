@@ -15,6 +15,14 @@ export default class ApplicationConfig {
     if (process.env.NODE_ENV !== "test") {
       app.use(logger("dev"));
     }
+    //To allow cross-origin requests
+    app.use(cors({
+      "origin": "*",
+      "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+      "preflightContinue": true,
+      "optionsSuccessStatus": 200
+    }));
+
     app.use(helmet());
     app.use(express.json());
     app.use(
@@ -24,9 +32,6 @@ export default class ApplicationConfig {
     );
     app.use(cookieParser());
     // app.use(express.static(path.join(__dirname, "public")));
-
-    //To allow cross-origin requests
-    app.use(cors());
   }
 }
 
