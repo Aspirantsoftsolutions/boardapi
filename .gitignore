@@ -68,3 +68,4 @@ typings/
 .history
 
 .DS_Store
+.env.example
