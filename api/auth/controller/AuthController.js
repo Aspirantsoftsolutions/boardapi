@@ -45,7 +45,7 @@ import UserModel from "../../user/model/UserModel.js";
 import TeacherModel from "../../user/model/TeacherModel.js";
 import StudentModel from "../../user/model/StudentModel.js";
 import MasterModel from "../../user/model/MasterModel.js";
-import loginSessionsModel from "../model/loginSessions.js";
+import loginSessionsModel from "../model/loginSessionsModel.js";
 
 /**
  * User login.
@@ -325,116 +325,33 @@ const qrlogin = [
           errors.array()
         );
       } else {
-        const { identity, password, device, qrCode } = req.body;
+        const { identity, device, qrCode } = req.body;
 
         // Regular expression to check if identity is email or not
         const re =
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         const isEmail = re.test(String(identity).toLowerCase());
         let userData = {};
-
         if (isEmail) {
-          let masterData = await MasterModel.findOne({
-            email: identity,
-          });
-
-          if (!masterData) {
-            return notFoundResponse(res, AuthConstants.userNotFound);
-          }
-          if (masterData.role == "Teacher") {
-            let users = await TeacherModel.aggregate([
-              {
-                $match: {
-                  email: identity,
-                },
-              },
-              {
-                $lookup: {
-                  from: "users",
-                  localField: "classId",
-                  foreignField: "userId",
-                  as: "class",
-                },
-              },
-              {
-                $lookup: {
-                  from: "users",
-                  localField: "schoolId",
-                  foreignField: "userId",
-                  as: "school",
-                },
-              },
-            ]);
-            userData = users[0];
-            console.log("Teacher data : " + userData.school);
-          } else if (masterData.role == "Student") {
-            userData = await StudentModel.aggregate([
-              {
-                $match: {
-                  email: identity,
-                },
-              },
-              {
-                $lookup: {
-                  from: "users",
-                  localField: "classId",
-                  foreignField: "userId",
-                  as: "class",
-                },
-              },
-              {
-                $lookup: {
-                  from: "users",
-                  localField: "schoolId",
-                  foreignField: "userId",
-                  as: "school",
-                },
-              },
-            ]);
-            userData = userData[0];
-            console.log(userData);
-          } else {
-            let users = await UserModel.aggregate([
-              {
-                $match: {
-                  email: identity,
-                },
-              },
-              {
-                $lookup: {
-                  from: "users",
-                  localField: "classId",
-                  foreignField: "userId",
-                  as: "class",
-                },
-              },
-              {
-                $lookup: {
-                  from: "users",
-                  localField: "schoolId",
-                  foreignField: "userId",
-                  as: "school",
-                },
-              },
-            ]);
-            userData = users[0];
-          }
-
-          console.log("user has provided email : " + identity);
-        } else {
-          console.log("user has provided mobile : " + identity);
-          userData = await UserModel.findOne({
-            $or: [{ username: identity }, { mobile: identity }],
-          });
+          userData = await getIdentity(identity)
+        } else if(qrCode) {
+          const sessionEmail = await loginSessionsModel.findOne({ qrInfo: qrCode });
+          userData = await getIdentity(sessionEmail.user)
         }
-        const query = { qrInfo: qrCode, status: 'true' };
-        const sessionInfo = await loginSessionsModel.findOne(query);
-        if (!sessionInfo && device === 'mobile') {
-          const resp = await loginSessionsModel.update({ qrInfo: qrCode, user: identity }, { qrInfo: qrCode, loginType: 'mobile', user: identity, status: 'true' }, { upsert: true });
-          return successResponseWithData(res, 'session created', query);
-        } else if (sessionInfo && device === 'web') {
-          const resp = await loginSessionsModel.findOne(query);
-          if (resp) {
+
+        if (device === 'mobile') {
+          const query = { qrInfo: qrCode, status: 'true', user: identity };
+          const sessionInfo = await loginSessionsModel.findOne(query);
+          if (!sessionInfo) {
+            const resp = await loginSessionsModel.update({ qrInfo: qrCode, user: identity }, { qrInfo: qrCode, loginType: 'mobile', user: identity, status: 'true' }, { upsert: true });
+            return successResponseWithData(res, 'session created', query);
+          } else {
+            return successResponseWithData(res, 'session exist', sessionInfo);
+          }
+        } else if (device === 'web') {
+          const query = { qrInfo: qrCode, status: 'true' };
+          const sessionInfo = await loginSessionsModel.findOne(query);
+          if (sessionInfo) {
 
             // userData.qrCode = sessionInfo.qrInfo;
             if (!userData) {
@@ -442,14 +359,6 @@ const qrlogin = [
               console.log("User : " + identity + " is not found");
               return notFoundResponse(res, AuthConstants.userNotFound);
             }
-
-            // const isPassValid = await bcrypt.compare(password, userData.password);
-
-            // if (!isPassValid) {
-            //   // Bad Request (400) as password is incorrect
-            //   console.log("Wrong password provided for : " + identity);
-            //   return ErrorResponseWithData(res, AuthConstants.wrongPassword);
-            // }
 
             if (!userData.isConfirmed) {
               console.log("User account is not verified");
@@ -538,22 +447,112 @@ const qrlogin = [
             } else {
               return ErrorResponseWithData(res, AuthConstants.loginErrorMsg);
             }
+          } else if (!sessionInfo) {
+            return ErrorResponseWithData(res, 'session not exist', {});
           }
-          return ErrorResponseWithData(res, AuthConstants.loginErrorMsg);
-        } else if (!sessionInfo) {
-          return ErrorResponseWithData(res, 'session not exist', {});
-        } else {
-          return successResponseWithData(res, 'session exist', sessionInfo);
         }
 
       }
     } catch (err) {
       //throw error in json response with status 500.
-      console.log("Error occurred in login : " + err);
+      console.log("Error occurred in login : " + err.message || err);
       return ErrorResponse(res, err);
     }
   },
 ];
+
+
+async function getIdentity(identity) {
+  let userData = {};
+  let masterData = await MasterModel.findOne({
+    email: identity,
+  });
+
+  if (!masterData) {
+    return notFoundResponse(res, AuthConstants.userNotFound);
+  }
+  if (masterData.role == "Teacher") {
+    let users = await TeacherModel.aggregate([
+      {
+        $match: {
+          email: identity,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "classId",
+          foreignField: "userId",
+          as: "class",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "schoolId",
+          foreignField: "userId",
+          as: "school",
+        },
+      },
+    ]);
+    userData = users[0];
+    console.log("Teacher data : " + userData.school);
+  } else if (masterData.role == "Student") {
+    userData = await StudentModel.aggregate([
+      {
+        $match: {
+          email: identity,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "classId",
+          foreignField: "userId",
+          as: "class",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "schoolId",
+          foreignField: "userId",
+          as: "school",
+        },
+      },
+    ]);
+    userData = userData[0];
+    console.log(userData);
+  } else {
+    let users = await UserModel.aggregate([
+      {
+        $match: {
+          email: identity,
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "classId",
+          foreignField: "userId",
+          as: "class",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "schoolId",
+          foreignField: "userId",
+          as: "school",
+        },
+      },
+    ]);
+    userData = users[0];
+  }
+
+  console.log("user has provided email : " + identity);
+  return userData;
+}
 
 const qrlogout = [
   body("identity")
@@ -583,7 +582,6 @@ const qrlogout = [
     }
   }
 ]
-
 
 const qrSessionStatus = [body("identity")
   .notEmpty()

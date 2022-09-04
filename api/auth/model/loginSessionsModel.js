@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema({
     user: { type: String, required: true },
-    qrInfo: { type: String, required: true },
+    qrInfo: { type: String, required: true, unique: true },
     loginType: { type: String, required: true },
     status: { type: String, required: true },
 }, { timestamps: true });
