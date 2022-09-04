@@ -334,7 +334,7 @@ const qrlogin = [
         let userData = {};
         if (isEmail) {
           userData = await getIdentity(identity)
-        } else if(qrCode) {
+        } else if (qrCode) {
           const sessionEmail = await loginSessionsModel.findOne({ qrInfo: qrCode });
           userData = await getIdentity(sessionEmail.user)
         }
@@ -917,6 +917,7 @@ const registerTeacher = [
             plan,
             status,
             classId,
+            classes,
             grade,
           } = req.body;
           const otp = utility.randomNumber(6);
@@ -967,6 +968,7 @@ const registerTeacher = [
           createData.plan = "Free";
           createData.status = "active";
           createData.username = username;
+          createData.classes = classes;
 
           console.log("createData : " + createData.username);
           console.log(createData.email);
@@ -1097,6 +1099,7 @@ const registerStudent = [
             classId,
             grade,
             teacherId,
+            teachers
           } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
@@ -1149,7 +1152,7 @@ const registerStudent = [
           createData.plan = "Free";
           createData.status = "active";
           createData.username = username;
-
+          createData.teachers = teachers;
           console.log("createData : " + createData.username);
           console.log(createData.email);
           console.log(createData.mobile);

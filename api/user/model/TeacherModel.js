@@ -33,7 +33,12 @@ var TeacherSchema = new mongoose.Schema(
     },
     classId: {
       type: String,
-      required:false
+      required: false
+    },
+    classes: {
+      type: Array,
+      required: false,
+      default: []
     },
     schoolId: {
       type: String,
@@ -41,7 +46,7 @@ var TeacherSchema = new mongoose.Schema(
     },
     grade: {
       type: String,
-      required:false
+      required: false
     },
     email: {
       type: String,
@@ -154,7 +159,7 @@ var TeacherSchema = new mongoose.Schema(
     },
     className: {
       type: String
-     },
+    },
     teacherId: {
       type: String
     }
@@ -166,17 +171,17 @@ var TeacherSchema = new mongoose.Schema(
 TeacherSchema.pre("save", function (next) {
   const user = this;
   let referEnd = ""
-  
-  if(user.email){
+
+  if (user.email) {
     referEnd = user.email.substr(9)
-  }else{
+  } else {
     referEnd = user.mobile.substr(9);
   }
   if (!user.referral_code) {
     user.referral_code =
       "StreamBoard" +
       Math.random().toString(36).substring(2, 5).toUpperCase() + referEnd
-      
+
   }
   next();
 });
