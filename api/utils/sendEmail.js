@@ -13,7 +13,7 @@ async function main(email, otp) {
   });
 
   let info = await transporter.sendMail({
-    from: "info@tryoutweb.com", // sender address
+    from: "info@thestreamboard.com", // sender address
     to: email, // list of receivers
     subject: "Welcome to StreamBoard", // Subject line
     html: `${otp} `, // html body

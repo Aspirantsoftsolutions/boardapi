@@ -31,11 +31,11 @@ var StudentSchema = new mongoose.Schema(
       required: false,
       trim: true
     },
-    classId: {
+    classes: {
       type: String,
       required: false
     },
-    grade: {
+    grades: {
       type: String,
       required: false
     },
@@ -147,12 +147,6 @@ var StudentSchema = new mongoose.Schema(
     },
     external_url: {
       type: String
-    },
-    className: {
-      type: String
-    },
-    teacherId: {
-      type: Array
     },
     teachers: {
       type: Array,
