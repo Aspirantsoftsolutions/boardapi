@@ -16,21 +16,31 @@ import {
 
 const createDevice = [
     body("deviceid")
+        .not()
+        .isEmpty()
         .isString()
         .isLength({ min: 5 })
         .trim()
         .withMessage(deviceConstants.deviceTypeError),
     body("ip")
+        .not()
+        .isEmpty()
         .isString()
         .isLength({ min: 7 })
         .withMessage(deviceConstants.ipNotProvided),
+    body("school_id")
+        .not()
+        .isEmpty()
+        .isString()
+        .isLength({ min: 7 })
+        .withMessage(deviceConstants.school_id),
     async (req, res) => {
         try {
             const errors = validationResult(req);
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
-            const saveRec = await devicesModel.create({ deviceid: req.body.deviceid, ip: req.body.ip });
+            const saveRec = await devicesModel.create({ deviceid: req.body.deviceid, ip: req.body.ip, school_id: req.body.school_id, deviceName: req.body.name });
             return successResponseWithData(res, 'success', saveRec);
         } catch (error) {
             console.log(error);
