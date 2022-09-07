@@ -1,6 +1,7 @@
 import UserModel from "../model/UserModel.js";
 import bcrypt from "bcryptjs";
 import mailer from "../../utils/sendEmail.js";
+import mongoose from "mongoose";
 
 /**
  * @description API Response Utility functions
@@ -829,31 +830,16 @@ const allStudents = async (req, res) => {
       userId: schoolId
     });
     let users = [];
-
+    let userProfile = await getIdentity(schoolId);
     if (masterData.role == 'Teacher') {
       users = await StudentModel.aggregate([
         {
-          $match: {
-            teacherId: {
-              $in: [schoolId]
-            }
+          '$unwind': {
+            'path': '$teachers'
           }
-        },
-        {
-          $lookup:
-          {
-            from: 'classes',
-            localField: 'classId',
-            foreignField: 'userId',
-            as: 'class'
-          }
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'schoolId',
-            foreignField: 'userId',
-            as: 'school'
+        }, {
+          '$match': {
+            'teachers._id': `${userProfile._id}`
           }
         }
       ]);
@@ -1120,72 +1106,33 @@ const getCounts = async (req, res) => {
     var usersRole = await getIdentity(userid);
     if (usersRole.role === 'Admin') {
 
-      counts.studentsCount = await StudentModel.find({
-        schoolId: userid
-      }).count();
-      counts.schoolsActiveCount = await StudentModel.find({
-        schoolId: userid,
-        status: 'active'
-      }).count();
-      counts.studentsInActiveCount = await StudentModel.find({
-        schoolId: userid,
-        status: 'inactive'
-      }).count();
+      counts.studentsCount = await StudentModel.find().count();
+      counts.schoolsActiveCount = await StudentModel.find({ status: 'active' }).count();
+      counts.studentsInActiveCount = await StudentModel.find({ status: 'inactive' }).count();
       // var teachers = await TeacherModel.count();
-      counts.adminsCount = await UserModel.find({
-        role: 'Admin',
-      }).count();
-      counts.teachersCount = await TeacherModel.find({
-        schoolId: userid
-      }).count();
-      counts.teachersActiveCount = await TeacherModel.find({
-        schoolId: userid,
-        status: 'active'
-      }).count();
-      counts.teachersInActiveCount = await TeacherModel.find({
-        schoolId: userid,
-        status: 'inactive'
-      }).count();
-
-      counts.schoolsCount = await UserModel.find({
-        role: 'School',
-      }).count();
-      counts.schoolsActiveCount = await UserModel.find({
-        role: 'School',
-        status: 'active'
-      }).count();
-      counts.schoolsInActiveCount = await UserModel.find({
-        role: 'School',
-        status: 'inactive'
-      }).count();
-      counts.schoolsFreeCount = await UserModel.find({
-        role: 'School',
-        plan: 'Free'
-      }).count();
-      counts.schoolsPaidCount = await UserModel.find({
-        role: 'School',
-        plan: 'paid'
-      }).count();
-      counts.individualsCount = await UserModel.find({
-        role: 'Individual',
-      }).count();
-      var classCount = await ClassModel.find({
-        schoolId: userid
-      }).count();
+      counts.adminsCount = await UserModel.find({ role: 'Admin' }).count();
+      counts.teachersCount = await TeacherModel.find({}).count();
+      counts.teachersActiveCount = await TeacherModel.find({ status: 'active' }).count();
+      counts.teachersInActiveCount = await TeacherModel.find({ status: 'inactive' }).count();
+      counts.schoolsCount = await UserModel.find({ role: 'School' }).count();
+      counts.schoolsActiveCount = await UserModel.find({ role: 'School', status: 'active' }).count();
+      counts.schoolsInActiveCount = await UserModel.find({ role: 'School', status: 'inactive' }).count();
+      counts.schoolsFreeCount = await UserModel.find({ role: 'School', plan: 'Free' }).count();
+      counts.schoolsPaidCount = await UserModel.find({ role: 'School', plan: 'paid' }).count();
+      counts.individualsCount = await UserModel.find({ role: 'Individual', }).count();
+      var classCount = await ClassModel.find({ schoolId: userid }).count();
       var usersC = await UserModel.count();
     } else if (usersRole.role === 'Teacher') {
-      counts.quickSession = await SessionModel.find({
-        teacherId: userid,
-        type: 'quickSession'
-      }).count();
-      counts.liveSession = await SessionModel.find({
-        teacherId: userid,
-        type: 'liveSession'
-      }).count();
-      counts.scheduledSession = await SessionModel.find({
-        teacherId: userid,
-        type: 'ScheduledSession'
-      }).count();
+      counts.quickSession = await SessionModel.find({ teacherId: userid, type: 'quickSession' }).count();
+      counts.liveSession = await SessionModel.find({ teacherId: userid, type: 'liveSession' }).count();
+      counts.scheduledSession = await SessionModel.find({ teacherId: userid, type: 'ScheduledSession' }).count();
+    } else if (usersRole.role === 'School') {
+      counts.studentsCount = await StudentModel.find({ schoolId: userid }).count();
+      counts.studentsActiveCount = await StudentModel.find({ schoolId: userid, status: 'active' }).count();
+      counts.studentsInActiveCount = await StudentModel.find({ schoolId: userid, status: 'inactive' }).count();
+      counts.teachersCount = await TeacherModel.find({ schoolId: userid }).count();
+      counts.teachersActiveCount = await TeacherModel.find({ schoolId: userid, status: 'active' }).count();
+      counts.teachersInActiveCount = await TeacherModel.find({ schoolId: userid, status: 'inactive' }).count();
     }
 
     // return successResponse(res, UserConstants.userDeletedSuccessfully);

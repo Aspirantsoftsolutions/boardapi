@@ -21,12 +21,12 @@ const createGroup = [
     body('school_id').notEmpty().isString().trim().withMessage(groupConstants.school_id),
     async (req, res) => {
         try {
-            const { name, school_id, id } = req.body;
+            const { name, school_id, id, students } = req.body;
             if (id) {
-                const resp = await groupsModel.update({ _id: id }, { name, school_id });
+                const resp = await groupsModel.update({ _id: id }, { name, school_id, students });
                 return successResponseWithData(res, 'group updated successfully', resp);
             }
-            const resp = await groupsModel.create({ name, school_id });
+            const resp = await groupsModel.create({ name, school_id, students });
             return successResponseWithData(res, 'group created successfully', resp);
         } catch (error) {
             console.log(error);
