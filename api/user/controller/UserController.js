@@ -262,7 +262,11 @@ const updateProfileData = async (req, res) => {
       mobile,
       userId,
       plan,
-      classes
+      classes,
+      countryCode,
+      email,
+      itemail,
+      username
     } = req.body;
 
     let masterData = await MasterModel.findOne({
@@ -295,13 +299,17 @@ const updateProfileData = async (req, res) => {
       await UserModel.updateMany({
         userId: userId
       }, {
-        address: address,
-        lastName: lastName,
-        firstName: firstName,
-        fullName: fullName,
-        mobile: mobile,
-        organisation: organisation,
-        plan
+        plan,
+        organisation,
+        fullName,
+        firstName,
+        lastName,
+        address,
+        mobile,
+        countryCode,
+        email,
+        itemail,
+        username
       });
     }
     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
