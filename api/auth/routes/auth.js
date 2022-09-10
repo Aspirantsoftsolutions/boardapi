@@ -20,6 +20,8 @@ authRouter.post("/register", AuthController.register);
 authRouter.post("/universalRegister", AuthController.UniversalRegister);
 authRouter.post("/registerTeacher", AuthController.registerTeacher);
 authRouter.post("/registerStudent", AuthController.registerStudent);
+authRouter.post("/bulkRegisterTeacher", AuthController.bulkRegisterTeacher);
+authRouter.post("/bulkRegisterStudent", AuthController.bulkRegisterStudent);
 authRouter.post("/login", AuthController.login);
 authRouter.post("/qrlogin", AuthController.qrlogin);
 authRouter.post("/qrlogout", AuthController.qrlogout);
