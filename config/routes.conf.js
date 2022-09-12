@@ -13,6 +13,7 @@ import pushNotificationsRouter from "../api/pushNotifications/routes/pushNotific
 import multiMediaRouter from "../api/multiMedia/routes/multimedia.routes.js";
 import groupsRouter from "../api/groups/routes/groups.routes.js";
 import gradesRouter from "../api/grades/router/grades.routes.js";
+import cloudIntegrationRouter from "../api/sessions/routes/cloudIntegrationsRoutes.js";
 /**
  * Init routes config
  * @param app
@@ -26,6 +27,7 @@ export function initRoutes(app) {
   // app.use("/api/admin/", adminRouter);
   app.use("/api/user", userRouter);
   app.use("/api/session", sessionRouter);
+  app.use("/api/cloudIntegration", cloudIntegrationRouter);
   app.use("/api/notificaitons/", notificationsRouter);
   // app.use("/api/search", searchRouter);
   app.use("/api/report", AuthMiddleware.auth, reportRouter);
