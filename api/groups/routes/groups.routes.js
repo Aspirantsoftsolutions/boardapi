@@ -8,5 +8,6 @@ let groupsRouter = express.Router();
 groupsRouter.post("/create", groupsController.createGroup);
 groupsRouter.get("/:schoolId", groupsController.getGroups);
 groupsRouter.get("/group/:groupId", groupsController.groupById);
+groupsRouter.delete("/group/:groupId", groupsController.deleteGroup);
 
 export default groupsRouter;

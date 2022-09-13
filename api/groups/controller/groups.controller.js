@@ -58,9 +58,22 @@ const groupById = [
         }
     }
 ];
+const deleteGroup = [
+    param('groupId').notEmpty().isString().trim().withMessage(groupConstants.group_id),
+    async (req, res) => {
+        try {
+            const resp = await groupsModel.deleteOne({ _id: req.params.groupId }).lean();
+            return successResponseWithData(res, 'deleted group successfully', resp);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponseWithData(res, 'something bad happened', error, 500);
+        }
+    }
+]
 
 export default {
     createGroup,
     getGroups,
-    groupById
+    groupById,
+    deleteGroup
 };
