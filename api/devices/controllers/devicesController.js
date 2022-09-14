@@ -57,7 +57,7 @@ const getDevices = [async (req, res) => {
         console.log(error);
         return internalServerError(res, 'Unable to fetch devices');
     }
-}]
+}];
 
 const getDevicesByID = [
     param("id").not().isEmpty().isLength({ min: 12 }),
@@ -67,12 +67,27 @@ const getDevicesByID = [
             return successResponseWithData(res, 'success', devices);
         } catch (error) {
             console.log(error);
-            return internalServerError(res, 'Unable to fetch devices');
+            return ErrorResponse(res, 'Unable to fetch devices');
         }
-    }]
+    }];
+
+const deleteDevice = [
+    param("id").not().isEmpty().isLength({ min: 12 }),
+    async (req, res) => {
+        try {
+            console.log(req.params.id);
+            const device = await devicesModel.deleteOne({ _id: req.params.id });
+            return successResponseWithData(res, 'success', device);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponse(res, 'Unable to delete device');
+        }
+    }
+];
 
 export default {
     createDevice,
     getDevices,
-    getDevicesByID
+    getDevicesByID,
+    deleteDevice
 };
