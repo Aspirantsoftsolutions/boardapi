@@ -14,6 +14,7 @@ import multiMediaRouter from "../api/multiMedia/routes/multimedia.routes.js";
 import groupsRouter from "../api/groups/routes/groups.routes.js";
 import gradesRouter from "../api/grades/router/grades.routes.js";
 import cloudIntegrationRouter from "../api/sessions/routes/cloudIntegrationsRoutes.js";
+import meetingRouter from "../api/sessions/routes/meetingRoutes.js";
 /**
  * Init routes config
  * @param app
@@ -37,7 +38,7 @@ export function initRoutes(app) {
   app.use("/api/multimedia", multiMediaRouter);
   app.use("/api/groups", groupsRouter);
   app.use("/api/grades", gradesRouter);
-
+  app.use("/api/meetings", meetingRouter);
 
   app.route("/*").get((req, res) => {
     res.status(404).end();

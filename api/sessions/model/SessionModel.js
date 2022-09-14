@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 
+const attendee = mongoose.Schema({
+  user: {
+    type: String,
+    required: false
+  },
+  writeAccess: { type: Boolean, default: false }
+})
+
 var SessionSchema = new mongoose.Schema(
   {
     sessionId: {
@@ -10,8 +18,8 @@ var SessionSchema = new mongoose.Schema(
       unique: true
     },
     title: {
-         type: String,
-         required: false,
+      type: String,
+      required: false,
     },
     type: {
       type: String,
@@ -26,28 +34,30 @@ var SessionSchema = new mongoose.Schema(
       required: false,
     },
     status: {
-         type: String,
-         required: false,
+      type: String,
+      required: false,
     },
     sessionLink: {
       type: String,
       required: false
     },
     description: {
-       type: String,
-       required: false,
+      type: String,
+      required: false,
     },
     groupId: {
-        type: String,
-        required: false,
+      type: String,
+      required: false,
+      ref: 'groups'
     },
     teacherId: {
-         type: String,
-         required: false,
+      type: String,
+      required: false,
     },
     participants: {
       type: String
     },
+    attendance: [attendee]
   },
   { timestamps: true }
 );
