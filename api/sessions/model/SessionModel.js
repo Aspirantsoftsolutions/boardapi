@@ -1,5 +1,18 @@
 import mongoose from "mongoose";
-import { v4 as uuidv4 } from 'uuid';
+
+
+
+function makeid() {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < 8; i++) {
+    result += characters.charAt(Math.floor(Math.random() *
+      charactersLength));
+  }
+  return result;
+}
+
 
 const attendee = mongoose.Schema({
   user: {
@@ -14,7 +27,7 @@ var SessionSchema = new mongoose.Schema(
     sessionId: {
       type: String,
       required: true,
-      default: uuidv4,
+      default: makeid,
       unique: true
     },
     title: {

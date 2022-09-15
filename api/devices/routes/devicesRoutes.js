@@ -21,6 +21,8 @@ deviceRouter.post("/", deviceController.createDevice);
 deviceRouter.get("/", deviceController.getDevices);
 deviceRouter.get("/:id", deviceController.getDevicesByID);
 deviceRouter.delete("/:id", deviceController.deleteDevice);
+deviceRouter.delete("/:id", deviceController.deleteDevice);
+deviceRouter.post("/:id", deviceController.updateDevice);
 // deviceRouter.get("/:type", deviceController.fetchReport);
 /**
  * @description Configured router for Report Routes

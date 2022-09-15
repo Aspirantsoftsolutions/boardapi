@@ -5,7 +5,7 @@ import path from "path";
 import { Blob } from "buffer";
 const { body } = validator;
 import { s3Client } from "../../../config/aws.js";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand, DeleteObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 import upload from './fileUpload.js'
@@ -87,8 +87,36 @@ const mediaList = [
     }
 ];
 
+const deleteMedia = [
+    param("id").notEmpty().isLength({ min: 12 }),
+    async (req, res) => {
+        try {
+            const client = new S3Client({
+                credentials: {
+                    secretAccessKey: 'lfm2KHZjO2EWr+yypJ0PqkUbbC1KcKnHIOeMGx3z',
+                    accessKeyId: 'AKIARBF3UHUUZNG42BG3',
+                }
+            });
+            const _id = req.params.id;
+            const mediaDetails = await multimediaModel.findOne({ _id }).lean();
+            const s3Params = {
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: mediaDetails.name,
+            };
+            const command = new DeleteObjectCommand(s3Params);
+            // const response = await client.send(command);
+            // console.log(response);
+            const resp = await multimediaModel.deleteOne({ _id }).lean();
+            return successResponseWithData(res, 'fetched successfully', resp);
+        } catch (error) {
+            return ErrorResponseWithData(res, 'internal server error', error, 500)
+        }
+    }
+];
+
 export default {
     preSignS3URL,
     uploadFiles,
-    mediaList
+    mediaList,
+    deleteMedia
 };
