@@ -1,6 +1,18 @@
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from 'uuid';
 
+
+function makeid() {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < 3; i++) {
+    result += characters.charAt(Math.floor(Math.random() *
+      charactersLength));
+  }
+  return result;
+}
+
 var ClassSchema = new mongoose.Schema(
   {
     userId: {
@@ -19,6 +31,10 @@ var ClassSchema = new mongoose.Schema(
     },
     teacherId: {
       type: Array
+    },
+    shortId: {
+      type: String,
+      default: makeid
     }
   },
   { timestamps: true }

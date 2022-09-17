@@ -4,8 +4,9 @@ var devicesModel = new mongoose.Schema(
     {
         deviceid: { type: String, required: true },
         ip: { type: String, required: true },
-        school_id: { type: String,  required: true },
-        deviceName: { type: String }
+        school_id: { type: String, required: true },
+        deviceName: { type: String },
+        command: { type: String }
     },
     {
         timestamps: true,

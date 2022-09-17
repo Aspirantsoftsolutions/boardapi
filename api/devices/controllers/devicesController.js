@@ -99,10 +99,25 @@ const updateDevice = [
     }
 ];
 
+const command = [
+    param("id").notEmpty().isLength({ min: 12 }),
+    body('command').notEmpty().isString(),
+    async (req, res) => {
+        try {
+            const device = await devicesModel.updateOne({ _id: req.params.id }, { $set: { command: req.body.command } });
+            return successResponseWithData(res, 'success', device);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponse(res, 'Unable to delete device');
+        }
+    }
+];
+
 export default {
     createDevice,
     getDevices,
     getDevicesByID,
     deleteDevice,
-    updateDevice
+    updateDevice,
+    command
 };

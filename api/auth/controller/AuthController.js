@@ -46,6 +46,9 @@ import TeacherModel from "../../user/model/TeacherModel.js";
 import StudentModel from "../../user/model/StudentModel.js";
 import MasterModel from "../../user/model/MasterModel.js";
 import loginSessionsModel from "../model/loginSessionsModel.js";
+import ClassModel from "../../user/model/ClassModel.js";
+import GradesModel from "../../grades/models/grades.models.js";
+
 
 /**
  * User login.
@@ -1143,11 +1146,12 @@ function registerSingleTeacher(singleUser) {
 
       const otp = utility.randomNumber(6);
       const hashPass = await bcrypt.hash(password, 10);
+      const classesSelected = await ClassModel.find({ shortId: { $in: classes } }, { _id: 1, className: 1 }).lean();
 
       const createData = {
         email,
         password: hashPass,
-        confirmOTP: otp,
+        confirmOTP: otp
       };
 
       if (organisation) {
@@ -1204,7 +1208,7 @@ function registerSingleTeacher(singleUser) {
       createData.plan = "Free";
       createData.status = "active";
       createData.username = username;
-      createData.classes = classes;
+      createData.classes = classesSelected || [];
 
       console.log("createData : " + createData.username);
       console.log(createData.email);
@@ -1587,12 +1591,7 @@ function registerSingleStudent(student) {
       if (teacherId) {
         createData.teacherId = [teacherId];
       }
-      if (classes) {
-        createData.classes = classes;
-      }
-      if (grades) {
-        createData.grades = grades;
-      }
+
       if (subject) {
         createData.subject = subject;
       }
@@ -1628,13 +1627,24 @@ function registerSingleStudent(student) {
         });
         // return ErrorResponse(res, AuthConstants.emailOrMobileReq);
       }
+      const selectedTeachers = await TeacherModel.find({ shortId: { $in: teachers } }, { _id: 1, username: 1 }).lean();
+      const selectedClasses = await ClassModel.findOne({ shortId: classes }, { _id: 1 }).lean();
+      const selectedGrades = await GradesModel.findOne({ shortId: grades }, { _id: 1 }).lean();
+
+      if (classes) {
+        createData.classes = selectedClasses._id || '';
+      }
+      if (grades) {
+        createData.grades = selectedGrades._id || '';
+      }
+
       createData.firstName = firstName;
       createData.lastName = lastName;
       createData.role = "Student";
       createData.plan = "Free";
       createData.status = "active";
       createData.username = username;
-      createData.teachers = teachers;
+      createData.teachers = selectedTeachers;
       console.log("createData : " + createData.username);
       console.log(createData.email);
       console.log(createData.mobile);

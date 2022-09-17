@@ -329,7 +329,9 @@ const updateStudentProfileData = async (req, res) => {
       lastName,
       mobile,
       userId,
-      teachers
+      teachers,
+      classes,
+      grades
     } = req.body;
 
     await StudentModel.updateMany({
@@ -339,6 +341,8 @@ const updateStudentProfileData = async (req, res) => {
       lastName: lastName,
       firstName: firstName,
       mobile: mobile,
+      classes,
+      grades,
       teachers
     });
 

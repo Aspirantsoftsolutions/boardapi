@@ -10,6 +10,7 @@ const AuthConstants = {
   qrInfo: 'qr info is required',
   emailRequired: "Valid email must be specified",
   usernameRequired: "Username must be specified",
+  shortId: "Short ID is required",
   passwordRequired: "Password must be specified",
   confirmPasswordRequired: "Confirm Password must be specified",
   passwordAndConfirmPasswordNotMatched: "Password and confirm password did not match",
