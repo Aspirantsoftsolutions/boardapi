@@ -6,6 +6,7 @@ import {
 } from "../../utils/apiResponse.js";
 const { body, validationResult } = validator;
 import pushNotificationModel from "../model/pushNotificationModels.js";
+import devicesModel from "../../devices/models/devicesModel.js";
 import { v4 as uuidv4 } from "uuid";
 
 const PushNotificaitonConstants = {
@@ -13,6 +14,7 @@ const PushNotificaitonConstants = {
     body: "Notification body is Required",
     devices: "Device ID(s) is required and must be an array",
     validationError: "Validation Error",
+    command: "Command is required"
 };
 
 const add = [
@@ -60,6 +62,7 @@ function sendPushNotification(notifications) {
                 description: notif.description,
                 image_url: notif.image,
                 video_url: notif.video,
+                command: notif.command
             },
             notification: {
                 badge: 1,
@@ -90,6 +93,41 @@ async function setNotificationStatus(pushyResp) {
     return;
 }
 
+const command = [
+    body("to", PushNotificaitonConstants.devices)
+        .not()
+        .isEmpty()
+        .isArray({ min: 1 }),
+    body("command", PushNotificaitonConstants.command)
+        .not()
+        .isEmpty()
+        .isString(),
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return validationErrorWithData(
+                    res,
+                    PushNotificaitonConstants.validationError,
+                    errors.array()
+                );
+            } else {
+                const { command, to } = req.body;
+                const docs = await devicesModel.updateMany({ deviceid: { $in: to } }, { $set: { command } });
+                const commands = to.map(x => ({ deviceId: x, command }));
+                const promPushNotiArr = sendPushNotification(commands);
+                const pushyResult = await Promise.all(promPushNotiArr);
+                await setNotificationStatus(pushyResult);
+                return successResponseWithData(res, "success", pushyResult);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    },
+];
+
+
 export default {
     add,
+    command
 };

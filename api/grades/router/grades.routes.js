@@ -8,5 +8,8 @@ let gradesRouter = express.Router();
 gradesRouter.post("/create", gradesController.createGrade);
 gradesRouter.get("/:schoolId", gradesController.getGrades);
 gradesRouter.get("/grade/:gradeId", gradesController.gradeById);
+gradesRouter.delete("/:gradeId", gradesController.deleteByID);
+gradesRouter.post("/:gradeId", gradesController.updateByID);
+
 
 export default gradesRouter;

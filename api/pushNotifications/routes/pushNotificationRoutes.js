@@ -18,6 +18,7 @@ import pushNotificationsController from '../controller/pushNotificationControlle
  */
 let pushNotificationsRouter = express.Router();
 pushNotificationsRouter.post("/add", pushNotificationsController.add);
+pushNotificationsRouter.post("/command", pushNotificationsController.command);
 // pushNotificationsRouter.get("/:type", pushNotificationsController.fetchReport);
 /**
  * @description Configured router for Report Routes
