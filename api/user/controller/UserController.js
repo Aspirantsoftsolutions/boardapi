@@ -529,6 +529,18 @@ const updateSubscriptionType = async (req, res) => {
         plan: plan
       });
     } else {
+      if (masterData.role === 'Individual' && ['Basic', 'Premium', 'Enterprise'].includes(plan)) {
+        await MasterModel.updateOne({
+          userId: userId,
+          role: 'Individual'
+        }, { $set: { role: 'School' } });
+        await UserModel.updateOne({
+          userId: userId
+        }, {
+          plan: plan,
+          role: 'School'
+        });
+      }
       await UserModel.updateOne({
         userId: userId
       }, {
