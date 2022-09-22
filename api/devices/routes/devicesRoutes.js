@@ -17,10 +17,11 @@ import deviceController from './../controllers/devicesController.js';
  * @param Router
  */
 let deviceRouter = express.Router();
+deviceRouter.post("/groups", deviceController.createDeviceGroup);
+deviceRouter.get("/groups/:schoolId", deviceController.fetchDeviceGroups);
 deviceRouter.post("/", deviceController.createDevice);
 deviceRouter.get("/", deviceController.getDevices);
 deviceRouter.get("/:id", deviceController.getDevicesByID);
-deviceRouter.delete("/:id", deviceController.deleteDevice);
 deviceRouter.delete("/:id", deviceController.deleteDevice);
 deviceRouter.post("/:id", deviceController.updateDevice);
 deviceRouter.post("/command/:id", deviceController.command);

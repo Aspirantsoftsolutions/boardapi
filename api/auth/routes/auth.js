@@ -23,6 +23,7 @@ authRouter.post("/registerStudent", AuthController.registerStudent);
 authRouter.post("/bulkRegisterTeacher", AuthController.bulkRegisterTeacher);
 authRouter.post("/bulkRegisterStudent", AuthController.bulkRegisterStudent);
 authRouter.post("/login", AuthController.login);
+authRouter.post("/social-login", AuthController.socialLogin);
 authRouter.post("/qrlogin", AuthController.qrlogin);
 authRouter.post("/qrlogout", AuthController.qrlogout);
 authRouter.post("/qrSessionStatus", AuthController.qrSessionStatus);

@@ -464,6 +464,228 @@ const qrlogin = [
   },
 ];
 
+const socialLogin = [
+  body("identity")
+    .isString()
+    .trim()
+    .escape()
+    .withMessage(AuthConstants.loginIdentityRequired),
+
+  // Process request after validation and sanitization.
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        // Display sanitized values/errors messages.
+        return validationErrorWithData(
+          res,
+          AuthConstants.validationError,
+          errors.array()
+        );
+      } else {
+        const { identity } = req.body;
+
+        // Regular expression to check if identity is email or not
+        const re =
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        const isEmail = re.test(String(identity).toLowerCase());
+        let userData = {};
+
+        if (isEmail) {
+          let masterData = await MasterModel.findOne({
+            email: identity,
+          });
+          if (!masterData) {
+            return notFoundResponse(res, AuthConstants.userNotFound);
+          }
+          if (masterData.role == "Teacher") {
+            let users = await TeacherModel.aggregate([
+              {
+                $match: {
+                  email: identity,
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "classId",
+                  foreignField: "userId",
+                  as: "class",
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "schoolId",
+                  foreignField: "userId",
+                  as: "school",
+                },
+              },
+            ]);
+            userData = users[0];
+            console.log("Teacher data : " + userData.school);
+          } else if (masterData.role == "Student") {
+            userData = await StudentModel.aggregate([
+              {
+                $match: {
+                  email: identity,
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "classId",
+                  foreignField: "userId",
+                  as: "class",
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "schoolId",
+                  foreignField: "userId",
+                  as: "school",
+                },
+              },
+            ]);
+            userData = userData[0];
+            console.log(userData);
+          } else {
+            let users = await UserModel.aggregate([
+              {
+                $match: {
+                  email: identity,
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "classId",
+                  foreignField: "userId",
+                  as: "class",
+                },
+              },
+              {
+                $lookup: {
+                  from: "users",
+                  localField: "schoolId",
+                  foreignField: "userId",
+                  as: "school",
+                },
+              },
+            ]);
+            userData = users[0];
+          }
+
+          console.log("user has provided email : " + identity);
+        } else {
+          console.log("user has provided mobile : " + identity);
+          userData = await UserModel.findOne({
+            $or: [{ username: identity }, { mobile: identity }],
+          });
+        }
+
+        if (!userData) {
+          // Not Found (404) If user is not found in the DB
+          console.log("User : " + identity + " is not found");
+          return notFoundResponse(res, AuthConstants.userNotFound);
+        }
+   
+        if (!userData.isConfirmed) {
+          console.log("User account is not verified");
+          // Unauthorized (401) as account is not confirmed. User cannot login.
+          // Otp will be sent to user
+
+          // Generate OTP
+          console.log("Generating OTP");
+          const otp = utility.randomNumber(6);
+
+          let identityInDB = {};
+          let identityInDBValue = {};
+
+          // If user registered with mobile number then send OTP to it
+          if (userData.mobile != undefined) {
+            identityInDB = "mobile";
+            identityInDBValue = userData.mobile;
+            const message = `<#> ${otp} ` + AuthConstants.otpMessage;
+            // await AWS_SNS.sendSMS(message, userData.countryCode + userData.mobile);
+            console.log(
+              "Sent OTP to " + identityInDB + " : " + identityInDBValue
+            );
+          }
+
+          // If user registered with email then send OTP to it
+          if (userData.email != undefined) {
+            identityInDB = "email";
+            identityInDBValue = userData.email;
+            mailer(identityInDBValue, otp);
+            console.log(
+              "Sent OTP to " + identityInDB + " : " + identityInDBValue
+            );
+          }
+
+          console.log("Updating user document in DB with new OTP");
+          // Update OTP to the user document
+          // await UserModel.findOneAndUpdate(
+          //     {
+          //       identityInDB : identityInDBValue,
+          //     },
+          //     {
+          //       $set : { confirmOTP: otp }
+          //     }
+          // );
+
+          console.log("Returning response to user as account is not verified");
+          // Account is not verified. Sending the message to user
+          return unauthorizedResponse(res, AuthConstants.accountNotVerified);
+        }
+
+        console.log("Forming JWT Payload");
+        const jwtPayload = {
+          _id: userData._id,
+          mobile: userData.mobile,
+        };
+
+        console.log("Setting expirt time to JWT");
+        const jwtData = {
+          expiresIn: process.env.JWT_TIMEOUT_DURATION,
+        };
+
+        const secret = process.env.JWT_SECRET;
+
+        console.log("Generating JWT");
+        jwtPayload.token = jwt.sign(jwtPayload, secret, jwtData);
+        jwtPayload.refreshToken = crypto.randomBytes(40).toString("hex");
+        jwtPayload.isActive = userData.isActive;
+        jwtPayload.user = userData;
+
+        const refreshToken = new RefreshToken({
+          user: userData._id,
+          token: jwtPayload.refreshToken,
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          createdByIp: req.headers.IPV_Address,
+        });
+        console.log("Saving Refresh token in DB");
+        refreshToken.save();
+
+        console.log("returning successful response to user");
+        if (userData.isActive) {
+          return successResponseWithData(
+            res,
+            AuthConstants.loginSuccessMsg,
+            jwtPayload
+          );
+        } else {
+          return ErrorResponseWithData(res, AuthConstants.loginErrorMsg);
+        }
+      }
+    } catch (error) {
+      console.log("Error occurred in login : " + err);
+      return ErrorResponse(res, err);
+    }
+  }
+]
+
 
 async function getIdentity(identity) {
   let userData = {};
@@ -2119,6 +2341,7 @@ const resetPassword = [
 
 export default {
   login,
+  socialLogin,
   qrlogin,
   qrlogout,
   qrSessionStatus,

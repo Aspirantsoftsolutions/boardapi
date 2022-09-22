@@ -1,17 +1,10 @@
 import devicesModel from "../models/devicesModel.js";
+import deviceGroupsModel from "../models/deviceGroups.js";
 import { body, param, validationResult } from "express-validator";
 import deviceConstants from "../const.js";
-import { PutObjectCommand, CreateBucketCommand } from "@aws-sdk/client-s3";
 import {
-    successResponse,
     successResponseWithData,
     ErrorResponse,
-    ErrorResponseWithData,
-    notFoundResponse,
-    validationErrorWithData,
-    validationError,
-    unauthorizedResponse,
-    unprocessable,
 } from "../../utils/apiResponse.js";
 
 const createDevice = [
@@ -94,7 +87,7 @@ const updateDevice = [
             return successResponseWithData(res, 'success', device);
         } catch (error) {
             console.log(error);
-            return ErrorResponse(res, 'Unable to delete device');
+            return ErrorResponse(res, 'Unable to update device');
         }
     }
 ];
@@ -108,16 +101,48 @@ const command = [
             return successResponseWithData(res, 'success', device);
         } catch (error) {
             console.log(error);
-            return ErrorResponse(res, 'Unable to delete device');
+            return ErrorResponse(res, 'Unable to send command to device');
         }
     }
 ];
 
+const createDeviceGroup = [
+    body("groupName").notEmpty().isLength({ min: 3 }),
+    body("school_id").notEmpty().isLength({ min: 12 }),
+    body('devices').notEmpty().isArray(),
+    async (req, res) => {
+        try {
+            const device = await deviceGroupsModel.create({ groupName: req.body.groupName, devicesList: req.body.devices, school_id: req.body.school_id });
+            return successResponseWithData(res, 'group created successfully', device);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponse(res, 'Unable to created group');
+        }
+    }
+];
+
+const fetchDeviceGroups = [
+    param("schoolId").notEmpty().isLength({ min: 12 }),
+    async (req, res) => {
+        try {
+            const devices = await deviceGroupsModel.find({ school_id: req.params.schoolId }).populate({
+                path: 'devicesList',
+                model: 'devices'
+            }).lean();
+            return successResponseWithData(res, 'fetched groups successfully', devices);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponse(res, 'Unable to fetch groups');
+        }
+    }
+];
 export default {
     createDevice,
     getDevices,
     getDevicesByID,
     deleteDevice,
     updateDevice,
-    command
+    command,
+    createDeviceGroup,
+    fetchDeviceGroups
 };

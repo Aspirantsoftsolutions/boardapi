@@ -8,6 +8,7 @@ const { body, validationResult } = validator;
 import pushNotificationModel from "../model/pushNotificationModels.js";
 import devicesModel from "../../devices/models/devicesModel.js";
 import { v4 as uuidv4 } from "uuid";
+import deviceGroupsModel from "../../devices/models/deviceGroups.js";
 
 const PushNotificaitonConstants = {
     title: "Notification titile is Required",
@@ -33,9 +34,25 @@ const add = [
                     errors.array()
                 );
             } else {
+                let deviceIds = [];
                 const totalPushNotifications = [];
-                const { data, to } = req.body;
-                to.forEach((device) => {
+                const { data, to, deviceGroups } = req.body;
+                if (deviceGroups) {
+                    const groupIds = deviceGroups.map(group => group._id);
+                    const groups = await deviceGroupsModel.find({ _id: { $in: groupIds } }).populate({
+                        path: 'devicesList',
+                        model: 'devices'
+                    }).lean();
+                    groups.map(group => {
+                        if (Array.isArray(group.devicesList)) {
+                            deviceIds.push(...group.devicesList)
+                        }
+                    });
+                    deviceIds = deviceIds.map(device => device.deviceid);
+                    to.push(...deviceIds);
+                }
+                const finalList = [...new Set(to)]
+                finalList.forEach((device) => {
                     totalPushNotifications.push({ title: data.title, description: data.description, deviceId: device, jobId, video: data.video_url, image: data.image_url });
                 });
                 const docs = await pushNotificationModel.insertMany(
