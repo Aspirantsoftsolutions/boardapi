@@ -13,7 +13,7 @@ export default class DBConfig {
       .connect(MONGODB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
-        useFindAndModify: true,
+        dbName:'streamboard'
       })
       .then(() => {
         //don't show the log when it is test
