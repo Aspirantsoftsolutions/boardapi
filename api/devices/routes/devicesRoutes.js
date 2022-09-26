@@ -19,6 +19,7 @@ import deviceController from './../controllers/devicesController.js';
 let deviceRouter = express.Router();
 deviceRouter.post("/groups", deviceController.createDeviceGroup);
 deviceRouter.get("/groups/:schoolId", deviceController.fetchDeviceGroups);
+deviceRouter.delete("/group/:groupId", deviceController.deleteDeviceFromGroup);
 deviceRouter.post("/", deviceController.createDevice);
 deviceRouter.get("/", deviceController.getDevices);
 deviceRouter.get("/:id", deviceController.getDevicesByID);

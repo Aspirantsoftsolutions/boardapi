@@ -7,6 +7,13 @@ import {
     ErrorResponse,
 } from "../../utils/apiResponse.js";
 
+const groupConstants = {
+    name: 'group name is required',
+    school_id: 'school id is required',
+    group_id: 'school id is required',
+    deviceId: 'deviceId is required'
+}
+
 const createDevice = [
     body("deviceid")
         .not()
@@ -136,6 +143,21 @@ const fetchDeviceGroups = [
         }
     }
 ];
+
+const deleteDeviceFromGroup = [
+    param('groupId').notEmpty().isString().trim().withMessage(groupConstants.group_id),
+    body('deviceId').notEmpty().isString().trim().withMessage(groupConstants.deviceId),
+    async (req, res) => {
+        try {
+            const resp = await deviceGroupsModel.updateOne({ _id: req.params.groupId }, { $pull: { devicesList: req.body.deviceId } }).lean();
+            return successResponseWithData(res, 'deleted group member successfully', resp);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponseWithData(res, 'something bad happened', error, 500);
+        }
+    }
+]
+
 export default {
     createDevice,
     getDevices,
@@ -144,5 +166,6 @@ export default {
     updateDevice,
     command,
     createDeviceGroup,
-    fetchDeviceGroups
+    fetchDeviceGroups,
+    deleteDeviceFromGroup
 };

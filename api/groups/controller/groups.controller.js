@@ -1,20 +1,14 @@
 import groupsModel from "../models/groups.models.js";
-import { body, param, validationResult } from "express-validator";
+import { body, param } from "express-validator";
 import {
-    successResponse,
     successResponseWithData,
-    ErrorResponse,
     ErrorResponseWithData,
-    notFoundResponse,
-    validationErrorWithData,
-    validationError,
-    unauthorizedResponse,
-    unprocessable,
 } from "../../utils/apiResponse.js";
 const groupConstants = {
     name: 'group name is required',
     school_id: 'school id is required',
-    group_id: 'school id is required'
+    group_id: 'school id is required',
+    user_id: 'User Id is required'
 }
 const createGroup = [
     body('name').notEmpty().isString().trim().withMessage(groupConstants.name),
@@ -69,7 +63,7 @@ const deleteGroup = [
             return ErrorResponseWithData(res, 'something bad happened', error, 500);
         }
     }
-]
+];
 
 export default {
     createGroup,

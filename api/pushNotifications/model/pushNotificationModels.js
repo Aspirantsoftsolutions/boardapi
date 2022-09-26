@@ -58,7 +58,13 @@ const pushNotifications = mongoose.Schema({
         type: Number, default: 0
     },
     deviceId: { type: String, required: true },
-    jobId: { type: String, required: true }
+    jobId: { type: String, required: true },
+    isScheduled: { type: Boolean, default: false },
+    scheduleInfo: {
+        startDate: { type: String },
+        endDate: { type: String },
+        triggerTime: { type: String },
+    }
 });
 
-export default mongoose.model('pushNotifications', pushNotifications);
+export default mongoose.model('pushnotifications', pushNotifications);
