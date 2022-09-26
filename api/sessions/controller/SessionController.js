@@ -179,10 +179,7 @@ const createSession = [
             tokenId: sessionData.sessionId,
             sessionLink: "https://class.thestreamboard.com/boards/" + sessionData.sessionId,
           }
-          await SessionModel.updateOne({ sessionId: sessionData.sessionId }, { sessionLink: "https://class.thestreamboard.com/boards/" + sessionData.sessionId },
-            (err, session) => {
-              console.log(session);
-            });
+          await SessionModel.updateOne({ sessionId: sessionData.sessionId }, { sessionLink: "https://class.thestreamboard.com/boards/" + sessionData.sessionId }).lean();
           console.log("Sending response to user");
           return successResponseWithData(
             res,
