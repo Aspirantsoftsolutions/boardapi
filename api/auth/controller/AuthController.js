@@ -187,6 +187,11 @@ const login = [
           return notFoundResponse(res, AuthConstants.userNotFound);
         }
 
+        if (userData.status === 'pending' || userData.status === 'inactive') {
+          console.log("user registration status is " + userData.status);
+          return ErrorResponseWithData(res, `user registration is ${userData.status}`);
+        }
+
         const isPassValid = await bcrypt.compare(password, userData.password);
 
         if (!isPassValid) {
@@ -590,7 +595,7 @@ const socialLogin = [
           console.log("User : " + identity + " is not found");
           return notFoundResponse(res, AuthConstants.userNotFound);
         }
-   
+
         if (!userData.isConfirmed) {
           console.log("User account is not verified");
           // Unauthorized (401) as account is not confirmed. User cannot login.
@@ -935,6 +940,7 @@ const register = [
             itemail,
             fullName,
             lastName,
+            firstName
           } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
@@ -974,6 +980,9 @@ const register = [
           }
           if (lastName) {
             createData.lastName = lastName;
+          }
+          if (firstName) {
+            createData.firstName = firstName;
           }
           if (!email && !mobile) {
             console.log("Both email and mobile number not provided");
