@@ -40,7 +40,7 @@ const createDevice = [
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
-            const saveRec = await devicesModel.create({ deviceid: req.body.deviceid, ip: req.body.ip, school_id: req.body.school_id, deviceName: req.body.name });
+            const saveRec = await devicesModel.updateOne({ deviceid: req.body.deviceid, school_id: req.body.school_id }, { deviceid: req.body.deviceid, ip: req.body.ip, school_id: req.body.school_id, deviceName: req.body.name }, { upsert: true });
             return successResponseWithData(res, 'success', saveRec);
         } catch (error) {
             console.log(error);
