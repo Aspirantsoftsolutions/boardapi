@@ -48,6 +48,7 @@ import MasterModel from "../../user/model/MasterModel.js";
 import loginSessionsModel from "../model/loginSessionsModel.js";
 import ClassModel from "../../user/model/ClassModel.js";
 import GradesModel from "../../grades/models/grades.models.js";
+import InviteModel from "../../user/model/InviteModel.js";
 
 
 /**
@@ -891,6 +892,7 @@ const register = [
         let user;
         console.log(req.body.mobile);
         console.log(req.body.email);
+        const invite = await InviteModel.deleteOne({ email: req.body.email });
 
         if (req.body.email != undefined) {
           console.log("User provided email");
