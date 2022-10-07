@@ -177,7 +177,7 @@ const deleteDeviceGroup = [
     param('groupId').notEmpty().isString().trim().withMessage(groupConstants.group_id),
     async (req, res) => {
         try {
-            const resp = await deviceGroupsModel.deleteOne({ group_id: req.params.groupId }).lean();
+            const resp = await deviceGroupsModel.deleteOne({ _id: req.params.groupId });
             return successResponseWithData(res, 'deleted group member successfully', resp);
         } catch (error) {
             console.log(error);

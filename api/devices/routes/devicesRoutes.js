@@ -20,7 +20,7 @@ let deviceRouter = express.Router();
 deviceRouter.post("/groups", deviceController.createDeviceGroup);
 deviceRouter.get("/groups/:schoolId", deviceController.fetchDeviceGroups);
 deviceRouter.delete("/group/:deviceId", deviceController.deleteDeviceFromGroup);
-// deviceRouter.delete("/:groupId", deviceController.deleteDeviceGroup);
+deviceRouter.delete("/groups/:groupId", deviceController.deleteDeviceGroup);
 deviceRouter.post("/", deviceController.createDevice);
 deviceRouter.get("/", deviceController.getDevices);
 deviceRouter.get("/:id", deviceController.getDevicesByID);
