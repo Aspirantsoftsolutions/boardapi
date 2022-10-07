@@ -6,7 +6,9 @@ var devicesModel = new mongoose.Schema(
         ip: { type: String, required: true },
         school_id: { type: String, required: true },
         deviceName: { type: String },
-        command: { type: String }
+        command: { type: String },
+        deviceUserName: { type: String },
+        devicePass: { type: String }
     },
     {
         timestamps: true,
