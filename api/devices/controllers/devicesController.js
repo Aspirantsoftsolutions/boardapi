@@ -6,6 +6,7 @@ import {
     successResponseWithData,
     ErrorResponse,
 } from "../../utils/apiResponse.js";
+import mongoose from "mongoose";
 
 const groupConstants = {
     name: 'group name is required',
@@ -186,6 +187,21 @@ const deleteDeviceGroup = [
     }
 ]
 
+const saveBulkCreds = [
+    body('devices').notEmpty().isArray({ min: 1 }).withMessage('min 1 devices is required'),
+    body('userName').notEmpty().isString().trim().withMessage('username for devices is required'),
+    body('password').notEmpty().isString().trim().withMessage('password for devices is required'),
+    async (req, res) => {
+        try {
+            const resp = await devicesModel.updateMany({ _id: { $in: req.body.devices.map(x => mongoose.Types.ObjectId(x)) } }, { deviceUserName: req.body.userName, devicePass: req.body.password });
+            return successResponseWithData(res, 'upadted successfully', resp);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponseWithData(res, 'something bad happened', error, 500);
+        }
+    }
+]
+
 export default {
     createDevice,
     getDevices,
@@ -197,5 +213,6 @@ export default {
     fetchDeviceGroups,
     deleteDeviceFromGroup,
     getSingleDevicesByID,
-    deleteDeviceGroup
+    deleteDeviceGroup,
+    saveBulkCreds
 };
