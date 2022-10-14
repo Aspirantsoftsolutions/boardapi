@@ -67,8 +67,15 @@ const attendence = [
     header('teacherId').notEmpty().isString().trim(),
     async (req, res) => {
         const { sessionid, teacherid } = req.headers;
-        const sessionInfo = await SessionModel.findOne({ sessionId: sessionid, teacherId: teacherid }, { attendance: 1 });
-        return successResponseWithData(res, 'success', sessionInfo);
+        const sessionInfo = await SessionModel.findOne({ sessionId: sessionid, teacherId: teacherid }, { attendance: 1, groupId: 1, participants: 1 }).populate('groupId');
+        const externalInvite = sessionInfo.participants ? sessionInfo.participants.split(',').length : 0;
+        const resp = {
+            _id: sessionInfo._id,
+            invited: externalInvite + sessionInfo.groupId.students.length,
+            attendance: sessionInfo.attendance,
+            attended: sessionInfo.attendance.length
+        }
+        return successResponseWithData(res, 'success', resp);
     }
 ];
 export default {
