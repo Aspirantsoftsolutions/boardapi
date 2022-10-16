@@ -16,10 +16,15 @@ function makeid() {
 
 const attendee = mongoose.Schema({
   user: {
-    type: String,
-    required: false
+    type: mongoose.Types.ObjectId,
+    required: false,
+    ref:'Student'
   },
-  writeAccess: { type: Boolean, default: false }
+  writeAccess: { type: Boolean, default: false },
+  sessionId: {
+    type: String,
+    unique: true
+  }
 })
 
 var SessionSchema = new mongoose.Schema(
