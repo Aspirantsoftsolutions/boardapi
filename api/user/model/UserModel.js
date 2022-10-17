@@ -33,11 +33,11 @@ var UserSchema = new mongoose.Schema(
     },
     classId: {
       type: String,
-      required:false
+      required: false
     },
     grade: {
       type: String,
-      required:false
+      required: false
     },
     itemail: {
       type: String,
@@ -154,33 +154,36 @@ var UserSchema = new mongoose.Schema(
     },
     className: {
       type: String
-     },
+    },
     teacherId: {
       type: String
     },
     isGoogleDriveEnable: {
       type: Boolean,
-        default: false
+      default: false
     },
     isOneDriveEnable: {
       type: Boolean,
-        default: false
+      default: false
     },
     isImmersiveReaderEnable: {
       type: Boolean,
-        default: false
+      default: false
     },
     isMagicDrawEnable: {
       type: Boolean,
-        default: false
+      default: false
     },
     isHandWritingEnable: {
       type: Boolean,
-        default: false
+      default: false
     },
     isPhetEnable: {
       type: Boolean,
-        default: false
+      default: false
+    },
+    schoolId: {
+      type: String
     }
 
   },
@@ -191,17 +194,17 @@ var UserSchema = new mongoose.Schema(
 UserSchema.pre("save", function (next) {
   const user = this;
   let referEnd = ""
-  
-  if(user.email){
+
+  if (user.email) {
     referEnd = user.email.substr(9)
-  }else{
+  } else {
     referEnd = user.mobile.substr(9);
   }
   if (!user.referral_code) {
     user.referral_code =
       "StreamBoard" +
       Math.random().toString(36).substring(2, 5).toUpperCase() + referEnd
-      
+
   }
   next();
 });

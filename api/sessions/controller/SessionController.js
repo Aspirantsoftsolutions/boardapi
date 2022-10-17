@@ -154,7 +154,7 @@ const createSession = [
         if (participants) {
           createData.participants = participants;
         }
-        createData.type = type;
+        createData.type = type || "ScheduledSession";
         if (start)
           createData.start = start;
         if (end)

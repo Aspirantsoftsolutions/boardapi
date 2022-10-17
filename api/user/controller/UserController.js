@@ -793,6 +793,13 @@ const allusersByID = async (req, res) => {
           'foreignField': 'schoolId',
           'as': 'student'
         }
+      },{
+        '$lookup': {
+          'from': 'users',
+          'localField': 'userId',
+          'foreignField': 'schoolId',
+          'as': 'individuals'
+        }
       }, {
         '$match': {
           'userId': userId

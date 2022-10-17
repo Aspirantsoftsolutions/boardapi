@@ -942,7 +942,8 @@ const register = [
             itemail,
             fullName,
             lastName,
-            firstName
+            firstName,
+            schoolId
           } = req.body;
           const otp = utility.randomNumber(6);
           const hashPass = await bcrypt.hash(password, 10);
@@ -1008,6 +1009,7 @@ const register = [
           createData.plan = plan;
           createData.status = status;
           createData.isConfirmed = true;
+          createData.schoolId = schoolId ? schoolId : '';
 
           console.log("createData : " + createData.username);
           console.log(createData.email);
