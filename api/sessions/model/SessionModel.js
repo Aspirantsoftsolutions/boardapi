@@ -21,6 +21,10 @@ const attendee = mongoose.Schema({
     ref:'Student'
   },
   writeAccess: { type: Boolean, default: false },
+  huddle: {
+    type: String,
+    unique: true
+  },
   sessionId: {
     type: String,
     unique: true
@@ -33,6 +37,10 @@ var SessionSchema = new mongoose.Schema(
       type: String,
       required: true,
       default: makeid,
+      unique: true
+    },
+    writeSessionId: {
+      type: String,
       unique: true
     },
     title: {

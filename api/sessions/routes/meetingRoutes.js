@@ -20,6 +20,7 @@ let meetingsRouter = express.Router();
 meetingsRouter.post('/checkAccess', meetingsController.checkAccess);
 meetingsRouter.post('/grantAccess', meetingsController.grantAccess);
 meetingsRouter.get('/attendence', meetingsController.attendence);
+meetingsRouter.post('/huddle', meetingsController.huddle);
 
 /**
  * @description Configured router for User Routes
