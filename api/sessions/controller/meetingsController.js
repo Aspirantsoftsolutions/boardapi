@@ -52,29 +52,36 @@ const grantAccess = [
     body('writeAccess').notEmpty().isBoolean(),
     body('teacherId').notEmpty().isString().trim(),
     async (req, res) => {
-        const { user, sessionId, writeAccess, teacherId } = req.body;
-        let session = await SessionModel.findOne(
-            { sessionId, teacherId }).lean();
-        let newSessionId = makeid();
-        if (!session.writeSessionId) {
-            session = await SessionModel.updateOne(
-                { sessionId, teacherId },
+        try {
+            const { user, sessionId, writeAccess, teacherId } = req.body;
+            let session = await SessionModel.findOne(
+                { sessionId, teacherId }).lean();
+            let newSessionId = makeid();
+            if (session && !session.writeSessionId) {
+                session = await SessionModel.updateOne(
+                    { sessionId, teacherId },
+                    {
+                        $set: {
+                            'writeSessionId': newSessionId
+                        }
+                    }, { new: true });
+            }
+            const sessionInfo = await SessionModel.updateOne(
+                { sessionId, "attendance.user": user, teacherId },
                 {
                     $set: {
-                        'writeSessionId': newSessionId
+                        'attendance.$.writeAccess': writeAccess,
+                        'attendance.$.sessionId': (session && session.writeSessionId) ? session.writeSessionId : newSessionId
                     }
                 }, { new: true });
-        }I 
-        
-        const sessionInfo = await SessionModel.updateOne(
-            { sessionId, "attendance.user": user, teacherId },
-            {
-                $set: {
-                    'attendance.$.writeAccess': writeAccess,
-                    'attendance.$.sessionId': session.writeSessionId || newSessionId
-                }
-            }, { new: true });
-        return successResponseWithData(res, 'success', sessionInfo);
+            if (!sessionInfo.matchedCount) {
+                return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400)
+            }
+            return successResponseWithData(res, 'success', sessionInfo);
+        } catch (error) {
+            console.log(error)
+            return ErrorResponseWithData(res, error.message || 'No match sessions for given session id combination', {}, 400)
+        }
     }
 ];
 
