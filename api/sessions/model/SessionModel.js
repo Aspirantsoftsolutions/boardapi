@@ -23,7 +23,7 @@ const attendee = mongoose.Schema({
   writeAccess: { type: Boolean, default: false },
   huddle: {
     type: String,
-    unique: true
+    default: ''
   },
   sessionId: {
     type: String,
