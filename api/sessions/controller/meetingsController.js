@@ -7,6 +7,7 @@ import { body, header } from "express-validator";
 
 import SessionModel from "../model/SessionModel.js";
 import StudentModel from "../../user/model/StudentModel.js";
+import mongoose from "mongoose";
 
 function makeid() {
     var result = '';
@@ -40,8 +41,11 @@ const checkAccess = [
             resp.grantAccess = true;
             const attendence = sessionInfo.attendance || [];
             attendence.push({ user, writeAccess: false });
-            const updateAttendence = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
-            console.log(updateAttendence);
+            const userAttendance = await SessionModel.findOne({ sessionId, 'attendance.user': mongoose.Types.ObjectId(user) }).lean();
+            if (!userAttendance) {
+                const updateAttendence = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
+                console.log(updateAttendence);
+            }
         }
         return successResponseWithData(res, 'success', resp);
     }

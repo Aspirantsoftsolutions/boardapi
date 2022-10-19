@@ -56,7 +56,37 @@ const allsessions = async (req, res) => {
 const sessionsById = async (req, res) => {
   try {
     // console.log(req.params);
-    let sessions = await SessionModel.find({ teacherId: req.params.id }).exec();
+    let sessions = await SessionModel.aggregate([
+      {
+        '$match': {
+          '$or': [
+            {
+              'teacherId': req.params.id
+            }, {
+              'school_id': req.params.id
+            }
+          ]
+        }
+      }, {
+        '$lookup': {
+          'from': 'teachers',
+          'localField': 'teacherId',
+          'foreignField': 'userId',
+          'as': 'teacher'
+        }
+      }, {
+        '$unwind': {
+          'path': '$teacher',
+          preserveNullAndEmptyArrays: true
+        }
+      }
+    ]).exec();
+    // let sessions = await SessionModel.find({
+    //   $or: [
+    //     { teacherId: req.params.id },
+    //     { school_id: req.params.id }
+    //   ]
+    // }).exec();
     return successResponseWithData(
       res,
       SessionConstants.sessionsFetchedSuccessfully,
@@ -137,7 +167,9 @@ const createSession = [
           type,
           start,
           end,
-          participants
+          participants,
+          school_id,
+          scheduledBy
         } = req.body;
 
         const createData = {
@@ -160,6 +192,8 @@ const createSession = [
         if (end)
           createData.end = end;
 
+        createData.school_id = school_id;
+        createData.scheduledBy = scheduledBy;
         console.log("createData : " + createData);
         try {
           const sessionData = await SessionModel.create(createData);
@@ -194,7 +228,7 @@ const createSession = [
               str += `${d}, `;
             });
             str = str.slice(0, str.length - 2);
-            return unauthorizedResponse(res, str + " already taken");
+            return ErrorResponseWithData(res, str + " already taken", {}, 400);
           }
         }
 

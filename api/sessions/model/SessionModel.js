@@ -26,8 +26,7 @@ const attendee = mongoose.Schema({
     default: ''
   },
   sessionId: {
-    type: String,
-    unique: true
+    type: String
   }
 })
 
@@ -41,6 +40,8 @@ var SessionSchema = new mongoose.Schema(
     },
     writeSessionId: {
       type: String,
+      required: true,
+      default: makeid,
       unique: true
     },
     title: {
@@ -83,15 +84,18 @@ var SessionSchema = new mongoose.Schema(
     participants: {
       type: String
     },
-    attendance: [attendee]
+    attendance: [attendee],
+    school_id: {
+      type: String,
+      required: true
+    },
+    scheduledBy: {
+      type: String,
+      required: true,
+      enum: ['school', 'teacher'],
+      default: 'teacher'
+    }
   },
   { timestamps: true }
 );
-
-// SessionSchema.index({ mobile: 1, countryCode: 1 }, { unique: true });
-SessionSchema.pre("save", function (next) {
-
-  next();
-});
-
 export default mongoose.model("Sessions", SessionSchema);

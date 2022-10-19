@@ -44,7 +44,7 @@ const groupById = [
     param('groupId').notEmpty().isString().trim().withMessage(groupConstants.group_id),
     async (req, res) => {
         try {
-            const resp = await groupsModel.findOne({ _id: req.params.groupId }).lean();
+            const resp = await groupsModel.findOne({ _id: req.params.groupId }).populate('students').lean();
             return successResponseWithData(res, 'fetched groups successfully', resp);
         } catch (error) {
             console.log(error);
