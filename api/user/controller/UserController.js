@@ -759,7 +759,7 @@ const allusers = async (req, res) => {
 const allClients = async (req, res) => {
   try {
     // let users = await UserModel.find().exec();
-    let users = await UserModel.find({ $or: [{ role: 'School' }, { role: 'Individual' }] });
+    let users = await UserModel.find({ $or: [{ role: 'School' }, { role: 'Individual' }], schoolId: { $exists: false } });
 
     return successResponseWithData(
       res,
@@ -793,7 +793,7 @@ const allusersByID = async (req, res) => {
           'foreignField': 'schoolId',
           'as': 'student'
         }
-      },{
+      }, {
         '$lookup': {
           'from': 'users',
           'localField': 'userId',
