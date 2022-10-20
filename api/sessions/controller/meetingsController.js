@@ -91,11 +91,11 @@ const grantAccess = [
 
 const attendence = [
     header('sessionId').notEmpty().isString().trim(),
-    header('teacherId').notEmpty().isString().trim(),
+    // header('teacherId').notEmpty().isString().trim(),
     async (req, res) => {
         try {
             const { sessionid, teacherid } = req.headers;
-            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid, teacherId: teacherid }, { attendance: 1, groupId: 1, participants: 1 }).populate('groupId').populate('attendance.$.user').lean();
+            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { attendance: 1, groupId: 1, participants: 1 }).populate('groupId').populate('attendance.$.user').lean();
             if (!sessionInfo) {
                 return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
             }
