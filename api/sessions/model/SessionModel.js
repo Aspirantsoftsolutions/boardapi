@@ -26,7 +26,8 @@ const attendee = mongoose.Schema({
     default: ''
   },
   sessionId: {
-    type: String
+    type: String,
+    default: ''
   }
 })
 

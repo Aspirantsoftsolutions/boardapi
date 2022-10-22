@@ -70,14 +70,42 @@ const grantAccess = [
                         }
                     }, { new: true });
             }
-            const sessionInfo = await SessionModel.updateOne(
-                { sessionId, "attendance.user": user, teacherId },
-                {
-                    $set: {
+            const userAttendence = await SessionModel.findOne({ sessionId, "attendance.user": user, teacherId });
+            let sessionInfo;
+            if (!userAttendence) {
+                // sessionInfo = await SessionModel.updateOne(
+                //     { sessionId, teacherId },
+                //     {
+                //         $push: {
+                //             attendance: {
+                //                 user,
+                //                 writeAccess,
+                //                 sessionId: (session && session.writeSessionId) ? session.writeSessionId : newSessionId
+                //             }
+                //         }
+                //     }, { new: true });
+                return ErrorResponseWithData(res, 'user is not logged into the meeting yet', {}, 400)
+            } else {
+                let updateQuery = {};
+                if (writeAccess) {
+                    updateQuery = {
                         'attendance.$.writeAccess': writeAccess,
                         'attendance.$.sessionId': (session && session.writeSessionId) ? session.writeSessionId : newSessionId
                     }
-                }, { new: true });
+                } else {
+                    updateQuery = {
+                        'attendance.$.writeAccess': writeAccess,
+                        'attendance.$.sessionId': '',
+                        'attendance.$.huddle': ''
+                    }
+                }
+                sessionInfo = await SessionModel.updateOne(
+                    { sessionId, teacherId, "attendance.user": user },
+                    {
+                        $set: updateQuery
+                    }, { new: true, upsert: true });
+            }
+
             if (!sessionInfo.matchedCount) {
                 return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400)
             }
