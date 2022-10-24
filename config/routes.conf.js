@@ -15,6 +15,7 @@ import groupsRouter from "../api/groups/routes/groups.routes.js";
 import gradesRouter from "../api/grades/router/grades.routes.js";
 import cloudIntegrationRouter from "../api/sessions/routes/cloudIntegrationsRoutes.js";
 import meetingRouter from "../api/sessions/routes/meetingRoutes.js";
+import paymentRouter from "../api/payment/payment.routes.js";
 /**
  * Init routes config
  * @param app
@@ -39,6 +40,7 @@ export function initRoutes(app) {
   app.use("/api/groups", groupsRouter);
   app.use("/api/grades", gradesRouter);
   app.use("/api/meetings", meetingRouter);
+  app.use("/api/payments", paymentRouter);
 
   app.route("/*").get((req, res) => {
     res.status(404).end();
