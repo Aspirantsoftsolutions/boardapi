@@ -21,6 +21,7 @@ meetingsRouter.post('/checkAccess', meetingsController.checkAccess);
 meetingsRouter.post('/grantAccess', meetingsController.grantAccess);
 meetingsRouter.get('/attendence', meetingsController.attendence);
 meetingsRouter.post('/huddle', meetingsController.huddle);
+meetingsRouter.post('/currentSession', meetingsController.currentSession);
 
 /**
  * @description Configured router for User Routes

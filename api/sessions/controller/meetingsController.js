@@ -123,7 +123,7 @@ const attendence = [
     async (req, res) => {
         try {
             const { sessionid, teacherid } = req.headers;
-            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { attendance: 1, groupId: 1, participants: 1 }).populate('groupId').populate('attendance.$.user').lean();
+            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }).populate('groupId').populate('attendance.$.user').lean();
             if (!sessionInfo) {
                 return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
             }
@@ -132,7 +132,9 @@ const attendence = [
                 _id: sessionInfo._id,
                 invited: externalInvite + sessionInfo.groupId.students.length,
                 attendance: [],
-                attended: 0
+                attended: 0,
+                defaultSessionId: sessionid,
+                currentSessionId: sessionInfo.currentSessionId
             }
             if (Object(sessionInfo).hasOwnProperty('attendance')) {
                 const promArr = sessionInfo.attendance.map((user) => {
@@ -142,7 +144,6 @@ const attendence = [
                 sessionInfo.attendance = profiles;
                 resp.attendance = sessionInfo.attendance;
                 resp.attended = sessionInfo.attendance.length
-                console.log(profiles);
             }
             return successResponseWithData(res, 'success', resp);
         } catch (error) {
@@ -177,9 +178,25 @@ const huddle = [
     }
 ];
 
+const currentSession = [
+    body('sessionId').notEmpty().isString().trim(),
+    body('teacherId').notEmpty().isString().trim(),
+    body('currentSessionId').notEmpty().isString().trim(),
+    async (req, res) => {
+        const { teacherId, sessionId, currentSessionId } = req.body;
+        const sessionInfo = await SessionModel.updateOne(
+            { sessionId, teacherId },
+            {
+                currentSessionId
+            }, { new: true });
+        return successResponseWithData(res, 'success', sessionInfo);
+    }
+];
+
 export default {
     checkAccess,
     grantAccess,
     attendence,
-    huddle
+    huddle,
+    currentSession
 };
