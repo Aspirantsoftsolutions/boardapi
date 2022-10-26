@@ -49,7 +49,7 @@ import loginSessionsModel from "../model/loginSessionsModel.js";
 import ClassModel from "../../user/model/ClassModel.js";
 import GradesModel from "../../grades/models/grades.models.js";
 import InviteModel from "../../user/model/InviteModel.js";
-
+import ActivityModel from "../model/activityModel.js";
 
 /**
  * User login.
@@ -280,6 +280,8 @@ const login = [
 
         console.log("returning successful response to user");
         if (userData.isActive) {
+          const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'web', role: userData.role } });
+          console.log("AuthController:: Login:: activity:: login");
           return successResponseWithData(
             res,
             AuthConstants.loginSuccessMsg,
@@ -448,6 +450,8 @@ const qrlogin = [
 
             console.log("returning successful response to user");
             if (userData.isActive) {
+              const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'qrlogin', device, role: userData.role } });
+              console.log("AuthController:: qrlogin:: activity:: qrlogin");
               return successResponseWithData(
                 res,
                 AuthConstants.loginSuccessMsg,
@@ -676,6 +680,8 @@ const socialLogin = [
 
         console.log("returning successful response to user");
         if (userData.isActive) {
+          const activity = await ActivityModel.create({ user: userData._id, activityType: 'socialLogin', info: { role: userData.role } });
+          console.log("AuthController:: socialLogin:: activity:: socialLogin");
           return successResponseWithData(
             res,
             AuthConstants.loginSuccessMsg,

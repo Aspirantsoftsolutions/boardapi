@@ -22,53 +22,8 @@ const payments = [
     }
 ];
 
-const analytics = [
-    async (req, res) => {
-        const resp = await paymentModel.aggregate([
-            {
-                '$facet': {
-                    'monthWise': [
-                        {
-                            '$group': {
-                                '_id': {
-                                    '$dateToString': {
-                                        'date': {
-                                            '$dateFromString': {
-                                                'dateString': '$paymentDate'
-                                            }
-                                        },
-                                        'format': '%Y-%m'
-                                    }
-                                },
-                                'amount': {
-                                    '$sum': '$amount'
-                                }
-                            }
-                        }, {
-                            '$sort': {
-                                '_id': -1
-                            }
-                        }
-                    ],
-                    'tillDate': [
-                        {
-                            '$group': {
-                                '_id': '',
-                                'total': {
-                                    '$sum': '$amount'
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        ]);
-        return successResponseWithData(res, 'success', resp)
-    }
-];
 
 export default {
     savePayment,
-    payments,
-    analytics
+    payments
 }
