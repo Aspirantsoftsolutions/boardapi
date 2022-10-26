@@ -187,7 +187,9 @@ const currentSession = [
         const sessionInfo = await SessionModel.updateOne(
             { sessionId, teacherId },
             {
-                currentSessionId
+                  $set: {
+                    currentSessionId
+                  }
             }, { new: true });
         return successResponseWithData(res, 'success', sessionInfo);
     }
