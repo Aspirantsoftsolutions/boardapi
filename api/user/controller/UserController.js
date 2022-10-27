@@ -1164,9 +1164,10 @@ const getCounts = async (req, res) => {
       counts.schoolsInActiveCount = await UserModel.find({ role: 'School', status: 'inactive' }).count();
       counts.schoolsFreeCount = await UserModel.find({ role: 'School', plan: 'Free' }).count();
       counts.schoolsPaidCount = await UserModel.find({ role: 'School', plan: 'paid' }).count();
+      counts.Enterprise = await UserModel.find({ role: 'School', plan: 'Enterprise' }).count();
+      counts.Premium = await UserModel.find({ role: 'School', plan: 'Premium' }).count();
+      counts.Basic = await UserModel.find({ role: 'Individual', plan: 'Free' }).count();
       counts.individualsCount = await UserModel.find({ role: 'Individual', }).count();
-      var classCount = await ClassModel.find({ schoolId: userid }).count();
-      var usersC = await UserModel.count();
     } else if (usersRole.role === 'Teacher') {
       counts.quickSession = await SessionModel.find({ teacherId: userid, type: 'quickSession' }).count();
       counts.liveSession = await SessionModel.find({ teacherId: userid, type: 'liveSession' }).count();

@@ -1064,6 +1064,8 @@ const register = [
             }
 
             console.log("Sending response to user");
+            const activity = await ActivityModel.create({ user: userData._id, activityType: 'signup', info: { type: 'web', role } });
+            console.log("AuthController:: register:: activity:: signup");
             return successResponseWithData(
               res,
               AuthConstants.registrationSuccessMsg,
@@ -1250,6 +1252,8 @@ const registerTeacher = [
             }
 
             console.log("Sending response to user");
+            const activity = await ActivityModel.create({ user: teacherData._id, activityType: 'signup', info: { type: 'web', role: 'Teacher' } });
+            console.log("AuthController:: registerTeacher:: activity:: signup");
             return successResponseWithData(
               res,
               AuthConstants.registrationSuccessMsg,
@@ -1486,6 +1490,8 @@ function registerSingleTeacher(singleUser) {
         }
 
         console.log("Sending response to user");
+        const activity = await ActivityModel.create({ user: teacherData._id, activityType: 'signup', info: { type: 'web', role: 'Teacher' } });
+        console.log("AuthController:: registerTeacher:: activity:: signup");
         resolve({ message: AuthConstants.registrationSuccessMsg, email: singleUser.email });
       } catch (err) {
         console.log(err);
@@ -1674,6 +1680,8 @@ const registerStudent = [
             }
 
             console.log("Sending response to user");
+            const activity = await ActivityModel.create({ user: studentData._id, activityType: 'signup', info: { type: 'web', role: 'Student' } });
+            console.log("AuthController:: registerTeacher:: activity:: signup");
             return successResponseWithData(
               res,
               AuthConstants.registrationSuccessMsg,
@@ -1913,7 +1921,8 @@ function registerSingleStudent(student) {
           createMasterData.email = studentData.email;
           createMasterData.role = "Student";
           await MasterModel.create(createMasterData);
-
+          const activity = await ActivityModel.create({ user: studentData._id, activityType: 'signup', info: { type: 'web', role: 'Student' } });
+          console.log("AuthController:: register:: activity:: signup");
           userResponse = {
             userId: studentData.userId,
             username: studentData.firstName + " " + studentData.lastName,

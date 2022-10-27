@@ -1,10 +1,11 @@
 import activityModel from "../auth/model/activityModel.js";
 import paymentModel from "../payment/payment.model.js";
+import UserModel from "../user/model/UserModel.js";
 import { successResponseWithData } from "../utils/apiResponse.js";
 
-const paymentAnalytics = [
+const adminAnalytics = [
     async (req, res) => {
-        const resp = await paymentModel.aggregate([
+        const paymentsInfo = await paymentModel.aggregate([
             {
                 '$facet': {
                     'monthWise': [
@@ -43,19 +44,98 @@ const paymentAnalytics = [
                 }
             }
         ]);
-        return successResponseWithData(res, 'success', resp)
+
+        // const usersInfo = await UserModel.aggregate([
+        //     {
+        //         '$facet': {
+        //             'totalUsers': [
+        //                 {
+        //                     '$group': {
+        //                         '_id': '',
+        //                         'amount': {
+        //                             '$sum': 1
+        //                         }
+        //                     }
+        //                 }
+        //             ],
+        //             'enterpriseUsers': [
+        //                 {
+        //                     '$match': {
+        //                         'plan': 'Enterprise',
+        //                         'role': 'School'
+        //                     }
+        //                 }, {
+        //                     '$group': {
+        //                         '_id': '',
+        //                         'amount': {
+        //                             '$sum': 1
+        //                         }
+        //                     }
+        //                 }
+        //             ],
+        //             'professional': [
+        //                 {
+        //                     '$match': {
+        //                         'plan': 'Premium',
+        //                         'role': 'School'
+        //                     }
+        //                 }, {
+        //                     '$group': {
+        //                         '_id': '',
+        //                         'amount': {
+        //                             '$sum': 1
+        //                         }
+        //                     }
+        //                 }
+        //             ],
+        //             'basic': [
+        //                 {
+        //                     '$match': {
+        //                         'plan': 'Free',
+        //                         'role': 'Individual'
+        //                     }
+        //                 }, {
+        //                     '$group': {
+        //                         '_id': '',
+        //                         'amount': {
+        //                             '$sum': 1
+        //                         }
+        //                     }
+        //                 }
+        //             ]
+        //         }
+        //     }, {
+        //         '$unwind': {
+        //             'path': '$totalUsers'
+        //         }
+        //     }, {
+        //         '$unwind': {
+        //             'path': '$enterpriseUsers'
+        //         }
+        //     }, {
+        //         '$unwind': {
+        //             'path': '$professional'
+        //         }
+        //     }, {
+        //         '$unwind': {
+        //             'path': '$basic'
+        //         }
+        //     }
+        // ]);
+        return successResponseWithData(res, 'success', paymentsInfo)
     }
 ];
 
-const loginActivity = [
+const schoolActivity = [
     async (req, res) => {
         const resp = await activityModel.aggregate([
             {
                 '$facet': {
-                    'dayWise': [
+                    'Teachers': [
                         {
                             '$match': {
-                                'activityType': 'login'
+                                'activityType': 'login',
+                                'info.role': 'Teacher'
                             }
                         }, {
                             '$group': {
@@ -75,13 +155,50 @@ const loginActivity = [
                             }
                         }
                     ],
-                    'tillDate': [
+                    'Students': [
                         {
+                            '$match': {
+                                'activityType': 'login',
+                                'info.role': 'Student'
+                            }
+                        }, {
                             '$group': {
-                                '_id': '',
-                                'total': {
+                                '_id': {
+                                    '$dateToString': {
+                                        'date': '$createdAt',
+                                        'format': '%Y-%m-%d'
+                                    }
+                                },
+                                'amount': {
                                     '$sum': 1
                                 }
+                            }
+                        }, {
+                            '$sort': {
+                                '_id': -1
+                            }
+                        }
+                    ],
+                    'signup': [
+                        {
+                            '$match': {
+                                'activityType': 'signup'
+                            }
+                        }, {
+                            '$group': {
+                                '_id': {
+                                    '$dateToString': {
+                                        'date': '$createdAt',
+                                        'format': '%Y-%m-%d'
+                                    }
+                                },
+                                'amount': {
+                                    '$sum': 1
+                                }
+                            }
+                        }, {
+                            '$sort': {
+                                '_id': -1
                             }
                         }
                     ]
@@ -94,6 +211,6 @@ const loginActivity = [
 
 
 export default {
-    paymentAnalytics,
-    loginActivity
+    adminAnalytics,
+    schoolActivity
 }
