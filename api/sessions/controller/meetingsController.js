@@ -3,7 +3,7 @@ import {
     successResponseWithData,
 } from "../../utils/apiResponse.js";
 
-import { body, header } from "express-validator";
+import { body, header, validationResult } from "express-validator";
 
 import SessionModel from "../model/SessionModel.js";
 import StudentModel from "../../user/model/StudentModel.js";
@@ -131,6 +131,7 @@ const attendence = [
             const resp = {
                 _id: sessionInfo._id,
                 invited: externalInvite + sessionInfo.groupId.students.length,
+                huddlemode: sessionInfo.huddlemode,
                 attendance: [],
                 attended: 0,
                 defaultSessionId: sessionid,
@@ -163,18 +164,35 @@ async function profile(user) {
 }
 
 const huddle = [
-    body('userId').notEmpty().isString().trim(),
+    body('userId').isArray({ min: 1 }).withMessage('min 1 user id is required'),
     body('sessionId').notEmpty().isString().trim(),
     async (req, res) => {
-        const { userId, sessionId } = req.body;
-        const sessionInfo = await SessionModel.updateOne(
-            { sessionId, "attendance.user": userId },
-            {
-                $set: {
-                    'attendance.$.huddle': makeid()
-                }
-            }, { new: true });
-        return successResponseWithData(res, 'success', sessionInfo);
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                // Display sanitized values/errors messages.
+                return validationErrorWithData(
+                    res,
+                    AuthConstants.validationError,
+                    errors.array()
+                );
+            } else {
+                const { userId, sessionId } = req.body;
+                const updates = Promise.all(userId.map(
+                    usr => new Promise(async (resolve, reject) => {
+                        resolve(await SessionModel.updateOne(
+                            { sessionId, "attendance.user": usr },
+                            {
+                                $set: {
+                                    'attendance.$.huddle': makeid()
+                                }
+                            }, { new: true }))
+                    })));
+                return successResponseWithData(res, 'success', updates);
+            }
+        } catch (error) {
+            return ErrorResponseWithData(res, error.message, {}, 400);
+        }
     }
 ];
 
@@ -182,16 +200,32 @@ const currentSession = [
     body('sessionId').notEmpty().isString().trim(),
     body('teacherId').notEmpty().isString().trim(),
     body('currentSessionId').notEmpty().isString().trim(),
+    body('huddlemode').notEmpty().isBoolean().withMessage('Huddle mode is required'),
     async (req, res) => {
-        const { teacherId, sessionId, currentSessionId } = req.body;
-        const sessionInfo = await SessionModel.updateOne(
-            { sessionId, teacherId },
-            {
-                  $set: {
-                    currentSessionId
-                  }
-            }, { new: true });
-        return successResponseWithData(res, 'success', sessionInfo);
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                // Display sanitized values/errors messages.
+                return validationErrorWithData(
+                    res,
+                    AuthConstants.validationError,
+                    errors.array()
+                );
+            } else {
+                const { teacherId, sessionId, currentSessionId, huddlemode } = req.body;
+                const sessionInfo = await SessionModel.updateOne(
+                    { sessionId, teacherId },
+                    {
+                        $set: {
+                            currentSessionId,
+                            huddlemode
+                        }
+                    }, { new: true });
+                return successResponseWithData(res, 'success', sessionInfo);
+            }
+        } catch (error) {
+            return ErrorResponseWithData(res, error.message, {}, 400);
+        }
     }
 ];
 

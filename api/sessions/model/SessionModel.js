@@ -46,6 +46,7 @@ var SessionSchema = new mongoose.Schema(
       default: makeid,
       unique: true
     },
+    huddlemode: { type: Boolean, default: false },
     title: {
       type: String,
       required: false,
