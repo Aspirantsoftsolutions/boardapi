@@ -27,7 +27,6 @@ import {
 } from "../../utils/apiResponse.js";
 
 import validator from "express-validator";
-
 const { body, validationResult } = validator;
 
 /**
@@ -1159,7 +1158,7 @@ const getCounts = async (req, res) => {
       counts.teachersCount = await TeacherModel.find({}).count();
       counts.teachersActiveCount = await TeacherModel.find({ status: 'active' }).count();
       counts.teachersInActiveCount = await TeacherModel.find({ status: 'inactive' }).count();
-      counts.schoolsCount = await UserModel.find({ role: 'School' }).count();
+      counts.schoolsCount = await MasterModel.find({ role: { $in: ['School', 'Teacher', 'Student'] } }).count();
       counts.schoolsActiveCount = await UserModel.find({ role: 'School', status: 'active' }).count();
       counts.schoolsInActiveCount = await UserModel.find({ role: 'School', status: 'inactive' }).count();
       counts.schoolsFreeCount = await UserModel.find({ role: 'School', plan: 'Free' }).count();
