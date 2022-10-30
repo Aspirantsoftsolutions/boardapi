@@ -27,6 +27,7 @@ sessionRouter.get("/students/:student_id", SessionController.sessionsByStudentId
 // sessionRouter.put("/", AuthMiddleware.auth, SessionController.updateProfile);
 // sessionRouter.delete("/:id", SessionController.deleteUser);
 sessionRouter.post("/createSession", SessionController.createSession);
+sessionRouter.get("/list/teacher/:teacherId", SessionController.sessionListForTeacher);
 
 /**
  * @description Configured router for User Routes

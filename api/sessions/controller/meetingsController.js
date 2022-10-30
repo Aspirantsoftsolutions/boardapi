@@ -8,7 +8,7 @@ import { body, header, validationResult } from "express-validator";
 import SessionModel from "../model/SessionModel.js";
 import StudentModel from "../../user/model/StudentModel.js";
 import mongoose from "mongoose";
-
+import _ from 'lodash'
 function makeid() {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -123,7 +123,7 @@ const attendence = [
     async (req, res) => {
         try {
             const { sessionid, teacherid } = req.headers;
-            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }).populate('groupId').populate('attendance.$.user').lean();
+            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 }).populate('groupId').populate('attendance.$.user').lean();
             if (!sessionInfo) {
                 return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
             }
@@ -144,7 +144,11 @@ const attendence = [
                 const profiles = await Promise.all(promArr);
                 sessionInfo.attendance = profiles;
                 resp.attendance = sessionInfo.attendance;
-                resp.attended = sessionInfo.attendance.length
+                resp.attended = sessionInfo.attendance.length;
+                const huddleList = _.groupBy(resp.attendance, 'huddle');
+                resp.huddles = Object.keys(huddleList).map((key) => ({
+                    huddleId: key, users: huddleList[key].map(x => ({ ..._.omit(x, ['_id', 'sessionId', 'writeAccess', 'huddle']) }))
+                }))
             }
             return successResponseWithData(res, 'success', resp);
         } catch (error) {
@@ -156,8 +160,8 @@ const attendence = [
 
 async function profile(user) {
     return new Promise(async (resolve, reject) => {
-        const temp = { ...user }
-        const userInfo = await StudentModel.findOne({ _id: user.user }).lean();
+        const temp = { ..._.omit(user, ['_id']) }
+        const userInfo = await StudentModel.findOne({ _id: user.user }, { _id: 0 }).lean();
         temp.username = userInfo.username;
         resolve(temp);
     });
@@ -178,13 +182,14 @@ const huddle = [
                 );
             } else {
                 const { userId, sessionId } = req.body;
+                const huddleId = makeid();
                 const updates = Promise.all(userId.map(
                     usr => new Promise(async (resolve, reject) => {
                         resolve(await SessionModel.updateOne(
                             { sessionId, "attendance.user": usr },
                             {
                                 $set: {
-                                    'attendance.$.huddle': makeid()
+                                    'attendance.$.huddle': huddleId
                                 }
                             }, { new: true }))
                     })));

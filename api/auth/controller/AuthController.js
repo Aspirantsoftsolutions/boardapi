@@ -1880,10 +1880,15 @@ function registerSingleStudent(student) {
       const selectedClasses = await ClassModel.findOne({ shortId: classes }, { _id: 1 }).lean();
       const selectedGrades = await GradesModel.findOne({ shortId: grades }, { _id: 1 }).lean();
 
-      if (classes) {
+      if (!selectedTeachers || !selectedClasses || !selectedGrades) {
+        reject('invalid teacher, classes and grades combination please check.');
+        return;
+      }
+
+      if (classes && selectedClasses) {
         createData.classes = selectedClasses._id || '';
       }
-      if (grades) {
+      if (grades && selectedGrades) {
         createData.grades = selectedGrades._id || '';
       }
 

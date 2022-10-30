@@ -254,10 +254,62 @@ const deleteSession = async (req, res) => {
     return ErrorResponse(res, SessionConstants.errorOccurred);
   }
 };
+
+const sessionListForTeacher = [
+  param("teacherId").notEmpty().isString().trim().withMessage('valid teacher id is required'),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        console.log("Validation error in session list for teacher");
+        return validationErrorWithData(
+          res,
+          AuthConstants.validationError,
+          errors.array()
+        );
+      } else {
+        const { teacherId } = req.params;
+        const resp = await SessionModel.aggregate([
+          {
+            '$facet': {
+              'ScheduledSession': [
+                {
+                  '$match': {
+                    'type': 'ScheduledSession',
+                    'teacherId': teacherId
+                  }
+                }
+              ],
+              'liveSession': [
+                {
+                  '$match': {
+                    'type': 'liveSession',
+                    'teacherId': teacherId
+                  }
+                }
+              ],
+              'quickSession': [
+                {
+                  '$match': {
+                    'type': 'quickSession',
+                    'teacherId': teacherId
+                  }
+                }
+              ]
+            }
+          }
+        ]);
+        return successResponseWithData(res, 'Success', resp);
+      }
+    } catch (error) {
+      return ErrorResponseWithData(res, error.message, {}, 400);
+    }
+  }]
 export default {
   allsessions,
   deleteSession,
   createSession,
   sessionsById,
-  sessionsByStudentId
+  sessionsByStudentId,
+  sessionListForTeacher
 };
