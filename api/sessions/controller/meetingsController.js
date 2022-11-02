@@ -123,7 +123,7 @@ const attendence = [
     async (req, res) => {
         try {
             const { sessionid, teacherid } = req.headers;
-            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 }).populate('groupId').populate('attendance.$.user').lean();
+            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 }).populate('groupId').populate({ path: 'attendance.$.user', options: { projection: { _id: 0 } } }).lean();
             if (!sessionInfo) {
                 return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
             }
@@ -137,13 +137,20 @@ const attendence = [
                 defaultSessionId: sessionid,
                 currentSessionId: sessionInfo.currentSessionId
             }
+            const studentsPromArr = sessionInfo.groupId.students.map((user) => {
+                return profile(user, {});
+            });
+            let students = await Promise.all(studentsPromArr);
+            sessionInfo.attendance = sessionInfo.attendance.map(user => ({ ...user, loggedIn: true }));
             if (Object(sessionInfo).hasOwnProperty('attendance')) {
-                const promArr = sessionInfo.attendance.map((user) => {
-                    return profile(user);
+                const consolidated = students.map(student => {
+                    student = { ...student, loggedIn: false, writeAccess: false, huddle: "", sessionId: "", user: student._id };
+                    const temp = sessionInfo.attendance.find(session => session.user.toString() === student._id.toString());
+                    temp ? delete temp._id : null;
+                    student ? delete student._id : null;
+                    return { ...student, ...temp }
                 });
-                const profiles = await Promise.all(promArr);
-                sessionInfo.attendance = profiles;
-                resp.attendance = sessionInfo.attendance;
+                resp.attendance = consolidated;
                 resp.attended = sessionInfo.attendance.length;
                 const huddleList = _.groupBy(resp.attendance, 'huddle');
                 resp.huddles = Object.keys(huddleList).map((key) => ({
@@ -158,12 +165,14 @@ const attendence = [
     }
 ];
 
-async function profile(user) {
+async function profile(_id) {
     return new Promise(async (resolve, reject) => {
-        const temp = { ..._.omit(user, ['_id']) }
-        const userInfo = await StudentModel.findOne({ _id: user.user }, { _id: 0 }).lean();
-        temp.username = userInfo.username;
-        resolve(temp);
+        try {
+            const userInfo = await StudentModel.findOne({ _id }, { username: 1, email: 1 }).lean();
+            resolve(userInfo);
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
