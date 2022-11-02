@@ -17,7 +17,7 @@ function makeid() {
 const attendee = mongoose.Schema({
   user: {
     type: mongoose.Types.ObjectId,
-    required: false,
+
     ref: 'Student'
   },
   writeAccess: { type: Boolean, default: false },
@@ -48,41 +48,34 @@ var SessionSchema = new mongoose.Schema(
     },
     huddlemode: { type: Boolean, default: false },
     title: {
-      type: String,
-      required: false,
+      type: String
     },
     type: {
       type: String,
       required: true,
     },
     start: {
-      type: String,
-      required: false,
+      type: String
     },
     end: {
-      type: String,
-      required: false,
+      type: String
     },
     status: {
-      type: String,
-      required: false,
+      type: String
     },
     sessionLink: {
       type: String,
       required: false
     },
     description: {
-      type: String,
-      required: false,
+      type: String
     },
     groupId: {
       type: String,
-      required: false,
       ref: 'groups'
     },
     teacherId: {
-      type: String,
-      required: false,
+      type: String
     },
     participants: {
       type: String
@@ -97,6 +90,12 @@ var SessionSchema = new mongoose.Schema(
       required: true,
       enum: ['school', 'teacher'],
       default: 'teacher'
+    },
+    creationType: {
+      type: String,
+      required: true,
+      enum: ['normal', 'adhoc'],
+      default: 'normal'
     }
   },
   { timestamps: true }

@@ -12,6 +12,10 @@ const SessionConstants = {
   homeDataFectchedSuccessMsg: "Home Data Fetched Successfully",
   sessionsFetchedSuccessfully: "sessions fetched successfully",
   sessionsDeletedSuccessfully: "sessions deleted successfully",
+  sessionId: "Valid Session ID is required",
+  schoolId: "School ID is required",
+  sessionType: "Session type is required",
+  userId: "Valid user Id is required"
 };
 
 export {
