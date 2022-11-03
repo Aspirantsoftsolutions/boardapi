@@ -347,7 +347,7 @@ const createAdhocSession = [
 
         const createData = {
           title: `Adhoc-QS-${Date.now()}`,
-          description: `Adhoc quick session created on ${Date.now()}`,
+          description: `Adhoc quick session`,
         }
 
         if (teacherId)
@@ -434,12 +434,15 @@ const addUsersToAdhocSession = [
           sessionId,
           user
         } = req.body;
-        const userProfile = await StudentModel.findOne({ _id: user });
+        const userProfile = await StudentModel.findOne({ _id: user }).lean();
         const sessionInfo = await SessionModel.findOne({ sessionId });
         const attendence = sessionInfo.attendance || [];
-        attendence.push({
-          user: userProfile._id, writeAccess: "", huddle: "", sessionId: "",
-        });
+        const exists = attendence.find(user => user.user.toString() === userProfile._id.toString());
+        if (!exists) {
+          attendence.push({
+            user: userProfile._id, writeAccess: "", huddle: "", sessionId: "",
+          });
+        }
         const resp = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
         return successResponseWithData(res, 'success', { "grantAccess": true });
       }
