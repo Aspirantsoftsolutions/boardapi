@@ -633,19 +633,18 @@ const updateStudentStatus = async (req, res) => {
 const updateUserPassword = async (req, res) => {
   try {
     const { userId, password } = req.body;
-
     const hashPass = await bcrypt.hash(password, 10);
-    console.log(hashPass);
-    await UserModel.updateOne({ userId: userId }, { password: hashPass });
-    // UserModel.updateOne({userId:userId},{password:hashPass},
-    //   (err, user) => {
-    //             console.log(err);
-    //     console.log(user);
-    //     return ErrorResponse(res, UserConstants.profileUpdateError);
-    //   //handle error
-    //   });
-    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+    const profile = await MasterModel.findOne({ userId: userId }).lean();
+    let query = "";
+    if (profile.role == 'School' || profile.role == 'Individual') {
+      query = await UserModel.updateOne({ userId: userId }, { password: hashPass });
+    } else if (profile.role == 'Teacher') {
+      query = await TeacherModel.updateOne({ userId: userId }, { password: hashPass });
 
+    } else if (profile.role == 'Student') {
+      query = await StudentModel.updateOne({ userId: userId }, { password: hashPass });
+    }
+    return successResponseWithData(res, UserConstants.profileUpdateSuccessMsg, query);
   } catch (err) {
     console.log(err);
     return ErrorResponse(res, UserConstants.profileUpdateError);
