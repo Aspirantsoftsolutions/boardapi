@@ -28,6 +28,11 @@ const attendee = mongoose.Schema({
   sessionId: {
     type: String,
     default: ''
+  },
+  loggedIn: { type: Boolean, default: false },
+  username: {
+    type: String,
+    default: ''
   }
 })
 

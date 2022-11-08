@@ -8,8 +8,8 @@ import { body, header, validationResult } from "express-validator";
 
 import SessionModel from "../model/SessionModel.js";
 import StudentModel from "../../user/model/StudentModel.js";
-import mongoose from "mongoose";
-import _ from 'lodash'
+import _ from 'lodash';
+
 function makeid() {
     var result = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -29,30 +29,21 @@ const checkAccess = [
             grantAccess: false
         };
         const { user, sessionId } = req.body;
-        const sessionInfo = await SessionModel.findOne({ sessionId }).populate({
-            path: 'groupId',
-            populate: {
-                path: 'students',
-                model: 'Student'
+        const sessionInfo = await SessionModel.findOne({ sessionId }).lean();
+        const attendence = sessionInfo.attendance.map(invited => {
+            if (invited.user.toString() === user) {
+                resp.grantAccess = true;
+                invited.loggedIn = true;
             }
-        }).lean();
-        const inviteesArr = sessionInfo.groupId.students;
-        const invitee = inviteesArr.find(invitee => invitee._id.toString() === user);
-        if (invitee) {
-            resp.grantAccess = true;
-            const attendence = sessionInfo.attendance || [];
-            const userAttendance = await SessionModel.findOne({ sessionId, 'attendance.user': mongoose.Types.ObjectId(user) }).lean();
-            if (!userAttendance) {
-                attendence.push({
-                    user: invitee._id, writeAccess: false, huddle: "", sessionId: "", username: invitee.username
-                });
-                const updateAttendence = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
-                console.log(updateAttendence);
-            }
+            return invited
+        });
+        if (resp.grantAccess) {
+            const updateAttendence = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
         }
         return successResponseWithData(res, 'success', resp);
     }
 ];
+
 const grantAccess = [
     body('user').notEmpty().isString().trim(),
     body('sessionId').notEmpty().isString().trim(),
@@ -76,17 +67,6 @@ const grantAccess = [
             const userAttendence = await SessionModel.findOne({ sessionId, "attendance.user": user, teacherId });
             let sessionInfo;
             if (!userAttendence) {
-                // sessionInfo = await SessionModel.updateOne(
-                //     { sessionId, teacherId },
-                //     {
-                //         $push: {
-                //             attendance: {
-                //                 user,
-                //                 writeAccess,
-                //                 sessionId: (session && session.writeSessionId) ? session.writeSessionId : newSessionId
-                //             }
-                //         }
-                //     }, { new: true });
                 return ErrorResponseWithData(res, 'user is not logged into the meeting yet', {}, 400)
             } else {
                 let updateQuery = {};
@@ -126,57 +106,27 @@ const attendence = [
     async (req, res) => {
         try {
             const { sessionid, teacherid } = req.headers;
-            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 }).populate('groupId').populate({ path: 'attendance.$.user', options: { projection: { _id: 0 } } }).lean();
+            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
             if (!sessionInfo) {
                 return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
             }
             const externalInvite = sessionInfo && Object(sessionInfo).hasOwnProperty('participants') ? sessionInfo.participants.split(',').length : 0;
             const resp = {
                 _id: sessionInfo._id,
-                invited: externalInvite + (sessionInfo.creationType == 'normal' ? sessionInfo.groupId.students.length : 0),
+                invited: externalInvite + (sessionInfo.creationType == 'normal' ? sessionInfo.attendance.length : 0),
                 huddlemode: sessionInfo.huddlemode,
                 attendance: [],
                 attended: 0,
                 defaultSessionId: sessionid,
                 currentSessionId: sessionInfo.currentSessionId
             }
-
-            if (sessionInfo.creationType == 'adhoc') {
-                const studentsPromArr = sessionInfo.attendance.map((user) => {
-                    return profile(user.user, user);
-                });
-                let students = await Promise.all(studentsPromArr);
-                sessionInfo.attendance = students.map(user => ({ ...user, loggedIn: true }));
-                resp.attendance = sessionInfo.attendance;
-                resp.attended = sessionInfo.attendance.length;
-                const huddleList = _.groupBy(resp.attendance, 'huddle');
-                resp.huddles = Object.keys(huddleList).map((key) => ({
-                    huddleId: key, users: huddleList[key].map(x => ({ ..._.omit(x, ['_id', 'sessionId', 'writeAccess', 'huddle']) }))
-                }));
-                return successResponseWithData(res, 'success', resp);
-            } else {
-                const studentsPromArr = sessionInfo.groupId.students.map((user) => {
-                    return profile(user, {});
-                });
-                let students = await Promise.all(studentsPromArr);
-                sessionInfo.attendance = sessionInfo.attendance.map(user => ({ ...user, loggedIn: true }));
-                if (Object(sessionInfo).hasOwnProperty('attendance')) {
-                    const consolidated = students.map(student => {
-                        student = { ...student, loggedIn: false, writeAccess: false, huddle: "", sessionId: "", user: student._id };
-                        const temp = sessionInfo.attendance.find(session => session.user.toString() === student._id.toString());
-                        temp ? delete temp._id : null;
-                        student ? delete student._id : null;
-                        return { ...student, ...temp }
-                    });
-                    resp.attendance = consolidated;
-                    resp.attended = sessionInfo.attendance.length;
-                    const huddleList = _.groupBy(resp.attendance, 'huddle');
-                    resp.huddles = Object.keys(huddleList).map((key) => ({
-                        huddleId: key, users: huddleList[key].map(x => ({ ..._.omit(x, ['_id', 'sessionId', 'writeAccess', 'huddle']) }))
-                    }))
-                }
-                return successResponseWithData(res, 'success', resp);
-            }
+            resp.attendance = sessionInfo.attendance;
+            resp.attended = sessionInfo.attendance.length;
+            const huddleList = _.groupBy(resp.attendance, 'huddle');
+            resp.huddles = Object.keys(huddleList).map((key) => ({
+                huddleId: key, users: huddleList[key].map(x => ({ ..._.omit(x, ['_id', 'sessionId', 'writeAccess', 'huddle']) }))
+            }));
+            return successResponseWithData(res, 'success', resp);
         } catch (error) {
             console.log(error)
             return ErrorResponseWithData(res, error.message || 'No match sessions for given session id combination', {}, 400)
