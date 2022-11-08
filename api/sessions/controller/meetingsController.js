@@ -1,6 +1,7 @@
 import {
     ErrorResponseWithData,
     successResponseWithData,
+    validationErrorWithData,
 } from "../../utils/apiResponse.js";
 
 import { body, header, validationResult } from "express-validator";
@@ -42,6 +43,9 @@ const checkAccess = [
             const attendence = sessionInfo.attendance || [];
             const userAttendance = await SessionModel.findOne({ sessionId, 'attendance.user': mongoose.Types.ObjectId(user) }).lean();
             if (!userAttendance) {
+                attendence.push({
+                    user: invitee._id, writeAccess: false, huddle: "", sessionId: "", username: invitee.username
+                });
                 const updateAttendence = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
                 console.log(updateAttendence);
             }
@@ -201,7 +205,7 @@ const huddle = [
                 // Display sanitized values/errors messages.
                 return validationErrorWithData(
                     res,
-                    AuthConstants.validationError,
+                    'Validation Error',
                     errors.array()
                 );
             } else {
@@ -237,20 +241,30 @@ const currentSession = [
                 // Display sanitized values/errors messages.
                 return validationErrorWithData(
                     res,
-                    AuthConstants.validationError,
+                    'Validation Error',
                     errors.array()
                 );
             } else {
                 const { teacherId, sessionId, currentSessionId, huddlemode } = req.body;
-                const sessionInfo = await SessionModel.updateOne(
+                const sessionInfo = await SessionModel.findOne({ sessionId, teacherId }).lean();
+                let updatedHuddle = sessionInfo.attendance;
+                if (huddlemode) {
+                    const huddleExist = sessionInfo.attendance.find(user => user.huddle != '');
+                    if (sessionInfo.attendance.length && !huddleExist) {
+                        const huddle = makeid();
+                        updatedHuddle = sessionInfo.attendance.map(user => ({ ...user, huddle: huddle }));
+                    }
+                }
+                const sessionUpdate = await SessionModel.updateOne(
                     { sessionId, teacherId },
                     {
                         $set: {
                             currentSessionId,
-                            huddlemode
+                            huddlemode,
+                            attendance: updatedHuddle
                         }
                     }, { new: true });
-                return successResponseWithData(res, 'success', sessionInfo);
+                return successResponseWithData(res, 'success', sessionUpdate);
             }
         } catch (error) {
             return ErrorResponseWithData(res, error.message, {}, 400);

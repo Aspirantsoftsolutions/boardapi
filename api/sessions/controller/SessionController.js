@@ -440,7 +440,7 @@ const addUsersToAdhocSession = [
         const exists = attendence.find(user => user.user.toString() === userProfile._id.toString());
         if (!exists) {
           attendence.push({
-            user: userProfile._id, writeAccess: "", huddle: "", sessionId: "",
+            user: userProfile._id, writeAccess: false, huddle: "", sessionId: "",
           });
         }
         const resp = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
