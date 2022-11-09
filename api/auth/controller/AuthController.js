@@ -2579,11 +2579,11 @@ const forgotPassword = [
         const profile = await MasterModel.findOne({ email: email.toLowerCase() }).lean();
         let queryResp = "";
         if (profile.role == 'School' || profile.role == 'Individual') {
-          queryResp = await UserModel.findOne({ userId: profile.userId }).lean();
+          queryResp = await UserModel.findOne({ email: profile.email }).lean();
         } else if (profile.role == 'Teacher') {
-          queryResp = await TeacherModel.findOne({ userId: profile.userId }).lean();
+          queryResp = await TeacherModel.findOne({ email: profile.email }).lean();
         } else if (profile.role == 'Student') {
-          queryResp = await StudentModel.findOne({ userId: profile.userId }).lean();
+          queryResp = await StudentModel.findOne({ email: profile.email }).lean();
         }
         const template = "<center><div>&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div><div><table role='presentation' border='0' width='100%' cellspacing='0' cellpadding='0'><tbody><tr></tr><tr><td><img src='https://class.thestreamboard.com/boards/tools/svg/logo-final.png' alt=''/></td></tr><tr><td><table><tbody><tr><td><div><h3>Hi " + queryResp.username + ",</h3><h4>Please click the button below to reset your password.</h4><p><a href='https://admin.thestreamboard.com/#/pages/authentication/reset-password-v2?id=" + queryResp.userId + ">Reset Password</a></p></div></td></tr></tbody></table></td></tr></tbody></table></div></center>";
         const mailResp = mailer(email, template);

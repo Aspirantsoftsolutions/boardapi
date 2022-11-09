@@ -33,6 +33,7 @@ authRouter.post("/resend-verify-otp", AuthController.resendConfirmOtp);
 authRouter.post("/refresh-token", AuthController.refreshToken);
 authRouter.get("/check-username/:username", AuthController.checkUsername);
 authRouter.put("/reset-password", AuthController.resetPassword);
+authRouter.post("/forgotPassword", AuthController.forgotPassword);
 
 /**
  * @description Configured router for Auth Routes
