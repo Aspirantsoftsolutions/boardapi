@@ -68,6 +68,42 @@ const sessionsById = async (req, res) => {
           ]
         }
       }, {
+        '$addFields': {
+          'updatedAt': {
+            '$dateToString': {
+              'format': '%Y-%m-%d',
+              'date': '$createdAt'
+            }
+          },
+          'createdAt': {
+            '$dateToString': {
+              'format': '%Y-%m-%d',
+              'date': '$createdAt'
+            }
+          }
+        }
+      }, {
+        '$match': {
+          '$or': [
+            {
+              'type': 'ScheduledSession',
+              'end': {
+                '$gte': new Date().toISOString().split('T')[0]
+              }
+            }, {
+              'type': 'liveSession',
+              'createdAt': {
+                '$gte': new Date().toISOString().split('T')[0]
+              }
+            }, {
+              'type': 'quickSession',
+              'createdAt': {
+                '$gte': new Date().toISOString().split('T')[0]
+              }
+            }
+          ]
+        }
+      }, {
         '$lookup': {
           'from': 'teachers',
           'localField': 'teacherId',
@@ -77,16 +113,10 @@ const sessionsById = async (req, res) => {
       }, {
         '$unwind': {
           'path': '$teacher',
-          preserveNullAndEmptyArrays: true
+          'preserveNullAndEmptyArrays': true
         }
       }
     ]).exec();
-    // let sessions = await SessionModel.find({
-    //   $or: [
-    //     { teacherId: req.params.id },
-    //     { school_id: req.params.id }
-    //   ]
-    // }).exec();
     return successResponseWithData(
       res,
       SessionConstants.sessionsFetchedSuccessfully,
@@ -245,7 +275,96 @@ const createSession = [
     }
   },
 ];
+const updateSession = [
+  param('sessionId').isString().trim().notEmpty().withMessage('session id is required'),
+  body("groupId")
+    .isString()
+    .trim()
+    .withMessage(SessionConstants.validGroupIDIDMSg)
+    .escape(),
+  body("teacherId")
+    .isString()
+    .trim()
+    .withMessage(SessionConstants.validTeacherIDMSg)
+    .escape(),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return validationErrorWithData(
+          res,
+          SessionConstants.validationError,
+          errors.array()
+        );
+      } else {
+        console.log("Registering session");
+        const sessionId = req.params.sessionId;
+        const {
+          title,
+          groupId,
+          description,
+          teacherId,
+          type,
+          start,
+          end,
+          participants,
+          school_id,
+          scheduledBy
+        } = req.body;
 
+        const createData = {
+          title,
+          description,
+        }
+
+        createData.title = title;
+        if (groupId)
+          createData.groupId = groupId;
+        createData.description = description;
+        if (teacherId)
+          createData.teacherId = teacherId;
+        if (participants) {
+          createData.participants = participants;
+        }
+        createData.type = type || "ScheduledSession";
+        if (start)
+          createData.start = start;
+        if (end)
+          createData.end = end;
+
+        createData.school_id = school_id;
+        createData.scheduledBy = scheduledBy;
+        console.log("createData : " + createData);
+        try {
+          const sessionData = await SessionModel.findOneAndUpdate({ _id: sessionId }, createData);
+          let sessionResponse = {};
+          sessionResponse = {
+            tokenId: sessionData.sessionId,
+            sessionLink: "https://class.thestreamboard.com/?code=" + sessionData.sessionId,
+          }
+          return successResponseWithData(
+            res,
+            SessionConstants.registrationSuccessMsg,
+            sessionResponse
+          );
+        } catch (err) {
+          console.log(err)
+          if (err.code === 11000) {
+            let str = "";
+            Object.keys(err.keyPattern).forEach((d) => {
+              str += `${d}, `;
+            });
+            str = str.slice(0, str.length - 2);
+            return ErrorResponseWithData(res, str + " already taken", {}, 400);
+          }
+        }
+
+      }
+    } catch (err) {
+      return ErrorResponse(res, err);
+    }
+  },
+];
 /**
  *  Delete user
  *  @param {string} userId
@@ -468,6 +587,7 @@ export default {
   allsessions,
   deleteSession,
   createSession,
+  updateSession,
   sessionsById,
   sessionsByStudentId,
   sessionListForTeacher,
