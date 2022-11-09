@@ -78,8 +78,7 @@ const grantAccess = [
                 } else {
                     updateQuery = {
                         'attendance.$.writeAccess': writeAccess,
-                        'attendance.$.sessionId': '',
-                        'attendance.$.huddle': ''
+                        'attendance.$.sessionId': ''
                     }
                 }
                 sessionInfo = await SessionModel.updateOne(
