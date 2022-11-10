@@ -2585,8 +2585,39 @@ const forgotPassword = [
         } else if (profile.role == 'Student') {
           queryResp = await StudentModel.findOne({ email: profile.email }).lean();
         }
-        const template = "<center><div>&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div><div><table role='presentation' border='0' width='100%' cellspacing='0' cellpadding='0'><tbody><tr></tr><tr><td><img src='https://class.thestreamboard.com/boards/tools/svg/logo-final.png' alt=''/></td></tr><tr><td><table><tbody><tr><td><div><h3>Hi " + queryResp.username + ",</h3><h4>Please click the button below to reset your password.</h4><p><a href='https://admin.thestreamboard.com/#/pages/authentication/reset-password-v2?id=" + queryResp.userId + ">Reset Password</a></p></div></td></tr></tbody></table></td></tr></tbody></table></div></center>";
-        const mailResp = mailer(email, template);
+        const template = `<center style="width: 100%; background-color: #f1f1f1;">
+        <div style="display: none; font-size: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>
+        <div class="email-container" style="max-width: 600px; margin: 0 auto;">
+        <table style="margin: auto;" role="presentation" border="0" width="100%" cellspacing="0" cellpadding="0" align="center">
+        <tbody>
+        <tr>
+        <td class="bg_white" style="padding: 1em 2.5em 0 2.5em;" valign="top">&nbsp;</td>
+        </tr>
+        <tr>
+        <td class="hero bg_white" style="padding: 3em 0 2em 0;" valign="middle"><img style="width: 300px; height: auto; margin: auto; display: block;" src="https://class.thestreamboard.com/boards/tools/svg/logo-final.png" alt="" /></td>
+        </tr>
+        <tr>
+        <td class="hero bg_white" valign="middle">
+        <table>
+        <tbody>
+        <tr>
+        <td>
+        <div class="text" style="padding: 0 2.5em; text-align: center;">
+        <h3>Hi ${queryResp.username},</h3>
+        <h4>Please click the button below and reset your password.</h4>
+        <a class="btn btn-primary" href="https://admin.thestreamboard.com/#/pages/authentication/reset-password-v2?id=${queryResp.userId}'">Create Password</a>
+        </div>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </td>
+        </tr>
+        </tbody>
+        </table>
+        </div>
+        </center>`;
+        const mailResp = mailer(email, template, 'Forgot password');
         return successResponseWithData(res, 'success', mailResp);
       }
     } catch (error) {

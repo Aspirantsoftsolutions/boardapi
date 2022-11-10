@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-async function main(email, otp) {
+async function main(email, otp, subject = "Welcome to StreamBoard") {
   try {
     console.log(otp);
     let transporter = nodemailer.createTransport({
@@ -16,7 +16,7 @@ async function main(email, otp) {
     let info = await transporter.sendMail({
       from: "info@thestreamboard.com", // sender address
       to: email, // list of receivers
-      subject: "Welcome to StreamBoard", // Subject line
+      subject: subject, // Subject line
       html: `${otp} `, // html body
     });
 
