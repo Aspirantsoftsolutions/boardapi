@@ -17,7 +17,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import mailer from "../../utils/sendEmail.js";
 import AWS_SNS from "../../utils/aws-sns-sms.js";
-
 /**
  * @description Auth Constants
  * @param AuthConstants
@@ -37,6 +36,7 @@ import ClassModel from "../../user/model/ClassModel.js";
 import GradesModel from "../../grades/models/grades.models.js";
 import InviteModel from "../../user/model/InviteModel.js";
 import ActivityModel from "../model/activityModel.js";
+import cloudIntegrationsModel from "../../sessions/model/cloudIntegrationsModel.js";
 
 /**
  * User login.
@@ -268,7 +268,8 @@ const login = [
         console.log("returning successful response to user");
         if (userData.isActive) {
           const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'web', role: userData.role } });
-          console.log("AuthController:: Login:: activity:: login");
+          const cloud = await cloudIntegrationsModel.findOne({ user: userData.userId }).lean();
+          jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
           return successResponseWithData(
             res,
             AuthConstants.loginSuccessMsg,
@@ -439,6 +440,8 @@ const qrlogin = [
             if (userData.isActive) {
               const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'qrlogin', device, role: userData.role } });
               console.log("AuthController:: qrlogin:: activity:: qrlogin");
+              const cloud = await cloudIntegrationsModel.findOne({ user: userData.userId }).lean();
+              jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
               return successResponseWithData(
                 res,
                 AuthConstants.loginSuccessMsg,
@@ -669,6 +672,8 @@ const socialLogin = [
         if (userData.isActive) {
           const activity = await ActivityModel.create({ user: userData._id, activityType: 'socialLogin', info: { role: userData.role } });
           console.log("AuthController:: socialLogin:: activity:: socialLogin");
+          const cloud = await cloudIntegrationsModel.findOne({ user: userData.userId }).lean();
+          jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
           return successResponseWithData(
             res,
             AuthConstants.loginSuccessMsg,
