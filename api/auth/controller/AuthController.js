@@ -37,6 +37,7 @@ import GradesModel from "../../grades/models/grades.models.js";
 import InviteModel from "../../user/model/InviteModel.js";
 import ActivityModel from "../model/activityModel.js";
 import cloudIntegrationsModel from "../../sessions/model/cloudIntegrationsModel.js";
+import mongoose from "mongoose";
 
 /**
  * User login.
@@ -268,7 +269,7 @@ const login = [
         console.log("returning successful response to user");
         if (userData.isActive) {
           const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'web', role: userData.role } });
-          const cloud = await cloudIntegrationsModel.findOne({ user: userData.userId }).lean();
+          const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
           return successResponseWithData(
             res,
@@ -440,7 +441,7 @@ const qrlogin = [
             if (userData.isActive) {
               const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'qrlogin', device, role: userData.role } });
               console.log("AuthController:: qrlogin:: activity:: qrlogin");
-              const cloud = await cloudIntegrationsModel.findOne({ user: userData.userId }).lean();
+              const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
               jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
               return successResponseWithData(
                 res,
@@ -672,7 +673,7 @@ const socialLogin = [
         if (userData.isActive) {
           const activity = await ActivityModel.create({ user: userData._id, activityType: 'socialLogin', info: { role: userData.role } });
           console.log("AuthController:: socialLogin:: activity:: socialLogin");
-          const cloud = await cloudIntegrationsModel.findOne({ user: userData.userId }).lean();
+          const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
           return successResponseWithData(
             res,
