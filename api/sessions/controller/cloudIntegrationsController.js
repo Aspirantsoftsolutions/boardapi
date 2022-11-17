@@ -24,7 +24,7 @@ const saveIntegration = [
     body('user').notEmpty().isString().trim(),
     async (req, res) => {
         try {
-            const resp = await cloudIntegrationsModel.update({ school_Id: req.body.school_Id, user: req.body.user }, { ...req.body }, { upsert: true });
+            const resp = await cloudIntegrationsModel.updateOne({ school_Id: req.body.school_Id, user: req.body.user }, { ...req.body }, { upsert: true });
             return successResponseWithData(res, 'successfully created', resp);
         } catch (error) {
             return ErrorResponseWithData(res, error.message, error, 500);
