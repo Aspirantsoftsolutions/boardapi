@@ -17,6 +17,7 @@ import cloudIntegrationRouter from "../api/sessions/routes/cloudIntegrationsRout
 import meetingRouter from "../api/sessions/routes/meetingRoutes.js";
 import paymentRouter from "../api/payment/payment.routes.js";
 import analyticsRouter from "../api/analytics/analytics.router.js";
+import plansRouter from "../api/user/routes/plans.js"
 import auth from "./../middlewares/jwt.js";
 /**
  * Init routes config
@@ -44,6 +45,7 @@ export function initRoutes(app) {
   app.use("/api/meetings", meetingRouter);
   app.use("/api/payments", paymentRouter);
   app.use("/api/analytics", analyticsRouter);
+  app.use("/api/plans", plansRouter);
 
 
   app.route("/*").get((req, res) => {
