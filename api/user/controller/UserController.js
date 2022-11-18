@@ -412,11 +412,27 @@ const updateThidPartyFeatures = async (req, res) => {
   try {
 
     const {
+      isGeoGebraEnable,
+      isCreativeToolsEnable,
+      isNewPageEnable,
+      isSaveSBEnable,
+      isImportEnable,
+      isBackgroundEnable,
+      isHandWritingEnable,
+      isImmersiveReaderEnable,
       isGoogleDriveEnable,
       isOneDriveEnable,
-      isImmersiveReaderEnable,
+      isScreenshotEnable,
+      isRecordingEnable,
+      isQRCodeEnable,
+      isParticipateModeEnable,
+      isExportpdfEnable,
       isMagicDrawEnable,
-      isHandWritingEnable,
+      isSessionInteractionEnable,
+      isStudentAttendanceEnable,
+      isSSOIntegrationEnable,
+      isDeviceManagementEnable,
+      isQRloginEnable,
       isPhetEnable,
       userId
     } = req.body;
@@ -424,13 +440,28 @@ const updateThidPartyFeatures = async (req, res) => {
     await UserModel.updateMany({
       userId: userId
     }, {
-
-      isGoogleDriveEnable: isGoogleDriveEnable,
-      isOneDriveEnable: isOneDriveEnable,
-      isImmersiveReaderEnable: isImmersiveReaderEnable,
-      isMagicDrawEnable: isMagicDrawEnable,
-      isHandWritingEnable: isHandWritingEnable,
-      isPhetEnable: isPhetEnable
+      isGeoGebraEnable,
+      isCreativeToolsEnable,
+      isNewPageEnable,
+      isSaveSBEnable,
+      isImportEnable,
+      isBackgroundEnable,
+      isHandWritingEnable,
+      isImmersiveReaderEnable,
+      isGoogleDriveEnable,
+      isOneDriveEnable,
+      isScreenshotEnable,
+      isRecordingEnable,
+      isQRCodeEnable,
+      isParticipateModeEnable,
+      isExportpdfEnable,
+      isMagicDrawEnable,
+      isSessionInteractionEnable,
+      isStudentAttendanceEnable,
+      isSSOIntegrationEnable,
+      isDeviceManagementEnable,
+      isQRloginEnable,
+      isPhetEnable
     });
 
     return successResponse(res, UserConstants.profileUpdateSuccessMsg);

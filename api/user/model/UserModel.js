@@ -182,10 +182,73 @@ var UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    isGeoGebraEnable: {
+      type: Boolean,
+      default: false
+    },
+    isCreativeToolsEnable: {
+      type: Boolean,
+      default: false
+    },
+    isNewPageEnable: {
+      type: Boolean,
+      default: false
+    },
+    isBackgroundEnable: {
+      type: Boolean,
+      default: false
+    },
+    isSaveSBEnable: {
+      type: Boolean,
+      default: false
+    },
+    isImportEnable: {
+      type: Boolean,
+      default: false
+    },
+    isScreenshotEnable: {
+      type: Boolean,
+      default: false
+    },
+    isRecordingEnable: {
+      type: Boolean,
+      default: false
+    },
+    isQRCodeEnable: {
+      type: Boolean,
+      default: false
+    },
+    isParticipateModeEnable: {
+      type: Boolean,
+      default: false
+    },
+    isExportpdfEnable: {
+      type: Boolean,
+      default: false
+    },
+    isSessionInteractionEnable: {
+      type: Boolean,
+      default: false
+    },
+    isStudentAttendanceEnable: {
+      type: Boolean,
+      default: false
+    },
+    isSSOIntegrationEnable: {
+      type: Boolean,
+      default: false
+    },
     schoolId: {
       type: String
+    },
+    isDeviceManagementEnable: {
+      type: Boolean,
+      default: false
+    },
+    isQRloginEnable: {
+      type: Boolean,
+      default: false
     }
-
   },
   { timestamps: true }
 );
