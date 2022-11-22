@@ -25,22 +25,30 @@ const checkAccess = [
     body('user').notEmpty().isString().trim(),
     body('sessionId').notEmpty().isString().trim(),
     async (req, res) => {
-        const resp = {
-            grantAccess: false
-        };
-        const { user, sessionId } = req.body;
-        const sessionInfo = await SessionModel.findOne({ sessionId }).lean();
-        const attendence = sessionInfo.attendance.map(invited => {
-            if (invited.user.toString() === user) {
-                resp.grantAccess = true;
-                invited.loggedIn = true;
+        try {
+            const resp = {
+                grantAccess: false
+            };
+            const { user, sessionId } = req.body;
+            const sessionInfo = await SessionModel.findOne({ sessionId }).lean();
+            if (sessionInfo) {
+                const attendence = sessionInfo.attendance.map(invited => {
+                    if (invited.user.toString() === user) {
+                        resp.grantAccess = true;
+                        invited.loggedIn = true;
+                    }
+                    return invited
+                });
+                if (resp.grantAccess) {
+                    const updateAttendence = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
+                }
+            } else {
+                return ErrorResponseWithData(res, 'No Sessions found', resp);
             }
-            return invited
-        });
-        if (resp.grantAccess) {
-            const updateAttendence = await SessionModel.updateOne({ sessionId }, { attendance: attendence });
+            return successResponseWithData(res, 'success', resp);
+        } catch (error) {
+            return ErrorResponseWithData(res, error.message, {}, 500);
         }
-        return successResponseWithData(res, 'success', resp);
     }
 ];
 
