@@ -4,7 +4,7 @@ import admin from "firebase-admin";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const serviceAccount = require("../../../sample-projecct-f10db-ca047fc264cc.json");
-import validator from "express-validator";
+import validator, { param } from "express-validator";
 
 const { body, validationResult } = validator;
 
@@ -222,20 +222,9 @@ const add = [
     try {
       console.log(req.body);
       if (req.body) {
-        const notification = await new NotificationsModel(req.body);
-        notification.save();
-        // if (notification.publishNow === true) {
-        //   const notify = await this.sendPushNow(
-        //     notification.title,
-        //     notification.body,
-        //     notification.image,
-        //     notification.icon
-        //   );
-        //   notification.sucessCount = notify.sucessCount;
-        //   notification.failsCount = notify.failed;
-        //   notification.publishStatus = true;
-        //   notification.save();
-        // }
+        const { body, schools, students, teachers, title } = req.body;
+        const to = [...schools, ...students, ...teachers].map(x => ({ ...x, read: false }));
+        const notification = await NotificationsModel.create({ body, title, to });
         return successResponseWithData(
           res,
           NotificaitonConstants.notificationAddedSuccessMsg,
@@ -271,6 +260,27 @@ const getNotifications = [
   },
 ];
 
+const getNotificationsById = [
+  param("id").notEmpty(),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const notifications = await NotificationsModel.find({ 'to': { $elemMatch: { 'userId': id, 'read': { $exists: true }, 'read': false } } }).exec();
+      return successResponseWithData(
+        res,
+        NotificaitonConstants.notificaitonsFetchedSuccessMsg,
+        notifications
+      );
+    } catch (e) {
+      return validationErrorWithData(
+        res,
+        NotificaitonConstants.errorOccurred,
+        e
+      );
+    }
+  },
+];
+
 const deleteNotification = async (req, res) => {
   try {
     const { id } = req.params;
@@ -283,11 +293,27 @@ const deleteNotification = async (req, res) => {
   }
 };
 
+const markAllAsRead = [
+  param("id").notEmpty(),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      // Add a boolean
+      const updates = await NotificationsModel.updateMany({ 'to.userId': id }, { $set: { 'to.$.read': true } });
+      return successResponseWithData(res, "success", updates);
+    } catch (err) {
+      console.log(err);
+      return ErrorResponse(res, "Error on updating");
+    }
+  }]
+
 export default {
   getNotifications,
+  getNotificationsById,
   add,
   sendPushNow,
   sendPush,
   subscribe,
-  deleteNotification
+  deleteNotification,
+  markAllAsRead
 };

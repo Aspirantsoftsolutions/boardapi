@@ -432,6 +432,57 @@ const sessionListForTeacher = [
     }
   }];
 
+const sessionListForStudent = [
+  param("studentId").notEmpty().isString().trim().withMessage('valid student id is required'),
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        console.log("Validation error in session list for student");
+        return validationErrorWithData(
+          res,
+          AuthConstants.validationError,
+          errors.array()
+        );
+      } else {
+        const { studentId } = req.params;
+        const studentProf = await StudentModel.findOne({ userId: studentId }).lean();
+        const resp = await SessionModel.aggregate([
+          {
+            '$facet': {
+              'ScheduledSession': [
+                {
+                  '$match': {
+                    'type': 'ScheduledSession',
+                    'attendance.user': mongoose.Types.ObjectId(studentProf._id)
+                  }
+                }
+              ],
+              'liveSession': [
+                {
+                  '$match': {
+                    'type': 'liveSession',
+                    'attendance.user': mongoose.Types.ObjectId(studentProf._id)
+                  }
+                }
+              ],
+              'quickSession': [
+                {
+                  '$match': {
+                    'type': 'quickSession',
+                    'attendance.user': mongoose.Types.ObjectId(studentProf._id)
+                  }
+                }
+              ]
+            }
+          }
+        ]);
+        return successResponseWithData(res, 'Success', resp);
+      }
+    } catch (error) {
+      return ErrorResponseWithData(res, error.message, {}, 400);
+    }
+  }];
 const createAdhocSession = [
   body("sessionId")
     .isString()
@@ -591,6 +642,7 @@ export default {
   sessionsById,
   sessionsByStudentId,
   sessionListForTeacher,
+  sessionListForStudent,
   createAdhocSession,
   addUsersToAdhocSession
 };

@@ -153,7 +153,7 @@ const schoolActivity = [
                             '$sort': {
                                 '_id': -1
                             }
-                        }
+                        }, { '$limit': 15 }
                     ],
                     'Students': [
                         {
@@ -177,7 +177,7 @@ const schoolActivity = [
                             '$sort': {
                                 '_id': -1
                             }
-                        }
+                        }, { '$limit': 15 }
                     ],
                     'signup': [
                         {
@@ -200,7 +200,7 @@ const schoolActivity = [
                             '$sort': {
                                 '_id': -1
                             }
-                        }
+                        }, { '$limit': 15 }
                     ]
                 }
             }

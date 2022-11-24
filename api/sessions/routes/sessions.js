@@ -31,6 +31,7 @@ sessionRouter.post("/updateSession/:sessionId", SessionController.updateSession)
 sessionRouter.post("/createAdhocSession", SessionController.createAdhocSession);
 sessionRouter.post("/adhoc/addUsers", SessionController.addUsersToAdhocSession);
 sessionRouter.get("/list/teacher/:teacherId", SessionController.sessionListForTeacher);
+sessionRouter.get("/list/student/:studentId", SessionController.sessionListForStudent);
 
 /**
  * @description Configured router for User Routes

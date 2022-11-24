@@ -22,8 +22,8 @@ const NotificationSchema = mongoose.Schema({
     pageToLink: {
         type: String, default: ''
     },
-    userGroup: {
-        type: String, default: ''
+    to: {
+        type: [Object], default: {}
     },
     publishDate: {
         type: Date, default: Date.now()
