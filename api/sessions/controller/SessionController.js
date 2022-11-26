@@ -400,25 +400,82 @@ const sessionListForTeacher = [
             '$facet': {
               'ScheduledSession': [
                 {
+                  '$addFields': {
+                    'updatedAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    },
+                    'createdAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    }
+                  }
+                },
+                {
                   '$match': {
                     'type': 'ScheduledSession',
-                    'teacherId': teacherId
+                    'teacherId': teacherId,
+                    'end': {
+                      '$gte': new Date().toISOString().split('T')[0]
+                    }
                   }
                 }
               ],
               'liveSession': [
                 {
+                  '$addFields': {
+                    'updatedAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    },
+                    'createdAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    }
+                  }
+                },
+                {
                   '$match': {
                     'type': 'liveSession',
-                    'teacherId': teacherId
+                    'teacherId': teacherId,
+                    'createdAt': {
+                      '$gte': new Date().toISOString().split('T')[0]
+                    }
                   }
                 }
               ],
               'quickSession': [
                 {
+                  '$addFields': {
+                    'updatedAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    },
+                    'createdAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    }
+                  }
+                },
+                {
                   '$match': {
                     'type': 'quickSession',
-                    'teacherId': teacherId
+                    'teacherId': teacherId,
+                    'createdAt': {
+                      '$gte': new Date().toISOString().split('T')[0]
+                    }
                   }
                 }
               ]
@@ -452,25 +509,82 @@ const sessionListForStudent = [
             '$facet': {
               'ScheduledSession': [
                 {
+                  '$addFields': {
+                    'updatedAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    },
+                    'createdAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    }
+                  }
+                },
+                {
                   '$match': {
                     'type': 'ScheduledSession',
-                    'attendance.user': mongoose.Types.ObjectId(studentProf._id)
+                    'attendance.user': mongoose.Types.ObjectId(studentProf._id),
+                    'end': {
+                      '$gte': new Date().toISOString().split('T')[0]
+                    }
                   }
                 }
               ],
               'liveSession': [
                 {
+                  '$addFields': {
+                    'updatedAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    },
+                    'createdAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    }
+                  }
+                },
+                {
                   '$match': {
                     'type': 'liveSession',
-                    'attendance.user': mongoose.Types.ObjectId(studentProf._id)
+                    'attendance.user': mongoose.Types.ObjectId(studentProf._id),
+                    'createdAt': {
+                      '$gte': new Date().toISOString().split('T')[0]
+                    }
                   }
                 }
               ],
               'quickSession': [
                 {
+                  '$addFields': {
+                    'updatedAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    },
+                    'createdAt': {
+                      '$dateToString': {
+                        'format': '%Y-%m-%d',
+                        'date': '$createdAt'
+                      }
+                    }
+                  }
+                },
+                {
                   '$match': {
                     'type': 'quickSession',
-                    'attendance.user': mongoose.Types.ObjectId(studentProf._id)
+                    'attendance.user': mongoose.Types.ObjectId(studentProf._id),
+                    'createdAt': {
+                      '$gte': new Date().toISOString().split('T')[0]
+                    }
                   }
                 }
               ]
