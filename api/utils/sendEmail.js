@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-async function main(email, otp, subject = "Welcome to StreamBoard") {
+async function main(email, otp, subject = "Welcome to StreamBoard", attachments = []) {
   try {
     console.log(otp);
     let transporter = nodemailer.createTransport({
@@ -18,10 +18,11 @@ async function main(email, otp, subject = "Welcome to StreamBoard") {
       to: email, // list of receivers
       subject: subject, // Subject line
       html: `${otp} `, // html body
+      attachments: [...attachments]
     });
 
     console.log("Message sent: %s", info.messageId);
-
+    return info;
     // Preview only available when sending through an Ethereal account
     // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
     // Preview URL: htps://ethereal.email/message/WaQKMgKddxQDoou...

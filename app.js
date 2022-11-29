@@ -52,7 +52,12 @@ import swaggerUi from "swagger-ui-express";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const SwaggerUiDoc = require("./src/swagger.json");
+import path from 'path';
+import {fileURLToPath} from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+
+const __dirname = path.dirname(__filename);
 /**
  * @description Create application with Express Framework
  * @param app

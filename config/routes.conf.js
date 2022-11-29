@@ -19,6 +19,7 @@ import paymentRouter from "../api/payment/payment.routes.js";
 import analyticsRouter from "../api/analytics/analytics.router.js";
 import plansRouter from "../api/user/routes/plans.js"
 import auth from "./../middlewares/jwt.js";
+import invoiceRouter from "../api/inovice/invoice.routes.js";
 /**
  * Init routes config
  * @param app
@@ -46,6 +47,7 @@ export function initRoutes(app) {
   app.use("/api/payments", paymentRouter);
   app.use("/api/analytics", analyticsRouter);
   app.use("/api/plans", plansRouter);
+  app.use("/api/invoice", invoiceRouter);
 
 
   app.route("/*").get((req, res) => {
