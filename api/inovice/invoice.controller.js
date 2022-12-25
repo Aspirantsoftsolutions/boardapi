@@ -8,7 +8,7 @@ const sendInvoice = [async (req, res) => {
             "July", "August", "September", "October", "November", "December"
         ];
         const d = new Date();
-        const email = "dayakarreddy07@gmail.com";
+        const email = "sales@thestreamboard.com";
         const template = "";
         const subject = `Invoice for the current month ${monthNames[d.getMonth()]}`;
         const filePath = path.join(path.dirname('.'), './invoice.pdf')
