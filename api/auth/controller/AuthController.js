@@ -68,18 +68,19 @@ const login = [
           errors.array()
         );
       } else {
-        const { identity, password } = req.body;
+        let { identity, password } = req.body;
+        identity = identity.toLowerCase();
 
         // Regular expression to check if identity is email or not
         const re =
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         const isEmail = re.test(String(identity).toLowerCase());
         let userData = {};
-
+        let masterData = await MasterModel.findOne({
+          email: identity,
+        });
         if (isEmail) {
-          let masterData = await MasterModel.findOne({
-            email: identity,
-          });
+
           if (!masterData) {
             return notFoundResponse(res, AuthConstants.userNotFound);
           }
@@ -270,7 +271,7 @@ const login = [
         if (userData.isActive) {
           const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'web', role: userData.role } });
           const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
-          jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
+          jwtPayload.user = { ...jwtPayload.user, locale: masterData.locale, integrations: (cloud ? cloud.integrations : []) };
           return successResponseWithData(
             res,
             AuthConstants.loginSuccessMsg,
@@ -325,8 +326,8 @@ const qrlogin = [
           errors.array()
         );
       } else {
-        const { identity, device, qrCode } = req.body;
-
+        let { identity, device, qrCode } = req.body;
+        identity = identity.toLowerCase();
         // Regular expression to check if identity is email or not
         const re =
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -484,8 +485,8 @@ const socialLogin = [
           errors.array()
         );
       } else {
-        const { identity } = req.body;
-
+        let { identity } = req.body;
+        identity = identity.toLowerCase();
         // Regular expression to check if identity is email or not
         const re =
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

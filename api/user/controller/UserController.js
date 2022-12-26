@@ -26,7 +26,7 @@ import {
   unprocessable,
 } from "../../utils/apiResponse.js";
 
-import validator from "express-validator";
+import validator, { param } from "express-validator";
 const { body, validationResult } = validator;
 
 /**
@@ -116,12 +116,12 @@ const getProfile = async (req, res) => {
     let masterData = {};
     masterData = await MasterModel.findOne({
       userId: id
-    });
+    }).lean();
     console.log(masterData);
     if (masterData.role == "Admin") {
       userData = await UserModel.findOne({
         userId: id
-      });
+      }).lean();
     } else {
       if (masterData.role == "Teacher") {
         let users = await TeacherModel.aggregate([
@@ -209,9 +209,9 @@ const getProfile = async (req, res) => {
     return successResponseWithData(
       res,
       UserConstants.profileFetchedSuccessMsg,
-      userData
+      {...userData, locale: masterData.locale}
     );
-  } catch {
+  } catch(error) {
     return ErrorResponse(res, UserConstants.NoUserFoundMsg);
   }
 };
@@ -1326,6 +1326,19 @@ const InviteList = async (req, res) => {
   }
 };
 
+const preferences = [
+  param("id").not().isEmpty().isLength({ min: 12 }),
+  body('locale').notEmpty(),
+  async (req,res) => {
+    try {
+      const user = await MasterModel.findOneAndUpdate({ userId: req.params.id }, { locale: req.body.locale });
+      return successResponseWithData(res, 'Locale updated successfully', { "locale": req.body.locale });
+    } catch (error) {
+      return ErrorResponseWithData(res, error.message, error);
+    }
+  }
+]
+
 export default {
   sendReferral,
   fetchReferrals,
@@ -1358,5 +1371,6 @@ export default {
   updateSubscriptionType,
   linkTeacherToStudent,
   linkTeacherToClass,
-  InviteList
+  InviteList,
+  preferences
 };

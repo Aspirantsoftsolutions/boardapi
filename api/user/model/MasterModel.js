@@ -16,6 +16,10 @@ var MasterSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    locale: {
+      type: String,
+      default: 'en'
+    }
   },
   { timestamps: true }
 );
