@@ -141,6 +141,33 @@ const attendence = [
     }
 ];
 
+const updateAttendence = [
+    header('sessionId').notEmpty().isString().trim(),
+    body('userID').notEmpty().isString().trim(),
+    body('useractivestatus').notEmpty().isString().trim(),
+    async (req, res) => {
+        try {
+            const { sessionid, teacherid } = req.headers;
+            const { useractivestatus, userID } = req.body;
+            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
+            if (!sessionInfo) {
+                return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
+            }
+            const resp = await SessionModel.updateOne(
+                { sessionId: sessionid, "attendance.user": userID },
+                {
+                    $set: {
+                        'attendance.$.useractivestatus': useractivestatus
+                    }
+                }, { new: true });
+
+            return successResponseWithData(res, 'success', resp);
+        } catch (error) {
+            console.log(error)
+            return ErrorResponseWithData(res, error.message || 'No match sessions for given session id combination', {}, 400)
+        }
+    }
+];
 async function profile(_id, obj) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -233,6 +260,7 @@ export default {
     checkAccess,
     grantAccess,
     attendence,
+    updateAttendence,
     huddle,
     currentSession
 };

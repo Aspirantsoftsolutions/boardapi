@@ -33,6 +33,10 @@ const attendee = mongoose.Schema({
   username: {
     type: String,
     default: ''
+  },
+  useractivestatus: {
+    type: String,
+    default: ''
   }
 })
 
