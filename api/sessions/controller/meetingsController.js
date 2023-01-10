@@ -149,18 +149,35 @@ const updateAttendence = [
         try {
             const { sessionid, teacherid } = req.headers;
             const { useractivestatus, userID } = req.body;
-            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
-            if (!sessionInfo) {
+            const session = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
+            if (!session) {
                 return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
             }
-            const resp = await SessionModel.updateOne(
+            const updateResp = await SessionModel.updateOne(
                 { sessionId: sessionid, "attendance.user": userID },
                 {
                     $set: {
                         'attendance.$.useractivestatus': useractivestatus
                     }
-                }, { new: true });
+                }, { new: true});
+            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
 
+            const externalInvite = sessionInfo && Object(sessionInfo).hasOwnProperty('participants') ? sessionInfo.participants.split(',').length : 0;
+            const resp = {
+                _id: sessionInfo._id,
+                invited: externalInvite + (sessionInfo.creationType == 'normal' ? sessionInfo.attendance.length : 0),
+                huddlemode: sessionInfo.huddlemode,
+                attendance: [],
+                attended: 0,
+                defaultSessionId: sessionid,
+                currentSessionId: sessionInfo.currentSessionId
+            }
+            resp.attendance = sessionInfo.attendance;
+            resp.attended = sessionInfo.attendance.length;
+            const huddleList = _.groupBy(resp.attendance, 'huddle');
+            resp.huddles = Object.keys(huddleList).map((key) => ({
+                huddleId: key, users: huddleList[key].map(x => ({ ..._.omit(x, ['_id', 'sessionId', 'writeAccess', 'huddle']) }))
+            }));
             return successResponseWithData(res, 'success', resp);
         } catch (error) {
             console.log(error)
