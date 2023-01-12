@@ -209,9 +209,9 @@ const getProfile = async (req, res) => {
     return successResponseWithData(
       res,
       UserConstants.profileFetchedSuccessMsg,
-      {...userData, locale: masterData.locale}
+      { ...userData, locale: masterData.locale }
     );
-  } catch(error) {
+  } catch (error) {
     return ErrorResponse(res, UserConstants.NoUserFoundMsg);
   }
 };
@@ -986,15 +986,32 @@ const allClasses = async (req, res) => {
     const {
       schoolId
     } = req.params;
-    let users;
-    users = await ClassModel.find({
-      schoolId: schoolId
-    });
+
+    const classes = await ClassModel.aggregate([
+      {
+        '$match': {
+          'schoolId': schoolId
+        }
+      }, {
+        '$addFields': {
+          'classid': {
+            '$toString': '$_id'
+          }
+        }
+      }, {
+        '$lookup': {
+          'from': 'students',
+          'localField': 'classid',
+          'foreignField': 'classes',
+          'as': 'students'
+        }
+      }
+    ]);
 
     return successResponseWithData(
       res,
       UserConstants.userFetchedSuccessfully,
-      users
+      classes
     );
   } catch (e) {
     console.log(e);
@@ -1329,7 +1346,7 @@ const InviteList = async (req, res) => {
 const preferences = [
   param("id").not().isEmpty().isLength({ min: 12 }),
   body('locale').notEmpty(),
-  async (req,res) => {
+  async (req, res) => {
     try {
       const user = await MasterModel.findOneAndUpdate({ userId: req.params.id }, { locale: req.body.locale });
       return successResponseWithData(res, 'Locale updated successfully', { "locale": req.body.locale });
