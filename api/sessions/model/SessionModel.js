@@ -55,6 +55,8 @@ var SessionSchema = new mongoose.Schema(
       default: makeid,
       unique: true
     },
+    bgImage: { type: String, default: '' },
+    bgColor: { type: String, default: '' },
     huddlemode: { type: Boolean, default: false },
     title: {
       type: String

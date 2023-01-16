@@ -143,42 +143,80 @@ const attendence = [
 
 const updateAttendence = [
     header('sessionId').notEmpty().isString().trim(),
-    body('userID').notEmpty().isString().trim(),
-    body('useractivestatus').notEmpty().isString().trim(),
+    body('userID').if(body('useractivestatus').notEmpty().isString().trim()).notEmpty().isString().trim().withMessage('userID is required'),
+    body('bgImage').optional().isString().trim(),
+    body('bgColor').optional().isString().trim(),
     async (req, res) => {
         try {
-            const { sessionid, teacherid } = req.headers;
-            const { useractivestatus, userID } = req.body;
-            const session = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
-            if (!session) {
-                return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
-            }
-            const updateResp = await SessionModel.updateOne(
-                { sessionId: sessionid, "attendance.user": userID },
-                {
-                    $set: {
-                        'attendance.$.useractivestatus': useractivestatus
-                    }
-                }, { new: true});
-            const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                console.log("Validation error in session list for teacher");
+                return validationErrorWithData(
+                    res,
+                    'Validation Error',
+                    errors.array()
+                );
+            } else {
+                const { sessionid, teacherid } = req.headers;
+                const { useractivestatus, userID, bgImage, bgColor } = req.body;
+                const session = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
 
-            const externalInvite = sessionInfo && Object(sessionInfo).hasOwnProperty('participants') ? sessionInfo.participants.split(',').length : 0;
-            const resp = {
-                _id: sessionInfo._id,
-                invited: externalInvite + (sessionInfo.creationType == 'normal' ? sessionInfo.attendance.length : 0),
-                huddlemode: sessionInfo.huddlemode,
-                attendance: [],
-                attended: 0,
-                defaultSessionId: sessionid,
-                currentSessionId: sessionInfo.currentSessionId
+                if (!session) {
+                    return ErrorResponseWithData(res, 'No match sessions for given session id combination', {}, 400);
+                }
+
+                if (useractivestatus && userID && bgImage && bgColor) {
+                    await SessionModel.updateOne(
+                        { sessionId: sessionid, "attendance.user": userID },
+                        {
+                            $set: {
+                                'attendance.$.useractivestatus': useractivestatus,
+                                'bgImage': bgImage || session.bgImage,
+                                'bgColor': bgColor || session.bgColor
+                            }
+                        }, { new: true });
+                } else if (useractivestatus && userID) {
+                    await SessionModel.updateOne(
+                        { sessionId: sessionid, "attendance.user": userID },
+                        {
+                            $set: {
+                                'attendance.$.useractivestatus': useractivestatus
+                            }
+                        }, { new: true });
+                } else if (bgImage || bgColor) {
+                    await SessionModel.updateOne(
+                        { sessionId: sessionid },
+                        {
+                            $set: {
+                                'bgImage': bgImage || session.bgImage,
+                                'bgColor': bgColor || session.bgColor
+                            }
+                        }, { new: true });
+                }
+
+                const sessionInfo = await SessionModel.findOne({ sessionId: sessionid }, { _id: 0 });
+
+                const externalInvite = sessionInfo && Object(sessionInfo).hasOwnProperty('participants') ? sessionInfo.participants.split(',').length : 0;
+                const resp = {
+                    _id: sessionInfo._id,
+                    invited: externalInvite + (sessionInfo.creationType == 'normal' ? sessionInfo.attendance.length : 0),
+                    huddlemode: sessionInfo.huddlemode,
+                    attendance: [],
+                    attended: 0,
+                    defaultSessionId: sessionid,
+                    currentSessionId: sessionInfo.currentSessionId,
+                    bgImage: sessionInfo.bgImage,
+                    bgColor: sessionInfo.bgColor
+                }
+                resp.attendance = sessionInfo.attendance;
+                resp.attended = sessionInfo.attendance.length;
+                const huddleList = _.groupBy(resp.attendance, 'huddle');
+                resp.huddles = Object.keys(huddleList).map((key) => ({
+                    huddleId: key, users: huddleList[key].map(x => ({ ..._.omit(x, ['_id', 'sessionId', 'writeAccess', 'huddle']) }))
+                }));
+                return successResponseWithData(res, 'success', resp);
             }
-            resp.attendance = sessionInfo.attendance;
-            resp.attended = sessionInfo.attendance.length;
-            const huddleList = _.groupBy(resp.attendance, 'huddle');
-            resp.huddles = Object.keys(huddleList).map((key) => ({
-                huddleId: key, users: huddleList[key].map(x => ({ ..._.omit(x, ['_id', 'sessionId', 'writeAccess', 'huddle']) }))
-            }));
-            return successResponseWithData(res, 'success', resp);
+
         } catch (error) {
             console.log(error)
             return ErrorResponseWithData(res, error.message || 'No match sessions for given session id combination', {}, 400)

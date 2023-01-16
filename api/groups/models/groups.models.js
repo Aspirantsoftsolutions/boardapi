@@ -4,7 +4,8 @@ var groupsModel = new mongoose.Schema(
     {
         name: { type: String, required: true },
         school_id: { type: String, required: true },
-        students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true }]
+        students: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student', required: true }],
+        grades: { type: String, required: true }
     },
     {
         timestamps: true,
