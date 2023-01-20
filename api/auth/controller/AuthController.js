@@ -896,7 +896,7 @@ const register = [
 
         if (req.body.email != undefined) {
           console.log("User provided email");
-          user = await UserModel.findOne({
+          user = await MasterModel.findOne({
             email: req.body.email,
           });
           identityProvided = true;
@@ -1066,7 +1066,7 @@ const register = [
                 str += `${d}, `;
               });
               str = str.slice(0, str.length - 2);
-              return unauthorizedResponse(res, str + " already taken");
+              return ErrorResponse(res, str + " already taken");
             }
             return ErrorResponse(res, err);
           }
@@ -1100,7 +1100,7 @@ const socialRegister = [
         const invite = await InviteModel.deleteOne({ email: req.body.email });
         if (req.body.email != undefined) {
           console.log("User provided email");
-          user = await UserModel.findOne({
+          user = await MasterModel.findOne({
             email: req.body.email,
           });
           identityProvided = true;
@@ -1317,7 +1317,7 @@ const registerTeacher = [
 
         if (req.body.email != undefined) {
           console.log("User provided email");
-          user = await TeacherModel.findOne({
+          user = await MasterModel.findOne({
             email: req.body.email,
           });
           identityProvided = true;
@@ -1525,7 +1525,7 @@ function registerSingleTeacher(singleUser) {
 
     if (singleUser.email != undefined) {
       console.log("User provided email");
-      user = await TeacherModel.findOne({
+      user = await MasterModel.findOne({
         email: singleUser.email,
       });
       identityProvided = true;
@@ -1740,7 +1740,7 @@ const registerStudent = [
 
         if (req.body.email != undefined) {
           console.log("User provided email");
-          user = await StudentModel.findOne({
+          user = await MasterModel.findOne({
             email: req.body.email,
           });
           identityProvided = true;
@@ -1953,7 +1953,7 @@ function registerSingleStudent(student) {
 
     if (student.email != undefined) {
       console.log("User provided email");
-      user = await StudentModel.findOne({
+      user = await MasterModel.findOne({
         email: student.email,
       });
       identityProvided = true;
