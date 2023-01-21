@@ -886,7 +886,7 @@ const register = [
     .isString()
     .trim()
     .withMessage('location')
-    .escape(),
+    .optional(),
   body("mobile")
     .isString()
     .trim()
@@ -896,7 +896,7 @@ const register = [
     .isString()
     .trim()
     .withMessage('organization')
-    .escape(),
+    .optional(),
   body("plan")
     .isString()
     .trim()
