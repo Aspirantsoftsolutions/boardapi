@@ -877,6 +877,36 @@ const register = [
     .trim()
     .withMessage(AuthConstants.passwordRequired)
     .escape(),
+  body("email")
+    .isString()
+    .trim()
+    .withMessage(AuthConstants.emailOrMobileReq)
+    .escape(),
+  body("location")
+    .isString()
+    .trim()
+    .withMessage('location')
+    .escape(),
+  body("mobile")
+    .isString()
+    .trim()
+    .withMessage(AuthConstants.emailOrMobileReq)
+    .escape(),
+  body("organisation")
+    .isString()
+    .trim()
+    .withMessage('organization')
+    .escape(),
+  body("plan")
+    .isString()
+    .trim()
+    .withMessage('plan')
+    .escape(),
+  body("role")
+    .isString()
+    .trim()
+    .withMessage('role')
+    .escape(),
   async (req, res) => {
     try {
       const errors = validationResult(req);
