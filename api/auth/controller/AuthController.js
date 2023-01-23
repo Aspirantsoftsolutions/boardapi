@@ -182,6 +182,11 @@ const login = [
           return ErrorResponseWithData(res, `user registration is ${userData.status}`);
         }
 
+        if(userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString()){
+          console.log("user license is expired on" + userData.licenseEndDate);
+          return ErrorResponseWithData(res, `License expired please contact sales`);
+        }
+
         const isPassValid = await bcrypt.compare(password, userData.password);
 
         if (!isPassValid) {
@@ -284,7 +289,7 @@ const login = [
     } catch (err) {
       //throw error in json response with status 500.
       console.log("Error occurred in login : " + err);
-      return ErrorResponse(res, err);
+      return ErrorResponseWithData(res, err.message, err);
     }
   },
 ];
@@ -410,6 +415,11 @@ const qrlogin = [
               return unauthorizedResponse(res, AuthConstants.accountNotVerified);
             }
 
+            if(userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString()){
+              console.log("user license is expired on" + userData.licenseEndDate);
+              return ErrorResponseWithData(res, `License expired please contact sales`);
+            }
+
             console.log("Forming JWT Payload");
             const jwtPayload = {
               _id: userData._id,
@@ -461,7 +471,7 @@ const qrlogin = [
     } catch (err) {
       //throw error in json response with status 500.
       console.log("Error occurred in login : " + err.message || err);
-      return ErrorResponse(res, err);
+      return ErrorResponseWithData(res, err.message, err);
     }
   },
 ];
@@ -642,6 +652,11 @@ const socialLogin = [
           return unauthorizedResponse(res, AuthConstants.accountNotVerified);
         }
 
+        if(userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString()){
+          console.log("user license is expired on" + userData.licenseEndDate);
+          return ErrorResponseWithData(res, `License expired please contact sales`);
+        }
+
         console.log("Forming JWT Payload");
         const jwtPayload = {
           _id: userData._id,
@@ -687,7 +702,7 @@ const socialLogin = [
       }
     } catch (error) {
       console.log("Error occurred in login : " + err);
-      return ErrorResponse(res, err);
+      return ErrorResponseWithData(res, err.message, err);
     }
   }
 ]

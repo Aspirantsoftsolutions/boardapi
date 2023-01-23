@@ -156,7 +156,62 @@ const sessionsByStudentId = [
         }
       ]);
       const teacherArr = (teachers.map(x => x.teacher[0] || [])).map(x => x.userId || '');
-      const sessions = await SessionModel.find({ teacherId: { $in: teacherArr } }).exec();
+      // const sessions = await SessionModel.find({ teacherId: { $in: teacherArr } }).exec();
+      const sessions = await SessionModel.aggregate([
+        {
+          '$match': {
+            'teacherId': { $in: teacherArr }
+          }
+        }, {
+          '$addFields': {
+            'updatedAt': {
+              '$dateToString': {
+                'format': '%Y-%m-%d',
+                'date': '$createdAt'
+              }
+            },
+            'createdAt': {
+              '$dateToString': {
+                'format': '%Y-%m-%d',
+                'date': '$createdAt'
+              }
+            }
+          }
+        }, {
+          '$match': {
+            '$or': [
+              {
+                'type': 'ScheduledSession',
+                'end': {
+                  '$gte': new Date().toISOString().split('T')[0]
+                }
+              }, {
+                'type': 'liveSession',
+                'createdAt': {
+                  '$gte': new Date().toISOString().split('T')[0]
+                }
+              }, {
+                'type': 'quickSession',
+                'createdAt': {
+                  '$gte': new Date().toISOString().split('T')[0]
+                }
+              }
+            ]
+          }
+        }, {
+          '$lookup': {
+            'from': 'teachers',
+            'localField': 'teacherId',
+            'foreignField': 'userId',
+            'as': 'teacher'
+          }
+        }, {
+          '$unwind': {
+            'path': '$teacher',
+            'preserveNullAndEmptyArrays': true
+          }
+        }
+      ]).exec();
       return successResponseWithData(
         res,
         SessionConstants.sessionsFetchedSuccessfully,
