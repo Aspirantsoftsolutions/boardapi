@@ -342,7 +342,7 @@ const qrlogin = [
         );
       } else {
         let { identity, device, qrCode } = req.body;
-        identity = identity.toLowerCase();
+        identity = identity ? identity.toLowerCase() : '';
         // Regular expression to check if identity is email or not
         const re =
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
