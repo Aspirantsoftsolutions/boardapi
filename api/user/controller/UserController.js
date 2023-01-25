@@ -253,7 +253,6 @@ const updateProfile = async (req, res) => {
 
 const updateProfileData = async (req, res) => {
   try {
-
     const {
       organisation,
       fullName,
@@ -267,7 +266,8 @@ const updateProfileData = async (req, res) => {
       countryCode,
       email,
       itemail,
-      username
+      username,
+      licenseEndDate
     } = req.body;
 
     let masterData = await MasterModel.findOne({
@@ -310,7 +310,8 @@ const updateProfileData = async (req, res) => {
         countryCode,
         email,
         itemail,
-        username
+        username,
+        licenseEndDate
       });
     }
     return successResponse(res, UserConstants.profileUpdateSuccessMsg);

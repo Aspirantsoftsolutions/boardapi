@@ -79,6 +79,7 @@ const login = [
         let masterData = await MasterModel.findOne({
           email: identity,
         });
+        let isLicenseExpired = false;
         if (isEmail) {
 
           if (!masterData) {
@@ -163,6 +164,13 @@ const login = [
             userData = users[0];
           }
 
+          if (masterData.role == "Teacher" || masterData.role == "Student") {
+            let school = await UserModel.findOne({ userId: userData.schoolId }).lean();
+            isLicenseExpired = (school.licenseEndDate && new Date().toISOString() > new Date(school.licenseEndDate).toISOString());
+          } else {
+            isLicenseExpired = (userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString())
+          }
+
           console.log("user has provided email : " + identity);
         } else {
           console.log("user has provided mobile : " + identity);
@@ -177,14 +185,15 @@ const login = [
           return notFoundResponse(res, AuthConstants.userNotFound);
         }
 
+        // isLicenseExpired = (userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString())
         if (userData.status === 'pending' || userData.status === 'inactive') {
           console.log("user registration status is " + userData.status);
           return ErrorResponseWithData(res, `user registration is ${userData.status}`);
         }
 
-        if(userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString()){
+        if (isLicenseExpired) {
           console.log("user license is expired on" + userData.licenseEndDate);
-          return ErrorResponseWithData(res, `License expired please contact sales`);
+          return ErrorResponseWithData(res, `License expired please renew your license`, { ...userData, isLicenseExpired: isLicenseExpired });
         }
 
         const isPassValid = await bcrypt.compare(password, userData.password);
@@ -262,6 +271,7 @@ const login = [
         jwtPayload.refreshToken = crypto.randomBytes(40).toString("hex");
         jwtPayload.isActive = userData.isActive;
         jwtPayload.user = userData;
+        jwtPayload.isLicenseExpired = isLicenseExpired;
 
         const refreshToken = new RefreshToken({
           user: userData._id,
@@ -358,6 +368,8 @@ const qrlogin = [
           const query = { qrInfo: qrCode, status: 'true' };
           const sessionInfo = await loginSessionsModel.findOne(query);
           if (sessionInfo) {
+            let isLicenseExpired = false;
+
 
             // userData.qrCode = sessionInfo.qrInfo;
             if (!userData) {
@@ -415,10 +427,18 @@ const qrlogin = [
               return unauthorizedResponse(res, AuthConstants.accountNotVerified);
             }
 
-            if(userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString()){
-              console.log("user license is expired on" + userData.licenseEndDate);
-              return ErrorResponseWithData(res, `License expired please contact sales`);
+            if (userData.role == "Teacher" || userData.role == "Student") {
+              let school = await UserModel.findOne({ userId: userData.schoolId }).lean();
+              isLicenseExpired = (school.licenseEndDate && new Date().toISOString() > new Date(school.licenseEndDate).toISOString());
+            } else {
+              isLicenseExpired = (userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString())
             }
+
+            if (isLicenseExpired) {
+              console.log("user license is expired");
+              return ErrorResponseWithData(res, `License expired please renew your license`, { ...userData, isLicenseExpired: isLicenseExpired });
+            }
+
 
             console.log("Forming JWT Payload");
             const jwtPayload = {
@@ -438,6 +458,7 @@ const qrlogin = [
             jwtPayload.refreshToken = crypto.randomBytes(40).toString("hex");
             jwtPayload.isActive = userData.isActive;
             jwtPayload.user = userData;
+            jwtPayload.isLicenseExpired = isLicenseExpired;
 
             const refreshToken = new RefreshToken({
               user: userData._id,
@@ -502,6 +523,7 @@ const socialLogin = [
           /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         const isEmail = re.test(String(identity).toLowerCase());
         let userData = {};
+        let isLicenseExpired = false;
 
         if (isEmail) {
           let masterData = await MasterModel.findOne({
@@ -603,6 +625,13 @@ const socialLogin = [
           return notFoundResponse(res, AuthConstants.userNotFound);
         }
 
+        if (masterData.role == "Teacher" || masterData.role == "Student") {
+          let school = await UserModel.findOne({ userId: userData.schoolId }).lean();
+          isLicenseExpired = (school.licenseEndDate && new Date().toISOString() > new Date(school.licenseEndDate).toISOString());
+        } else {
+          isLicenseExpired = (userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString())
+        }
+
         if (!userData.isConfirmed) {
           console.log("User account is not verified");
           // Unauthorized (401) as account is not confirmed. User cannot login.
@@ -652,9 +681,9 @@ const socialLogin = [
           return unauthorizedResponse(res, AuthConstants.accountNotVerified);
         }
 
-        if(userData.licenseEndDate && new Date().toISOString() > new Date(userData.licenseEndDate).toISOString()){
+        if (isLicenseExpired) {
           console.log("user license is expired on" + userData.licenseEndDate);
-          return ErrorResponseWithData(res, `License expired please contact sales`);
+          return ErrorResponseWithData(res, `License expired please renew your license`, { ...userData, isLicenseExpired: isLicenseExpired });
         }
 
         console.log("Forming JWT Payload");
@@ -675,6 +704,7 @@ const socialLogin = [
         jwtPayload.refreshToken = crypto.randomBytes(40).toString("hex");
         jwtPayload.isActive = userData.isActive;
         jwtPayload.user = userData;
+        jwtPayload.isLicenseExpired = isLicenseExpired;
 
         const refreshToken = new RefreshToken({
           user: userData._id,
@@ -715,7 +745,7 @@ async function getIdentity(identity) {
   });
 
   if (!masterData) {
-    return notFoundResponse(res, AuthConstants.userNotFound);
+    throw new Error(AuthConstants.userNotFound);
   }
   if (masterData.role == "Teacher") {
     let users = await TeacherModel.aggregate([
@@ -1055,7 +1085,13 @@ const register = [
           createData.status = status;
           createData.isConfirmed = true;
           createData.schoolId = schoolId ? schoolId : '';
-
+          const date = new Date();
+          createData.licenseStartDate = date.toISOString();
+          if (createData.role === 'Individual' || createData.plan === 'Basic' || createData.plan === 'Free') {
+            createData.licenseEndDate = new Date(new Date().setDate(date.getDate() + 14)).toISOString();
+          } else if (createData.role !== 'Individual' && (createData.plan === 'Enterprise' || createData.plan === 'Premium')) {
+            createData.licenseEndDate = new Date(new Date().setFullYear(date.getFullYear() + 1)).toISOString();
+          }
           console.log("createData : " + createData.username);
           console.log(createData.email);
           console.log(createData.mobile);
@@ -1259,6 +1295,13 @@ const socialRegister = [
           createData.status = status;
           createData.isConfirmed = true;
           createData.schoolId = schoolId ? schoolId : '';
+          const date = new Date();
+          createData.licenseStartDate = date.toISOString();
+          if (createData.role === 'Individual' || createData.plan === 'Basic' || createData.plan === 'Free') {
+            createData.licenseEndDate = new Date(new Date().setDate(date.getDate() + 14)).toISOString();
+          } else if (createData.role !== 'Individual' && (createData.plan === 'Enterprise' || createData.plan === 'Premium')) {
+            createData.licenseEndDate = new Date(new Date().setFullYear(date.getFullYear() + 1)).toISOString();
+          }
 
           console.log("createData : " + createData.username);
           console.log(createData.email);

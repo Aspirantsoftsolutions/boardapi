@@ -248,6 +248,14 @@ var UserSchema = new mongoose.Schema(
     isQRloginEnable: {
       type: Boolean,
       default: false
+    },
+    licenseStartDate:{
+      type: Date,
+      required: true
+    },
+    licenseEndDate:{
+      type: Date,
+      required: true
     }
   },
   { timestamps: true }
