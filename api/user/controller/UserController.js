@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import mailer from "../../utils/sendEmail.js";
 import mongoose from "mongoose";
 import inviteSchema from "../model/InviteModel.js";
+import PlansSchema from "../model/Plans.model.js";
+
 /**
  * @description API Response Utility functions
  * @param {Function} successResponse - Success Response with message
@@ -33,7 +35,7 @@ const { body, validationResult } = validator;
  * @description User Constants
  * @param UserConstants
  */
-import { UserConstants } from "../const.js";
+import { UserConstants, allFeatures } from "../const.js";
 
 import UserReferrals from "../model/UserReferrals.js";
 import TeacherModel from "../model/TeacherModel.js";
@@ -297,6 +299,13 @@ const updateProfileData = async (req, res) => {
         organisation: organisation
       });
     } else {
+
+      const preConfPlans = await PlansSchema.findOne({ type: 'master' }).lean();
+      const basicFeatures = {};
+      preConfPlans.plans[plan.toLowerCase()].forEach(feature => {
+        basicFeatures[allFeatures[feature]] = true;
+      });
+
       await UserModel.updateMany({
         userId: userId
       }, {
@@ -311,7 +320,8 @@ const updateProfileData = async (req, res) => {
         email,
         itemail,
         username,
-        licenseEndDate
+        licenseEndDate,
+        ...basicFeatures
       });
     }
     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
@@ -549,6 +559,7 @@ const updateSubscriptionType = async (req, res) => {
     let masterData = await MasterModel.findOne({
       userId: userId
     });
+
     if (masterData.role == 'Teacher') {
       await TeacherModel.updateOne({
         userId: userId
@@ -562,37 +573,22 @@ const updateSubscriptionType = async (req, res) => {
         plan: plan
       });
     } else {
-      if (masterData.role === 'Individual' && ['Basic', 'Premium', 'Enterprise'].includes(plan)) {
-        await MasterModel.updateOne({
-          userId: userId,
-          role: 'Individual'
-        }, { $set: { role: 'School' } });
-        await UserModel.updateOne({
-          userId: userId
-        }, {
-          plan: plan,
-          role: 'School'
-        });
-      }
+      const preConfPans = await PlansSchema.findOne({ type: 'master' }).lean();
+      const basicFeatures = {};
+      preConfPans.plans[plan.toLowerCase()].forEach(feature => {
+        basicFeatures[allFeatures[feature]] = true;
+      });
+      await MasterModel.updateOne({
+        userId: userId,
+        role: 'Individual'
+      }, { $set: { role: 'School' } });
+
       await UserModel.updateOne({
         userId: userId
       }, {
-        plan: plan
-      });
-      await UserModel.updateOne({
-        schoolId: userId
-      }, {
-        plan: plan
-      });
-      await StudentModel.updateOne({
-        schoolId: userId
-      }, {
-        plan: plan
-      });
-      await TeacherModel.updateOne({
-        schoolId: userId
-      }, {
-        plan: plan
+        plan: plan,
+        role: 'School',
+        ...basicFeatures
       });
     }
 
@@ -600,7 +596,7 @@ const updateSubscriptionType = async (req, res) => {
 
   } catch (err) {
     console.log(err);
-    return ErrorResponse(res, UserConstants.profileUpdateError);
+    return ErrorResponseWithData(res, UserConstants.profileUpdateError, err);
   }
 };
 
@@ -1199,21 +1195,20 @@ const getCounts = async (req, res) => {
     if (usersRole.role === 'Admin') {
 
       counts.studentsCount = await StudentModel.find().count();
-      counts.schoolsActiveCount = await StudentModel.find({ status: 'active' }).count();
       counts.studentsInActiveCount = await StudentModel.find({ status: 'inactive' }).count();
       // var teachers = await TeacherModel.count();
       counts.adminsCount = await UserModel.find({ role: 'Admin' }).count();
       counts.teachersCount = await TeacherModel.find({}).count();
       counts.teachersActiveCount = await TeacherModel.find({ status: 'active' }).count();
       counts.teachersInActiveCount = await TeacherModel.find({ status: 'inactive' }).count();
-      counts.schoolsCount = await MasterModel.find({ role: { $in: ['School', 'Teacher', 'Student'] } }).count();
+      counts.schoolsCount = await UserModel.find({ role: { $in: ['School','Individual'] } }).count();
       counts.schoolsActiveCount = await UserModel.find({ role: 'School', status: 'active' }).count();
       counts.schoolsInActiveCount = await UserModel.find({ role: 'School', status: 'inactive' }).count();
-      counts.schoolsFreeCount = await UserModel.find({ role: 'School', plan: 'Free' }).count();
+      counts.schoolsFreeCount = await UserModel.find({ role: 'School', plan: 'Basic' }).count();
       counts.schoolsPaidCount = await UserModel.find({ role: 'School', plan: 'paid' }).count();
       counts.Enterprise = await UserModel.find({ role: 'School', plan: 'Enterprise' }).count();
       counts.Premium = await UserModel.find({ role: 'School', plan: 'Premium' }).count();
-      counts.Basic = await UserModel.find({ role: 'Individual', plan: 'Free' }).count();
+      counts.Basic = await UserModel.find({ plan: 'Basic' }).count();
       counts.individualsCount = await UserModel.find({ role: 'Individual', }).count();
     } else if (usersRole.role === 'Teacher') {
       counts.quickSession = await SessionModel.find({ teacherId: userid, type: 'quickSession' }).count();

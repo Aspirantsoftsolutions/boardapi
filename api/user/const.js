@@ -14,4 +14,29 @@ const UserConstants = {
   createdSuccess: "Created Successfully",
 };
 
-export { UserConstants };
+const allFeatures = {
+  "Geogebra": "isGeoGebraEnable",
+  "Creative tools": "isCreativeToolsEnable",
+  "Background": "isNewPageEnable",
+  "Save .SB File": "isSaveSBEnable",
+  "Import": "isImportEnable",
+  "Background": "isBackgroundEnable",
+  "Handwriting": "isHandWritingEnable",
+  "Immersive reader": "isImmersiveReaderEnable",
+  "Google drive": "isGoogleDriveEnable",
+  "one drive": "isOneDriveEnable",
+  "screenshot": "isScreenshotEnable",
+  "recording": "isRecordingEnable",
+  "QR code": "isQRCodeEnable",
+  "participate mode": "isParticipateModeEnable",
+  "export pdf": "isExportpdfEnable",
+  "Magic draw": "isMagicDrawEnable",
+  "Session interaction": "isSessionInteractionEnable",
+  "Student attendance": "isStudentAttendanceEnable",
+  "SSO integration": "isSSOIntegrationEnable",
+  "Device management": "isDeviceManagementEnable",
+  "QR login": "isQRloginEnable",
+  "PHET": "isPhetEnable"
+}
+
+export { UserConstants, allFeatures };

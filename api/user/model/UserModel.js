@@ -184,27 +184,27 @@ var UserSchema = new mongoose.Schema(
     },
     isGeoGebraEnable: {
       type: Boolean,
-      default: false
+      default: true
     },
     isCreativeToolsEnable: {
       type: Boolean,
-      default: false
+      default: true
     },
     isNewPageEnable: {
       type: Boolean,
-      default: false
+      default: true
     },
     isBackgroundEnable: {
       type: Boolean,
-      default: false
+      default: true
     },
     isSaveSBEnable: {
       type: Boolean,
-      default: false
+      default: true
     },
     isImportEnable: {
       type: Boolean,
-      default: false
+      default: true
     },
     isScreenshotEnable: {
       type: Boolean,
@@ -249,11 +249,11 @@ var UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    licenseStartDate:{
+    licenseStartDate: {
       type: Date,
       required: true
     },
-    licenseEndDate:{
+    licenseEndDate: {
       type: Date,
       required: true
     }
