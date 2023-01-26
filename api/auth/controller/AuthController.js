@@ -1,5 +1,8 @@
 import validator from "express-validator";
 const { body, validationResult } = validator;
+import PlansSchema from "../../user/model/Plans.model.js";
+import { UserConstants, allFeatures } from "../../user/const.js";
+
 import {
   successResponse,
   successResponseWithData,
@@ -1097,10 +1100,16 @@ const register = [
           console.log(createData.mobile);
           console.log(createData.countryCode);
 
+          const preConfPlans = await PlansSchema.findOne({ type: 'master' }).lean();
+          const basicFeatures = {};
+          preConfPlans.plans[plan.toLowerCase()].forEach(feature => {
+            basicFeatures[allFeatures[feature]] = true;
+          });
+
           //const message = `<#> ${otp} ` + AuthConstants.otpMessage;
           //await AWS_SNS.sendSMS(message, countryCode+mobile);
           try {
-            const userData = await UserModel.create(createData);
+            const userData = await UserModel.create({ ...createData, ...basicFeatures });
 
             console.log("userData : " + userData);
             let userResponse = {};
