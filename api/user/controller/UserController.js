@@ -1201,7 +1201,7 @@ const getCounts = async (req, res) => {
       counts.teachersCount = await TeacherModel.find({}).count();
       counts.teachersActiveCount = await TeacherModel.find({ status: 'active' }).count();
       counts.teachersInActiveCount = await TeacherModel.find({ status: 'inactive' }).count();
-      counts.schoolsCount = await UserModel.find({ role: { $in: ['School','Individual'] } }).count();
+      counts.schoolsCount = await UserModel.find({ role: { $in: ['School', 'Individual'] } }).count();
       counts.schoolsActiveCount = await UserModel.find({ role: 'School', status: 'active' }).count();
       counts.schoolsInActiveCount = await UserModel.find({ role: 'School', status: 'inactive' }).count();
       counts.schoolsFreeCount = await UserModel.find({ role: 'School', plan: 'Basic' }).count();
@@ -1210,6 +1210,7 @@ const getCounts = async (req, res) => {
       counts.Premium = await UserModel.find({ role: 'School', plan: 'Premium' }).count();
       counts.Basic = await UserModel.find({ plan: 'Basic' }).count();
       counts.individualsCount = await UserModel.find({ role: 'Individual', }).count();
+      counts.invitesCount = await InviteModel.count();
     } else if (usersRole.role === 'Teacher') {
       counts.quickSession = await SessionModel.find({ teacherId: userid, type: 'quickSession' }).count();
       counts.liveSession = await SessionModel.find({ teacherId: userid, type: 'liveSession' }).count();
@@ -1352,6 +1353,45 @@ const preferences = [
   }
 ]
 
+
+const updateBulkRoles = [
+  body('role').notEmpty().isString(),
+  body('users').notEmpty().isArray(),
+  async (req, res) => {
+    try {
+      console.log(req.body);
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return validationErrorWithData(
+          res,
+          'Validation error',
+          errors.array()
+        );
+      } else {
+        const { users, role } = req.body;
+        users.forEach(async (user) => {
+          delete user._id;
+          if (role === 'Teacher') {
+            user.classes ? delete user.classes : null;
+            user.teachers ? delete user.teachers : null;
+            await TeacherModel.create({ ...user, role: role });
+            await StudentModel.deleteOne({ email: user.email });
+          } else if (role === 'Student') {
+            user.teachers ? delete user.teachers : null;
+            user.classes ? delete user.classes : null;
+            await StudentModel.create({ ...user, role: role });
+            await TeacherModel.deleteOne({ email: user.email });
+          }
+          await MasterModel.updateOne({ email: user.email }, { role: role });
+        });
+        return successResponseWithData(res, 'SuccessFully updated', {});
+      }
+    } catch (error) {
+      return ErrorResponseWithData(res, error.message, error);
+    }
+  }
+]
+
 export default {
   sendReferral,
   fetchReferrals,
@@ -1385,5 +1425,6 @@ export default {
   linkTeacherToStudent,
   linkTeacherToClass,
   InviteList,
-  preferences
+  preferences,
+  updateBulkRoles
 };

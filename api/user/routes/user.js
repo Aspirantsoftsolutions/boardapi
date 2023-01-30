@@ -62,6 +62,7 @@ userRouter.put("/linkTeachers", UserController.linkTeacherToStudent);
 userRouter.put("/linkClasses", UserController.linkTeacherToClass);
 userRouter.get("/invites", UserController.InviteList);
 userRouter.post("/preferences/:id", UserController.preferences);
+userRouter.post("/updateBulkRoles", UserController.updateBulkRoles);
 
 
 // userRouter.post("/createMasterData", UserController.createClass);
