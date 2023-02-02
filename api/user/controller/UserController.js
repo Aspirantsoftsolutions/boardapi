@@ -306,7 +306,7 @@ const updateProfileData = async (req, res) => {
         basicFeatures[allFeatures[feature]] = true;
       });
 
-      await UserModel.updateMany({
+      await UserModel.updateOne({
         userId: userId
       }, {
         plan,
