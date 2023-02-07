@@ -8,7 +8,8 @@ const schema = new Schema({
     },
     info: {
         type: Schema.Types.Mixed
-    }
+    },
+    schoolId: { type: String }
 }, { timestamps: true });
 
 export default mongoose.model('activity', schema);

@@ -1,7 +1,8 @@
 import activityModel from "../auth/model/activityModel.js";
 import paymentModel from "../payment/payment.model.js";
 import UserModel from "../user/model/UserModel.js";
-import { successResponseWithData } from "../utils/apiResponse.js";
+import { ErrorResponseWithData, successResponseWithData, validationErrorWithData } from "../utils/apiResponse.js";
+import validator, { param,validationResult } from "express-validator";
 
 const adminAnalytics = [
     async (req, res) => {
@@ -127,85 +128,104 @@ const adminAnalytics = [
 ];
 
 const schoolActivity = [
+    param("userId").not().isEmpty().isLength({ min: 12 }),
     async (req, res) => {
-        const resp = await activityModel.aggregate([
-            {
-                '$facet': {
-                    'Teachers': [
-                        {
-                            '$match': {
-                                'activityType': 'login',
-                                'info.role': 'Teacher'
-                            }
-                        }, {
-                            '$group': {
-                                '_id': {
-                                    '$dateToString': {
-                                        'date': '$createdAt',
-                                        'format': '%Y-%m-%d'
+        try {
+            console.log(req.body);
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return validationErrorWithData(
+                    res,
+                    'Validation error',
+                    errors.array()
+                );
+            } else {
+                const resp = await activityModel.aggregate([
+                    {
+                        '$facet': {
+                            'Teachers': [
+                                {
+                                    '$match': {
+                                        'activityType': 'login',
+                                        'info.role': 'Teacher',
+                                        'schoolId': req.params.userId
                                     }
-                                },
-                                'amount': {
-                                    '$sum': 1
-                                }
-                            }
-                        }, {
-                            '$sort': {
-                                '_id': -1
-                            }
-                        }, { '$limit': 15 }
-                    ],
-                    'Students': [
-                        {
-                            '$match': {
-                                'activityType': 'login',
-                                'info.role': 'Student'
-                            }
-                        }, {
-                            '$group': {
-                                '_id': {
-                                    '$dateToString': {
-                                        'date': '$createdAt',
-                                        'format': '%Y-%m-%d'
+                                }, {
+                                    '$group': {
+                                        '_id': {
+                                            '$dateToString': {
+                                                'date': '$createdAt',
+                                                'format': '%Y-%m-%d'
+                                            }
+                                        },
+                                        'amount': {
+                                            '$sum': 1
+                                        }
                                     }
-                                },
-                                'amount': {
-                                    '$sum': 1
-                                }
-                            }
-                        }, {
-                            '$sort': {
-                                '_id': -1
-                            }
-                        }, { '$limit': 15 }
-                    ],
-                    'signup': [
-                        {
-                            '$match': {
-                                'activityType': 'signup'
-                            }
-                        }, {
-                            '$group': {
-                                '_id': {
-                                    '$dateToString': {
-                                        'date': '$createdAt',
-                                        'format': '%Y-%m-%d'
+                                }, {
+                                    '$sort': {
+                                        '_id': -1
                                     }
-                                },
-                                'amount': {
-                                    '$sum': 1
-                                }
-                            }
-                        }, {
-                            '$sort': {
-                                '_id': -1
-                            }
-                        }, { '$limit': 15 }
-                    ]
-                }
+                                }, { '$limit': 15 }
+                            ],
+                            'Students': [
+                                {
+                                    '$match': {
+                                        'activityType': 'login',
+                                        'info.role': 'Student',
+                                        'schoolId': req.params.userId
+                                    }
+                                }, {
+                                    '$group': {
+                                        '_id': {
+                                            '$dateToString': {
+                                                'date': '$createdAt',
+                                                'format': '%Y-%m-%d'
+                                            }
+                                        },
+                                        'amount': {
+                                            '$sum': 1
+                                        }
+                                    }
+                                }, {
+                                    '$sort': {
+                                        '_id': -1
+                                    }
+                                }, { '$limit': 15 }
+                            ],
+                            'signup': [
+                                {
+                                    '$match': {
+                                        'activityType': 'signup',
+                                        'schoolId': req.params.userId
+                                    }
+                                }, {
+                                    '$group': {
+                                        '_id': {
+                                            '$dateToString': {
+                                                'date': '$createdAt',
+                                                'format': '%Y-%m-%d'
+                                            }
+                                        },
+                                        'amount': {
+                                            '$sum': 1
+                                        }
+                                    }
+                                }, {
+                                    '$sort': {
+                                        '_id': -1
+                                    }
+                                }, { '$limit': 15 }
+                            ]
+                        }
+                    }
+                ]);
+                return successResponseWithData(res, 'success', resp);
             }
-        ]);
-        return successResponseWithData(res, 'success', resp);
+
+        } catch (err) {
+            return ErrorResponseWithData(res, 'No Activity', {...err});
+        }
     }
 ];
 

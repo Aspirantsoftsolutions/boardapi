@@ -5,6 +5,6 @@ let analyticsRouter = express.Router();
 
 // analyticsRouter.get('/payments', analyticsController.adminAnalytics);
 analyticsRouter.get('/adminAnalytics', analyticsController.adminAnalytics);
-analyticsRouter.get('/schoolAnalytics', analyticsController.schoolActivity);
+analyticsRouter.get('/schoolAnalytics/:userId', analyticsController.schoolActivity);
 
 export default analyticsRouter;

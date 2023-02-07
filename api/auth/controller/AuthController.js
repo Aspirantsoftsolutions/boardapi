@@ -287,7 +287,8 @@ const login = [
 
         console.log("returning successful response to user");
         if (userData.isActive) {
-          const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'web', role: userData.role } });
+          const school = (userData.role !== 'Admin' && userData.role !== 'School') ? userData.schoolId : userData.userId;
+          const activity = await ActivityModel.create({ user: userData._id, schoolId: school, activityType: 'login', info: { type: 'web', role: userData.role } });
           const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, locale: masterData.locale, integrations: (cloud ? cloud.integrations : []) };
           return successResponseWithData(
@@ -474,7 +475,8 @@ const qrlogin = [
 
             console.log("returning successful response to user");
             if (userData.isActive) {
-              const activity = await ActivityModel.create({ user: userData._id, activityType: 'login', info: { type: 'qrlogin', device, role: userData.role } });
+              const school = (userData.role !== 'Admin' && userData.role !== 'School') ? userData.schoolId : userData.userId;
+              const activity = await ActivityModel.create({ user: userData._id, schoolId: school, activityType: 'login', info: { type: 'qrlogin', device, role: userData.role } });
               console.log("AuthController:: qrlogin:: activity:: qrlogin");
               const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
               jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
@@ -720,7 +722,8 @@ const socialLogin = [
 
         console.log("returning successful response to user");
         if (userData.isActive) {
-          const activity = await ActivityModel.create({ user: userData._id, activityType: 'socialLogin', info: { role: userData.role } });
+          const school = (userData.role !== 'Admin' && userData.role !== 'School') ? userData.schoolId : userData.userId;
+          const activity = await ActivityModel.create({ user: userData._id, schoolId: school, activityType: 'socialLogin', info: { role: userData.role } });
           console.log("AuthController:: socialLogin:: activity:: socialLogin");
           const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
@@ -1142,7 +1145,8 @@ const register = [
             }
 
             console.log("Sending response to user");
-            const activity = await ActivityModel.create({ user: userData._id, activityType: 'signup', info: { type: 'web', role } });
+            const school = (userData.role !== 'Admin' && userData.role !== 'School') ? userData.schoolId : userData.userId;
+            const activity = await ActivityModel.create({ user: userData._id, schoolId: school, activityType: 'signup', info: { type: 'web', role } });
             console.log("AuthController:: register:: activity:: signup");
             return successResponseWithData(
               res,
@@ -1353,7 +1357,8 @@ const socialRegister = [
             }
 
             console.log("Sending response to user");
-            const activity = await ActivityModel.create({ user: userData._id, activityType: 'signup', info: { type: 'web', role } });
+            const school = (userData.role !== 'Admin' && userData.role !== 'School') ? userData.schoolId : userData.userId;
+            const activity = await ActivityModel.create({ user: userData._id, schoolId: school, activityType: 'signup', info: { type: 'web', role } });
             console.log("AuthController:: register:: activity:: signup");
             return successResponseWithData(
               res,
@@ -1536,7 +1541,7 @@ const registerTeacher = [
             }
 
             console.log("Sending response to user");
-            const activity = await ActivityModel.create({ user: teacherData._id, activityType: 'signup', info: { type: 'web', role: 'Teacher' } });
+            const activity = await ActivityModel.create({ user: teacherData._id, schoolId: teacherData.schoolId, activityType: 'signup', info: { type: 'web', role: 'Teacher' } });
             console.log("AuthController:: registerTeacher:: activity:: signup");
             return successResponseWithData(
               res,
@@ -1769,7 +1774,7 @@ function registerSingleTeacher(singleUser) {
         }
 
         console.log("Sending response to user");
-        const activity = await ActivityModel.create({ user: teacherData._id, activityType: 'signup', info: { type: 'web', role: 'Teacher' } });
+        const activity = await ActivityModel.create({ user: teacherData._id, schoolId: teacherData.schoolId, activityType: 'signup', info: { type: 'web', role: 'Teacher' } });
         console.log("AuthController:: registerTeacher:: activity:: signup");
         resolve({ message: AuthConstants.registrationSuccessMsg, email: singleUser.email });
       } catch (err) {
@@ -1953,7 +1958,7 @@ const registerStudent = [
             }
 
             console.log("Sending response to user");
-            const activity = await ActivityModel.create({ user: studentData._id, activityType: 'signup', info: { type: 'web', role: 'Student' } });
+            const activity = await ActivityModel.create({ user: studentData._id, schoolId: studentData.schoolId, activityType: 'signup', info: { type: 'web', role: 'Student' } });
             console.log("AuthController:: registerTeacher:: activity:: signup");
             return successResponseWithData(
               res,
@@ -2193,7 +2198,7 @@ function registerSingleStudent(student) {
           createMasterData.email = studentData.email;
           createMasterData.role = "Student";
           await MasterModel.create(createMasterData);
-          const activity = await ActivityModel.create({ user: studentData._id, activityType: 'signup', info: { type: 'web', role: 'Student' } });
+          const activity = await ActivityModel.create({ user: studentData._id, schoolId: studentData.schoolId, activityType: 'signup', info: { type: 'web', role: 'Student' } });
           console.log("AuthController:: register:: activity:: signup");
           userResponse = {
             userId: studentData.userId,
