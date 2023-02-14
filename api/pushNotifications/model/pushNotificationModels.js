@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const pushNotifications = mongoose.Schema({
     type: {
-        type: String, required: true, default: 'text', enum: ['text', 'audio', 'video', 'image']
+        type: String, required: true, default: 'text', enum: ['text', 'audio', 'video', 'image', 'command']
     },
     title: {
         type: String,
@@ -17,6 +17,9 @@ const pushNotifications = mongoose.Schema({
         type: String, default: ''
     },
     video: {
+        type: String, default: ''
+    },
+    command: {
         type: String, default: ''
     },
     icon: {

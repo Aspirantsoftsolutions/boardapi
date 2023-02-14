@@ -1,6 +1,7 @@
 import axios from "axios";
 import validator from "express-validator";
 import {
+    ErrorResponseWithData,
     successResponseWithData,
     validationErrorWithData,
 } from "../../utils/apiResponse.js";
@@ -19,7 +20,8 @@ const PushNotificaitonConstants = {
     command: "Command is required",
     startDate: 'Start date is required',
     endDate: 'End date is required',
-    triggerTime: 'Trigger time is required'
+    triggerTime: 'Trigger time is required',
+    pushNotificationType: 'Notification type'
 };
 
 const add = [
@@ -180,6 +182,10 @@ const schedule = [
         .not()
         .isEmpty()
         .isString(),
+    body("type", PushNotificaitonConstants.pushNotificationType)
+        .not()
+        .isEmpty()
+        .isString(),
     async (req, res) => {
         const jobId = uuidv4();
         try {
@@ -193,7 +199,7 @@ const schedule = [
             } else {
                 let deviceIds = [];
                 const totalPushNotifications = [];
-                const { data, to, deviceGroups, startDate, endDate, triggerTime } = req.body;
+                const { data, to, deviceGroups, startDate, endDate, triggerTime, type, command } = req.body;
                 if (deviceGroups) {
                     const groupIds = deviceGroups.map(group => group._id);
                     const groups = await deviceGroupsModel.find({ _id: { $in: groupIds } }).populate({
@@ -208,10 +214,18 @@ const schedule = [
                     deviceIds = deviceIds.map(device => device.deviceid);
                     to.push(...deviceIds);
                 }
-                const finalList = [...new Set(to)]
-                finalList.forEach((device) => {
-                    totalPushNotifications.push({ title: data.title, description: data.description, deviceId: device, jobId, video: data.video_url, image: data.image_url, isScheduled: true, scheduleInfo: { startDate, endDate, triggerTime }, publishNow: false });
-                });
+                const finalList = [...new Set(to)];
+
+                if (type === 'media') {
+                    finalList.forEach((device) => {
+                        totalPushNotifications.push({ title: data.title, description: data.description, deviceId: device, jobId, video: data.video_url, image: data.image_url, isScheduled: true, scheduleInfo: { startDate, endDate, triggerTime }, publishNow: false });
+                    });
+                } else if (type === 'command') {
+                    finalList.forEach((device) => {
+                        totalPushNotifications.push({ title: data.title, description: data.description, deviceId: device, jobId, 'command': command, isScheduled: true, scheduleInfo: { startDate, endDate, triggerTime }, publishNow: false });
+                    });
+                }
+
                 const docs = await pushNotificationModel.insertMany(
                     totalPushNotifications
                 );
@@ -219,7 +233,7 @@ const schedule = [
                 return successResponseWithData(res, "success", docs);
             }
         } catch (error) {
-            console.log(error);
+            return ErrorResponseWithData(res, error.message, error, 500);
         }
     },
 ];
