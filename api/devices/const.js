@@ -5,7 +5,9 @@ const deviceConstants = {
   deviceFetched: "All devices fetched",
   deviceFetchedError: "All devices not fetched",
   deviceName: 'device name is required',
-  school_id: 'school_id is required'
+  school_id: 'school_id is required',
+  status: 'status is required',
+  version: 'version is required'
 };
 
 export default deviceConstants;

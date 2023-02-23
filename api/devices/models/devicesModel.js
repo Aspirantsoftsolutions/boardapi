@@ -8,7 +8,9 @@ var devicesModel = new mongoose.Schema(
         deviceName: { type: String },
         command: { type: String },
         deviceUserName: { type: String },
-        devicePass: { type: String }
+        devicePass: { type: String },
+        status:{ type: String },
+        version:{ type: String },
     },
     {
         timestamps: true,

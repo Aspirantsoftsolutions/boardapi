@@ -267,6 +267,7 @@ const runScheduler = [
             return successResponseWithData(res, 'success', pushyResult);
         } catch (error) {
             console.log(error);
+            return ErrorResponseWithData(res, 'something bad happened', error, 500);
         }
     }
 ];

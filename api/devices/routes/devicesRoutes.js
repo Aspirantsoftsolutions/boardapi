@@ -22,12 +22,15 @@ deviceRouter.post("/groups", deviceController.createDeviceGroup);
 deviceRouter.get("/groups/:schoolId", deviceController.fetchDeviceGroups);
 deviceRouter.delete("/group/:deviceId", deviceController.deleteDeviceFromGroup);
 deviceRouter.delete("/groups/:groupId", deviceController.deleteDeviceGroup);
+deviceRouter.post("/pollStatus", deviceController.pollDeviceStatus);
+deviceRouter.get("/checkDeviceStatusScheduler", deviceController.deviceStatusScheduler);
 deviceRouter.post("/", deviceController.createDevice);
 deviceRouter.get("/", deviceController.getDevices);
 deviceRouter.get("/:id", deviceController.getDevicesByID);
 deviceRouter.delete("/:id", deviceController.deleteDevice);
 deviceRouter.post("/:id", deviceController.updateDevice);
 deviceRouter.post("/command/:id", deviceController.command);
+deviceRouter.get("/:schoolId/:deviceId", deviceController.getSingleDevicesByID);
 deviceRouter.get("/:schoolId/:deviceId", deviceController.getSingleDevicesByID);
 // deviceRouter.get("/:type", deviceController.fetchReport);
 /**

@@ -64,6 +64,10 @@ const getDevicesByID = [
     param("id").not().isEmpty().isLength({ min: 12 }),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const devices = await devicesModel.find({ school_id: req.params.id });
             return successResponseWithData(res, 'success', devices);
         } catch (error) {
@@ -77,6 +81,10 @@ const getSingleDevicesByID = [
     param("deviceId").not().isEmpty().isLength({ min: 12 }),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const devices = await devicesModel.find({ school_id: req.params.schoolId, deviceid: req.params.deviceId });
             return successResponseWithData(res, 'success', devices);
         } catch (error) {
@@ -89,6 +97,10 @@ const deleteDevice = [
     param("id").not().isEmpty().isLength({ min: 12 }),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             console.log(req.params.id);
             const device = await devicesModel.deleteOne({ _id: req.params.id });
             return successResponseWithData(res, 'success', device);
@@ -106,6 +118,10 @@ const updateDevice = [
     body("devicePass").notEmpty().isLength({ min: 12 }),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const device = await devicesModel.updateOne({ _id: req.params.id }, { deviceName: req.body.deviceName, deviceUserName: req.body.deviceUserName, devicePass: req.body.devicePass });
             return successResponseWithData(res, 'success', device);
         } catch (error) {
@@ -120,6 +136,10 @@ const command = [
     body('command').notEmpty().isString(),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const device = await devicesModel.updateOne({ _id: req.params.id }, { $set: { command: req.body.command } });
             return successResponseWithData(res, 'success', device);
         } catch (error) {
@@ -135,6 +155,10 @@ const createDeviceGroup = [
     body('devices').notEmpty().isArray(),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const device = await deviceGroupsModel.create({ groupName: req.body.groupName, devicesList: req.body.devices, school_id: req.body.school_id });
             return successResponseWithData(res, 'group created successfully', device);
         } catch (error) {
@@ -148,6 +172,10 @@ const fetchDeviceGroups = [
     param("schoolId").notEmpty().isLength({ min: 12 }),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const devices = await deviceGroupsModel.find({ school_id: req.params.schoolId }).populate({
                 path: 'devicesList',
                 model: 'devices'
@@ -165,6 +193,10 @@ const deleteDeviceFromGroup = [
     body('deviceId').notEmpty().isString().trim().withMessage(groupConstants.deviceId),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const resp = await deviceGroupsModel.updateOne({ _id: req.params.groupId }, { $pull: { devicesList: req.body.deviceId } }).lean();
             return successResponseWithData(res, 'deleted group member successfully', resp);
         } catch (error) {
@@ -178,6 +210,10 @@ const deleteDeviceGroup = [
     param('groupId').notEmpty().isString().trim().withMessage(groupConstants.group_id),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const resp = await deviceGroupsModel.deleteOne({ _id: req.params.groupId });
             return successResponseWithData(res, 'deleted group member successfully', resp);
         } catch (error) {
@@ -193,8 +229,66 @@ const saveBulkCreds = [
     body('password').notEmpty().isString().trim().withMessage('password for devices is required'),
     async (req, res) => {
         try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
             const resp = await devicesModel.updateMany({ _id: { $in: req.body.devices.map(x => mongoose.Types.ObjectId(x)) } }, { deviceUserName: req.body.userName, devicePass: req.body.password });
             return successResponseWithData(res, 'upadted successfully', resp);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponseWithData(res, 'something bad happened', error, 500);
+        }
+    }
+]
+
+const pollDeviceStatus = [
+    body("deviceid")
+        .not()
+        .isEmpty()
+        .isString()
+        .isLength({ min: 5 })
+        .trim()
+        .withMessage(deviceConstants.deviceTypeError),
+    body("ip")
+        .optional()
+        .isString()
+        .isLength({ min: 7 })
+        .withMessage(deviceConstants.ipNotProvided),
+    body("status")
+        .not()
+        .isEmpty()
+        .isString()
+        .isLength({ min: 2 })
+        .withMessage(deviceConstants.status),
+    body("version")
+        .optional()
+        .isString()
+        .isLength({ min: 2 })
+        .withMessage(deviceConstants.version),
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+            }
+            const payload = { ...req.body };
+            delete payload.deviceid;
+            const resp = await devicesModel.updateOne({ 'deviceid': req.body.deviceid }, payload);
+            return successResponseWithData(res, 'upadted successfully', resp);
+        } catch (error) {
+            console.log(error);
+            return ErrorResponseWithData(res, 'something bad happened', error, 500);
+        }
+    }
+]
+
+const deviceStatusScheduler = [
+    async (req, res) => {
+        try {
+            const query = { "updatedAt": { $lt: new Date(Date.now() - 15 * 1000) } }
+            const staleRecords = await devicesModel.updateMany(query, { status: 'offline' });
+            return successResponseWithData(res, 'upadted successfully', staleRecords);
         } catch (error) {
             console.log(error);
             return ErrorResponseWithData(res, 'something bad happened', error, 500);
@@ -214,5 +308,7 @@ export default {
     deleteDeviceFromGroup,
     getSingleDevicesByID,
     deleteDeviceGroup,
-    saveBulkCreds
+    saveBulkCreds,
+    pollDeviceStatus,
+    deviceStatusScheduler
 };
