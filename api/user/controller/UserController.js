@@ -483,7 +483,6 @@ const updateThidPartyFeatures = async (req, res) => {
   }
 };
 
-
 const updateUser = async (req, res) => {
   try {
     const { classId, userId } = req.body;
@@ -1392,6 +1391,107 @@ const updateBulkRoles = [
   }
 ]
 
+const customizeFeatures = async (req, res) => {
+  try {
+    const {
+      isGeoGebraEnable,
+      isCreativeToolsEnable,
+      isNewPageEnable,
+      isSaveSBEnable,
+      isImportEnable,
+      isBackgroundEnable,
+      isHandWritingEnable,
+      isImmersiveReaderEnable,
+      isGoogleDriveEnable,
+      isOneDriveEnable,
+      isScreenshotEnable,
+      isRecordingEnable,
+      isQRCodeEnable,
+      isParticipateModeEnable,
+      isExportpdfEnable,
+      isMagicDrawEnable,
+      isSessionInteractionEnable,
+      isStudentAttendanceEnable,
+      isSSOIntegrationEnable,
+      isDeviceManagementEnable,
+      isQRloginEnable,
+      isPhetEnable,
+      userId
+    } = req.body;
+
+    const query = {
+      isGeoGebraEnable: isGeoGebraEnable || '',
+      isCreativeToolsEnable: isCreativeToolsEnable || '',
+      isNewPageEnable: isNewPageEnable || '',
+      isSaveSBEnable: isSaveSBEnable || '',
+      isImportEnable: isImportEnable || '',
+      isBackgroundEnable: isBackgroundEnable || '',
+      isHandWritingEnable: isHandWritingEnable || '',
+      isImmersiveReaderEnable: isImmersiveReaderEnable || '',
+      isGoogleDriveEnable: isGoogleDriveEnable || '',
+      isOneDriveEnable: isOneDriveEnable || '',
+      isScreenshotEnable: isScreenshotEnable || '',
+      isRecordingEnable: isRecordingEnable || '',
+      isQRCodeEnable: isQRCodeEnable || '',
+      isParticipateModeEnable: isParticipateModeEnable || '',
+      isExportpdfEnable: isExportpdfEnable || '',
+      isMagicDrawEnable: isMagicDrawEnable || '',
+      isSessionInteractionEnable: isSessionInteractionEnable || '',
+      isStudentAttendanceEnable: isStudentAttendanceEnable || '',
+      isSSOIntegrationEnable: isSSOIntegrationEnable || '',
+      isDeviceManagementEnable: isDeviceManagementEnable || '',
+      isQRloginEnable: isQRloginEnable || '',
+      isPhetEnable: isPhetEnable || '',
+    };
+
+    const unsetQuery = {};
+    Object.keys(query).forEach(key => {
+      if (query[key] === '') {
+        unsetQuery[key] = '';
+      }
+    });
+
+
+    await UserModel.updateMany({
+      userId: userId
+    }, {
+      isGeoGebraEnable,
+      isCreativeToolsEnable,
+      isNewPageEnable,
+      isSaveSBEnable,
+      isImportEnable,
+      isBackgroundEnable,
+      isHandWritingEnable,
+      isImmersiveReaderEnable,
+      isGoogleDriveEnable,
+      isOneDriveEnable,
+      isScreenshotEnable,
+      isRecordingEnable,
+      isQRCodeEnable,
+      isParticipateModeEnable,
+      isExportpdfEnable,
+      isMagicDrawEnable,
+      isSessionInteractionEnable,
+      isStudentAttendanceEnable,
+      isSSOIntegrationEnable,
+      isDeviceManagementEnable,
+      isQRloginEnable,
+      isPhetEnable
+    });
+
+
+    await UserModel.updateMany({
+      userId: userId
+    }, { $unset: { ...unsetQuery } });
+
+    return successResponse(res, UserConstants.profileUpdateSuccessMsg);
+
+  } catch (err) {
+    console.log(err);
+    return ErrorResponse(res, UserConstants.profileUpdateError);
+  }
+};
+
 export default {
   sendReferral,
   fetchReferrals,
@@ -1426,5 +1526,6 @@ export default {
   linkTeacherToClass,
   InviteList,
   preferences,
-  updateBulkRoles
+  updateBulkRoles,
+  customizeFeatures
 };
