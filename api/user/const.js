@@ -17,7 +17,7 @@ const UserConstants = {
 const allFeatures = {
   "Geogebra": "isGeoGebraEnable",
   "Creative tools": "isCreativeToolsEnable",
-  "Background": "isNewPageEnable",
+  "New page": "isNewPageEnable",
   "Save .SB File": "isSaveSBEnable",
   "Import": "isImportEnable",
   "Background": "isBackgroundEnable",

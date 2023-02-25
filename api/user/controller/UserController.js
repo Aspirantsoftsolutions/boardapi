@@ -573,7 +573,30 @@ const updateSubscriptionType = async (req, res) => {
       });
     } else {
       const preConfPans = await PlansSchema.findOne({ type: 'master' }).lean();
-      const basicFeatures = {};
+      const basicFeatures = {
+        isGeoGebraEnable: false,
+        isCreativeToolsEnable: false,
+        isNewPageEnable: false,
+        isSaveSBEnable: false,
+        isImportEnable: false,
+        isBackgroundEnable: false,
+        isHandWritingEnable: false,
+        isImmersiveReaderEnable: false,
+        isGoogleDriveEnable: false,
+        isOneDriveEnable: false,
+        isScreenshotEnable: false,
+        isRecordingEnable: false,
+        isQRCodeEnable: false,
+        isParticipateModeEnable: false,
+        isExportpdfEnable: false,
+        isMagicDrawEnable: false,
+        isSessionInteractionEnable: false,
+        isStudentAttendanceEnable: false,
+        isSSOIntegrationEnable: false,
+        isDeviceManagementEnable: false,
+        isQRloginEnable: false,
+        isPhetEnable: false
+      };
       preConfPans.plans[plan.toLowerCase()].forEach(feature => {
         basicFeatures[allFeatures[feature]] = true;
       });
@@ -1207,7 +1230,7 @@ const getCounts = async (req, res) => {
       counts.schoolsPaidCount = await UserModel.find({ role: 'School', plan: 'paid' }).count();
       counts.Enterprise = await UserModel.find({ role: 'School', plan: 'Enterprise' }).count();
       counts.Premium = await UserModel.find({ role: 'School', plan: 'Premium' }).count();
-      counts.Basic = await UserModel.find({ plan: 'Basic' }).count();
+      counts.Basic = await UserModel.find({ plan: 'Basic', role: 'School' }).count();
       counts.individualsCount = await UserModel.find({ role: 'Individual', }).count();
       counts.invitesCount = await InviteModel.count();
     } else if (usersRole.role === 'Teacher') {
