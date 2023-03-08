@@ -272,8 +272,9 @@ const pollDeviceStatus = [
             if (!errors.isEmpty()) {
                 return res.status(400).json({ errors: errors.array() });
             }
-            const payload = { ...req.body };
+            let payload = { ...req.body };
             delete payload.deviceid;
+            payload.status = payload.hasOwnProperty('status') ? payload.status.toLowerCase() : '';
             const resp = await devicesModel.updateOne({ 'deviceid': req.body.deviceid }, payload);
             return successResponseWithData(res, 'upadted successfully', resp);
         } catch (error) {
