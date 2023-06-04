@@ -256,6 +256,10 @@ var UserSchema = new mongoose.Schema(
     licenseEndDate: {
       type: Date,
       required: true
+    },
+    isLoggedIn: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

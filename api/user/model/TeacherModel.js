@@ -178,6 +178,10 @@ var TeacherSchema = new mongoose.Schema(
     shortId: {
       type: String,
       default: makeid
+    },
+    isLoggedIn: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

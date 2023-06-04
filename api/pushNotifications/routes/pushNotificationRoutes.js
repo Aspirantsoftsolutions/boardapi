@@ -19,6 +19,8 @@ import pushNotificationsController from '../controller/pushNotificationControlle
 let pushNotificationsRouter = express.Router();
 pushNotificationsRouter.post("/add", pushNotificationsController.add);
 pushNotificationsRouter.post("/command", pushNotificationsController.command);
+pushNotificationsRouter.post("/commandByClient", pushNotificationsController.commandByClient);
+
 pushNotificationsRouter.post("/schedule", pushNotificationsController.schedule);
 pushNotificationsRouter.get("/runScheduler", pushNotificationsController.runScheduler);
 // pushNotificationsRouter.get("/:type", pushNotificationsController.fetchReport);

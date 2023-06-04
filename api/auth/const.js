@@ -23,6 +23,7 @@ const AuthConstants = {
   promoCodeValidationError: "Please enter a valid Promo Code",
   loginSuccessMsg: "Loggedin Successfully",
   loginErrorMsg: "User is Inactive, please contact admin",
+  existingloginMsg: "User is Already loggedin please logout existing session and login here",
   registrationSuccessMsg: "Registered Successfully",
   alreadyRegistered: "User already registered",
   pleaseLogin: "Please Login !",

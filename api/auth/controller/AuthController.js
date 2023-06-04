@@ -291,6 +291,24 @@ const login = [
           const activity = await ActivityModel.create({ user: userData._id, schoolId: school, activityType: 'login', info: { type: 'web', role: userData.role } });
           const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, locale: masterData.locale, integrations: (cloud ? cloud.integrations : []) };
+
+          if(userData.isLoggedIn){
+            return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
+          }
+
+          if(userData.role ==='School'){
+           let doc = await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
+          }
+    
+          if(userData.role ==='Teacher'){
+            let doc = await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
+          }
+    
+          if(userData.role ==='Student'){
+            let doc =await TeacherModel.updateOne({email: userData.email}, {isLoggedIn: true});
+          }
+
+
           return successResponseWithData(
             res,
             AuthConstants.loginSuccessMsg,
@@ -480,6 +498,23 @@ const qrlogin = [
               console.log("AuthController:: qrlogin:: activity:: qrlogin");
               const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
               jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
+
+              if(userData.isLoggedIn){
+                return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
+              }
+
+              if(userData.role ==='School'){
+                await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
+              }
+        
+              if(userData.role ==='Teacher'){
+                await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
+              }
+        
+              if(userData.role ==='Student'){
+                await TeacherModel.updateOne({email: userData.email}, {isLoggedIn: true});
+              }
+    
               return successResponseWithData(
                 res,
                 AuthConstants.loginSuccessMsg,
@@ -727,6 +762,23 @@ const socialLogin = [
           console.log("AuthController:: socialLogin:: activity:: socialLogin");
           const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
+
+          if(userData.isLoggedIn){
+            return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
+          }
+
+          if(userData.role ==='School'){
+            await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
+          }
+    
+          if(userData.role ==='Teacher'){
+            await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
+          }
+    
+          if(userData.role ==='Student'){
+            await TeacherModel.updateOne({email: userData.email}, {isLoggedIn: true});
+          }
+
           return successResponseWithData(
             res,
             AuthConstants.loginSuccessMsg,
@@ -2707,11 +2759,50 @@ const forgotPassword = [
   }
 ]
 
+
+const logout = [
+  body("identity")
+    .notEmpty()
+    .isString()
+    .trim()
+    .escape()
+    .withMessage(AuthConstants.loginIdentityRequired),
+  body("role")
+    .notEmpty()
+    .isString()
+    .trim()
+    .escape()
+    .withMessage(AuthConstants.qrInfo),
+  async (req, res) => {
+    try {
+      let userData;
+      const { identity, role } = req.body;
+
+      if(role ==='School'){
+        userData = await UserModel.findOneAndUpdate({email: identity}, {isLoggedIn: false},{new:true});
+      }
+
+      if(role ==='Teacher'){
+        userData = await UserModel.findOneAndUpdate({email: identity}, {isLoggedIn: false},{new:true});
+      }
+
+      if(role ==='Student'){
+        userData = await TeacherModel.findOneAndUpdate({email: identity}, {isLoggedIn: false},{new:true});
+      }
+        return successResponseWithData(res, 'logged out successfully', {});
+
+    } catch (error) {
+      return ErrorResponseWithData(res, 'internal server error', error, 500);
+    }
+  }
+]
+
 export default {
   login,
   socialLogin,
   qrlogin,
   qrlogout,
+  logout,
   qrSessionStatus,
   register,
   socialRegister,

@@ -15,13 +15,15 @@ const PushNotificaitonConstants = {
     title: "Notification titile is Required",
     body: "Notification body is Required",
     devices: "Device ID(s) is required and must be an array",
+    userId: "user id is required and must be an array",
     deviceGroup: "Device ID(s) is required in group and must be an array",
     validationError: "Validation Error",
     command: "Command is required",
     startDate: 'Start date is required',
     endDate: 'End date is required',
     triggerTime: 'Trigger time is required',
-    pushNotificationType: 'Notification type'
+    pushNotificationType: 'Notification type',
+    url: 'Command url is required'
 };
 
 const add = [
@@ -93,7 +95,8 @@ function sendPushNotification(notifications) {
                 description: notif.description,
                 image_url: notif.image,
                 video_url: notif.video,
-                command: notif.command
+                command: notif.command,
+                url: notif.commandURL
             },
             notification: {
                 badge: 1,
@@ -157,6 +160,44 @@ const command = [
     },
 ];
 
+const commandByClient = [
+    body("to", PushNotificaitonConstants.userId)
+        .not()
+        .isEmpty()
+        .isString({ min: 8 }),
+    body("command", PushNotificaitonConstants.command)
+        .not()
+        .isEmpty()
+        .isString(),
+    body("url", PushNotificaitonConstants.url)
+        .not()
+        .isEmpty()
+        .isString(),
+    async (req, res) => {
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return validationErrorWithData(
+                    res,
+                    PushNotificaitonConstants.validationError,
+                    errors.array()
+                );
+            } else {
+                const { command, to, url } = req.body;
+                let deviceList = await devicesModel.find({ school_id: to }, { deviceid: 1 });
+                deviceList = deviceList.map(device => device.deviceid);
+                const docs = await devicesModel.updateMany({ deviceid: { $in: deviceList } }, { $set: { command, commandURL: url } });
+                const commands = deviceList.map(x => ({ deviceId: x, command, commandURL:url }));
+                const promPushNotiArr = sendPushNotification(commands);
+                const pushyResult = await Promise.all(promPushNotiArr);
+                await setNotificationStatus(pushyResult);
+                return successResponseWithData(res, "success", pushyResult);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    },
+];
 const schedule = [
     oneOf( // <-- one of the following must exist
         [
@@ -276,6 +317,7 @@ const runScheduler = [
 export default {
     add,
     command,
+    commandByClient,
     schedule,
     runScheduler
 };
