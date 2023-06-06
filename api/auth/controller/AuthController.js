@@ -292,9 +292,10 @@ const login = [
           const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, locale: masterData.locale, integrations: (cloud ? cloud.integrations : []) };
 
-          if(userData.isLoggedIn){
-            return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
-          }
+          // uncomment below code to disable parallel login 
+          // if(userData.isLoggedIn){
+          //   return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
+          // }
 
           if(userData.role ==='School'){
            let doc = await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
@@ -499,9 +500,10 @@ const qrlogin = [
               const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
               jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
 
-              if(userData.isLoggedIn){
-                return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
-              }
+              // uncomment below code to disable parallel login 
+              // if(userData.isLoggedIn){
+              //   return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
+              // }
 
               if(userData.role ==='School'){
                 await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
@@ -763,9 +765,10 @@ const socialLogin = [
           const cloud = await cloudIntegrationsModel.findOne({ $or: [{ user: userData.userId }, { user: userData._id }] }).lean();
           jwtPayload.user = { ...jwtPayload.user, integrations: (cloud ? cloud.integrations : []) };
 
-          if(userData.isLoggedIn){
-            return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
-          }
+          // uncomment below code to disable parallel login 
+          // if(userData.isLoggedIn){
+          //   return ErrorResponseWithData(res, AuthConstants.existingloginMsg);
+          // }
 
           if(userData.role ==='School'){
             await UserModel.updateOne({email: userData.email}, {isLoggedIn: true});
