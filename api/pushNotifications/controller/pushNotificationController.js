@@ -96,7 +96,7 @@ function sendPushNotification(notifications) {
                 image_url: notif.image,
                 video_url: notif.video,
                 command: notif.command,
-                url: notif.commandURL
+                apk_url: notif.apk_url
             },
             notification: {
                 badge: 1,
@@ -187,7 +187,7 @@ const commandByClient = [
                 let deviceList = await devicesModel.find({ school_id: to }, { deviceid: 1 });
                 deviceList = deviceList.map(device => device.deviceid);
                 const docs = await devicesModel.updateMany({ deviceid: { $in: deviceList } }, { $set: { command, commandURL: url } });
-                const commands = deviceList.map(x => ({ deviceId: x, command, commandURL:url }));
+                const commands = deviceList.map(x => ({ deviceId: x, command, apk_url:url }));
                 const promPushNotiArr = sendPushNotification(commands);
                 const pushyResult = await Promise.all(promPushNotiArr);
                 await setNotificationStatus(pushyResult);
