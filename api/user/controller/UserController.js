@@ -445,6 +445,13 @@ const updateThidPartyFeatures = async (req, res) => {
       isDeviceManagementEnable,
       isQRloginEnable,
       isPhetEnable,
+      isDashboardEnable,
+      isCalendarEnable,
+      isCollaborationClassEnable,
+      isAllUsersEnable,
+      isWhiteBoardEnable,
+      isSchoolEnable,
+      isNotificationsEnable,
       userId
     } = req.body;
 
@@ -472,7 +479,14 @@ const updateThidPartyFeatures = async (req, res) => {
       isSSOIntegrationEnable,
       isDeviceManagementEnable,
       isQRloginEnable,
-      isPhetEnable
+      isPhetEnable,
+      isDashboardEnable,
+      isCalendarEnable,
+      isCollaborationClassEnable,
+      isAllUsersEnable,
+      isWhiteBoardEnable,
+      isSchoolEnable,
+      isNotificationsEnable,
     });
 
     return successResponse(res, UserConstants.profileUpdateSuccessMsg);
@@ -595,7 +609,14 @@ const updateSubscriptionType = async (req, res) => {
         isSSOIntegrationEnable: false,
         isDeviceManagementEnable: false,
         isQRloginEnable: false,
-        isPhetEnable: false
+        isPhetEnable: false,
+        isDashboardEnable: false,
+        isCalendarEnable: false,
+        isCollaborationClassEnable: false,
+        isAllUsersEnable: false,
+        isWhiteBoardEnable: false,
+        isSchoolEnable: false,
+        isNotificationsEnable: false
       };
       preConfPans.plans[plan.toLowerCase()].forEach(feature => {
         basicFeatures[allFeatures[feature]] = true;
@@ -1439,6 +1460,13 @@ const customizeFeatures = async (req, res) => {
       isDeviceManagementEnable,
       isQRloginEnable,
       isPhetEnable,
+      isDashboardEnable,
+      isCalendarEnable,
+      isCollaborationClassEnable,
+      isAllUsersEnable,
+      isWhiteBoardEnable,
+      isSchoolEnable,
+      isNotificationsEnable,
       userId
     } = req.body;
 
@@ -1465,6 +1493,13 @@ const customizeFeatures = async (req, res) => {
       isDeviceManagementEnable: isDeviceManagementEnable || '',
       isQRloginEnable: isQRloginEnable || '',
       isPhetEnable: isPhetEnable || '',
+      isDashboardEnable: isDashboardEnable || '',
+      isCalendarEnable: isCalendarEnable || '',
+      isCollaborationClassEnable: isCollaborationClassEnable || '',
+      isAllUsersEnable: isAllUsersEnable || '',
+      isWhiteBoardEnable: isWhiteBoardEnable || '',
+      isSchoolEnable: isSchoolEnable || '',
+      isNotificationsEnable: isNotificationsEnable || '',
     };
 
     const unsetQuery = {};
@@ -1499,7 +1534,14 @@ const customizeFeatures = async (req, res) => {
       isSSOIntegrationEnable,
       isDeviceManagementEnable,
       isQRloginEnable,
-      isPhetEnable
+      isPhetEnable,
+      isDashboardEnable,
+      isCalendarEnable,
+      isCollaborationClassEnable,
+      isAllUsersEnable,
+      isWhiteBoardEnable,
+      isSchoolEnable,
+      isNotificationsEnable
     });
 
 

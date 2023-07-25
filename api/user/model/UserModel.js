@@ -182,6 +182,34 @@ var UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
+    isDashboardEnable: {
+      type: Boolean,
+      default: false
+    },
+    isCalendarEnable: {
+      type: Boolean,
+      default: false
+    },
+    isCollaborationClassEnable: {
+      type: Boolean,
+      default: false
+    },
+    isAllUsersEnable: {
+      type: Boolean,
+      default: false
+    },
+    isWhiteBoardEnable: {
+      type: Boolean,
+      default: false
+    },
+    isSchoolEnable: {
+      type: Boolean,
+      default: false
+    },
+    isNotificationsEnable{
+      type: Boolean,
+      default: false
+    },
     isGeoGebraEnable: {
       type: Boolean,
       default: true
