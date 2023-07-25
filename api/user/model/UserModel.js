@@ -206,7 +206,7 @@ var UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false
     },
-    isNotificationsEnable{
+    isNotificationsEnable: {
       type: Boolean,
       default: false
     },
