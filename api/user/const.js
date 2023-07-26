@@ -36,7 +36,14 @@ const allFeatures = {
   "SSO integration": "isSSOIntegrationEnable",
   "Device management": "isDeviceManagementEnable",
   "QR login": "isQRloginEnable",
-  "PHET": "isPhetEnable"
+  "PHET": "isPhetEnable",
+  "Dashboard": "isDashboardEnable",
+  "Calendar": "isCalendarEnable",
+  "Collaboration Class": "isCollaborationClassEnable",
+  "All Users": "isAllUsersEnable",
+  "WhiteBoard": "isWhiteBoardEnable",
+  "School": "isSchoolEnable",
+  "Notifications": "isNotificationsEnable"
 }
 
 export { UserConstants, allFeatures };
